@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/x-icon" href="../static/assets/LOGO.svg">
+
+    <title>Blandon Comercial</title>
+
+    <link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap.min.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/layout.css')}}">
+    <!-- BOXICONS -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+
+<body>
+    <div class="navmenu">
+        <div class="logo-container">
+            <i class="bx logo" id="btn-menu"></i>
+            <div class="logo-name">Blandon Comercial</div>
+        </div>
+
+
+        <ul class="nav-container">
+            <li class="search">
+                <i class='bx bx-search'></i>
+                <input type="text" placeholder="Search">
+                <span class="tooltip">Search</span>
+            </li>
+
+            <li>
+                <a href="#">
+                    <i class='bx bxs-dashboard'></i>
+                    <span class="links">Dashboard</span>
+                </a>
+                <span class="tooltip">Dashboard</span>
+            </li>
+
+            <li>
+                <a href="#">
+                    <i class='bx bx-user'></i>
+                    <span class="links">Users</span>
+                </a>
+                <span class="tooltip">Users</span>
+            </li>
+
+            <li>
+                <a href="#">
+                    <i class='bx bx-conversation'></i>
+                    <span class="links">Chat</span>
+                </a>
+                <span class="tooltip">Chat</span>
+            </li>
+
+            <li>
+                <a href="#">
+                    <i class='bx bx-chart'></i>
+                    <span class="links">Stadistics</span>
+                </a>
+                <span class="tooltip">Stadistics</span>
+            </li>
+
+            <li>
+                <a href="#">
+                    <i class='bx bx-folder'></i>
+                    <span class="links">Files</span>
+                </a>
+                <span class="tooltip">Files</span>
+            </li>
+
+            <li>
+                <a href="#">
+                    <i class='bx bx-cog'></i>
+                    <span class="links">Setting</span>
+                </a>
+                <span class="tooltip">Setting</span>
+            </li>
+        </ul>
+
+
+        <div class="user">
+            <div class="user-container">
+                <div class="user-details">
+                    <div class="name">{{username}}</div>
+                </div>
+            </div>
+            <i class='bx bx-log-out-circle' id="logout"></i>
+        </div>
+    </div>
+
+    <div class="container-main">
+        {% block body %}
+        {% endblock %}
+    </div>
+
+
+    <script src="{{url_for('static', filename='js/layout.js')}}"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+        integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
+        integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
+        crossorigin="anonymous"></script>
+
+</body>
+
+
+</html>
