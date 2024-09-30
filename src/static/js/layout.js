@@ -1,4 +1,5 @@
 let navbar = document.querySelector(".navmenu");
+let logout = document.querySelector("#logout");
 let btnToggle = document.querySelector("#btn-menu");
 let search = document.querySelector(".bx-search");
 
@@ -23,3 +24,9 @@ function menuBtnChange() {
         btnToggle.classList.replace("bx-left-arrow", "bx-menu");
     }
 }
+
+//logout  ;
+logout.addEventListener("click", () => {
+    console.log('esta entrando');
+    window.location.href = '/logout';
+});

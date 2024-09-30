@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" type="image/x-icon" href="../static/assets/LOGO.svg">
+    <link rel="shortcut icon" type="image/x-icon" href="{{url_for('static', filename='assets/LOGO.svg')}}">
 
     <title>Blandon Comercial</title>
 
@@ -85,7 +85,7 @@
                     <div class="name">{{username}}</div>
                 </div>
             </div>
-            <i class='bx bx-log-out-circle' id="logout" action="/logout"></i>
+            <i class='bx bx-log-out-circle' id="logout"></i>
         </div>
     </div>
 
