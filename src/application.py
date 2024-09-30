@@ -29,7 +29,7 @@ def index():
     if 'username' in session:
         return render_template("index.html", username=session["username"])
     else:
-        return render_template("login.html", username='null')
+        return render_template("loginL.html", username='null')
 
 
 
@@ -85,7 +85,7 @@ def login():
         except Exception as e:
             return jsonify({"error": str(e)}), 500
     else:
-        return render_template("login.html")
+        return render_template("loginL.html")
 
 
 @app.route("/register", methods=["POST", "GET"])
@@ -132,14 +132,14 @@ def register():
             return jsonify({"error": str(e)}), 500
 
     else:
-        return render_template('login.html')        
+        return render_template('loginL.html')        
 
 
 @app.route("/logout")
 @login_required
 def logout():
     session.clear()
-    return redirect('/')
+    return redirect('/loginL.html')
 
 
 if __name__ == "__main__":
