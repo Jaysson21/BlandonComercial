@@ -1,15 +1,15 @@
-@import url(https://fonts.googleapis.com/css?family=Poppins:100,100italic,200,200italic,300,300italic,regular,italic,500,500italic,600,600italic,700,700italic,800,800italic,900,900italic);
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
 
 *{
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Montserrat', sans-serif;
 }
 
 :root{
-    --color-primary: #512da8;
-    --color-dark: #240e59;
+    --color-primary: #1E3E62;
+    --color-dark: #0B192C;
 }
 
 /* navmenu Y CONTENEDOR */
@@ -47,11 +47,14 @@
     z-index: 2;
 }
 
+
 .container-main h1{
     display: inline-block;
     margin: 18px;
 }
-
+.container{
+    padding-top: 5% !important;
+}
 
 /* LOGO CONTAINER */
 .logo-container{
@@ -256,12 +259,15 @@ ul{
 /* Logo container */
 .navmenu.open .logo-container .logo-name{
     opacity: 1;
+    color: #FF6500;
 }
 
 .navmenu.open .logo-container #btn-menu{
     right: 0;
     position: relative;
-    margin-right: 2px;
+    margin-right: 2px; 
+    background-image: url('../assets/LOGO2.svg'); /* Ruta del archivo SVG */
+
 }
 
 
@@ -318,4 +324,4 @@ i.logo {
     background-size: contain;
     background-repeat: no-repeat;
     vertical-align: middle; /* Alineación con el texto */
-  }
+}
