@@ -1,0 +1,19 @@
+.card {
+    margin-bottom: 20px;
+}
+
+#productList {
+    width: 100%;
+}
+
+#productList th, #productList td {
+    vertical-align: middle;
+}
+
+#noProductsRow {
+    display: none;
+}
+
+#productName, #productDescription, #editProductName, #editProductDescription {
+    max-width: 100%;
+}

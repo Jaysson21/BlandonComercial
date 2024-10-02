@@ -70,8 +70,8 @@ function updateSaleItemsTable() {
             <td data-label="Cantidad">${item.quantity}</td>
             <td data-label="Subtotal">$${((item.manualPrice !== undefined ? item.manualPrice : item.product.price) * item.quantity).toFixed(2)}</td>
             <td data-label="Acciones">
-                <button class="edit-button" data-index="${index}">Editar</button>
-                <button class="remove-button" data-index="${index}">Eliminar</button>
+                <button class="btn btn-sm btn-primary edit-button" data-index="${index}">Editar</button>
+                <button class="btn btn-sm btn-danger delete-button" data-index="${index}">Eliminar</button>
             </td>
         `;
         tbody.appendChild(tr);
