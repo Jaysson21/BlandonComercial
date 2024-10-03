@@ -1,109 +1,111 @@
 {% extends 'layout.html'%}
 {% block body %}
-        <link rel="stylesheet" href="{{url_for('static', filename='css/GestionCliente.css')}}">
-        <h1 class="text-center mb-4">Registro de Clientes</h1>
-        
-        <div class="row g-3">
-            <div class="col-12 col-lg-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="h5 mb-0">Agregar Nuevo Cliente</h2>
-                    </div>
-                    <div class="card-body">
-                        <form id="addClientForm">
-                            <div class="mb-3">
-                                <label for="clientName" class="form-label">Nombre</label>
-                                <input type="text" class="form-control" id="clientName" maxlength="100" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="clientPhone" class="form-label">Teléfono</label>
-                                <input type="tel" class="form-control" id="clientPhone" maxlength="20">
-                            </div>
-                            <div class="mb-3">
-                                <label for="clientEmail" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="clientEmail" maxlength="100">
-                            </div>
-                            <div class="mb-3">
-                                <label for="clientAddress" class="form-label">Dirección</label>
-                                <textarea class="form-control" id="clientAddress" rows="3" maxlength="255"></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100">Registrar Cliente</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-12 col-lg-8">
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="h5 mb-0">Lista de Clientes</h2>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <input type="text" class="form-control" id="searchInput" placeholder="Buscar clientes...">
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover" id="clientList">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Nombre</th>
-                                        <th>Teléfono</th>
-                                        <th>Email</th>
-                                        <th>Dirección</th>
-                                        <th>Fecha de Registro</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr id="noClientsRow">
-                                        <td colspan="7" class="text-center">No hay clientes registrados</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<link rel="stylesheet" href="{{url_for('static', filename='css/GestionCliente.css')}}">
+<div class="container">
 
-    <!-- Modal para editar cliente -->
-    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel">Editar Cliente</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <h1 class="text-center mb-4">Registro de Clientes</h1>
+
+    <div class="row g-3">
+        <div class="col-12 col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="h5 mb-0">Agregar Nuevo Cliente</h2>
                 </div>
-                <div class="modal-body">
-                    <form id="editClientForm">
+                <div class="card-body">
+                    <form id="addClientForm">
                         <div class="mb-3">
-                            <label for="editClientName" class="form-label">Nombre</label>
-                            <input type="text" class="form-control" id="editClientName" maxlength="100" required>
+                            <label for="clientName" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="clientName" maxlength="100" required>
                         </div>
                         <div class="mb-3">
-                            <label for="editClientPhone" class="form-label">Teléfono</label>
-                            <input type="tel" class="form-control" id="editClientPhone" maxlength="20">
+                            <label for="clientPhone" class="form-label">Teléfono</label>
+                            <input type="tel" class="form-control" id="clientPhone" maxlength="20">
                         </div>
                         <div class="mb-3">
-                            <label for="editClientEmail" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="editClientEmail" maxlength="100">
+                            <label for="clientEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="clientEmail" maxlength="100">
                         </div>
                         <div class="mb-3">
-                            <label for="editClientAddress" class="form-label">Dirección</label>
-                            <textarea class="form-control" id="editClientAddress" rows="3" maxlength="255"></textarea>
+                            <label for="clientAddress" class="form-label">Dirección</label>
+                            <textarea class="form-control" id="clientAddress" rows="3" maxlength="255"></textarea>
                         </div>
+                        <button type="submit" class="btn btn-primary w-100">Registrar Cliente</button>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-primary" id="saveEditButton">Guardar Cambios</button>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="h5 mb-0">Lista de Clientes</h2>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Buscar clientes...">
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover" id="clientList">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Teléfono</th>
+                                    <th>Email</th>
+                                    <th>Dirección</th>
+                                    <th>Fecha de Registro</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr id="noClientsRow">
+                                    <td colspan="7" class="text-center">No hay clientes registrados</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+</div>
+<!-- Modal para editar cliente -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Editar Cliente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editClientForm">
+                    <div class="mb-3">
+                        <label for="editClientName" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="editClientName" maxlength="100" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editClientPhone" class="form-label">Teléfono</label>
+                        <input type="tel" class="form-control" id="editClientPhone" maxlength="20">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editClientEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="editClientEmail" maxlength="100">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editClientAddress" class="form-label">Dirección</label>
+                        <textarea class="form-control" id="editClientAddress" rows="3" maxlength="255"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="saveEditButton">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-    <script src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
-    <script src="{{url_for('static', filename='js/GestionCliente.js')}}"></script>
+<script src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
+<script src="{{url_for('static', filename='js/GestionCliente.js')}}"></script>
 {% endblock %}
