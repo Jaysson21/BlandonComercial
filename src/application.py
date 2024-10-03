@@ -128,6 +128,14 @@ def GestionProductos():
     productos=ProductoModel.get_products()
     return render_template("GestionProductos.html", username=session["username"], productos=productos)
 
+@app.route("/GestionProducto")
+def GestionProducto():
+    return render_template("GestionProducto.html", username=session["username"])
+    
+@app.route("/GestionCliente")
+def GestionCliente():
+    return render_template("GestionCliente.html", username=session["username"])
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080, debug=True)
