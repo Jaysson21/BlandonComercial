@@ -1,0 +1,6 @@
+/* Estilo para el contenedor que habilita el scroll */
+.scroll-panel {
+    max-height: 90vh; /* Altura máxima del panel */
+    overflow-y: auto; /* Habilitar scroll vertical */
+    overflow-x: auto;
+}

@@ -8,21 +8,16 @@ from sqlalchemy.sql import text
 import uuid
 import requests
 
-app = Flask(__name__)
+#models
+from model.UsuarioModel import UsuarioModel 
+from model.ProductoModel import ProductoModel
 
-# Check for environment variable
-if not os.getenv("DATABASE_URL"):
-    raise RuntimeError("DATABASE_URL is not set")
+app = Flask(__name__)
 
 # Configure session to use filesystem
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
-
-# Set up database
-engine = create_engine(os.getenv("DATABASE_URL"))
-db = scoped_session(sessionmaker(bind=engine))
-
 
 @app.route("/")
 def index():
@@ -51,32 +46,20 @@ def login():
         #consulta api
         try:
             # Ejecutar el procedimiento almacenado con SQLAlchemy
-            usuario = db.execute(text(
-                "SELECT * FROM dbo.usuarios WHERE nombreusuario = '"+username+"'")).fetchall()
+            usuario = UsuarioModel.get_userbyId(username)
 
-            # Extraer los resultados
-            db.commit()
             # Verificar si se encontró algún usuario
             if usuario is None:
                 return jsonify({"error": "Usuario no encontrado"}), 404
 
-            # Formatear los resultados en un diccionario
-            user = {
-                "UsuarioID": usuario[0][0],
-                "NombreUsuario": usuario[0][1],
-                "clave": usuario[0][2],
-                "EstadoUsuario": usuario[0][3],
-                "FechaCreacion": usuario[0][4].isoformat(),  # Formatear la fecha a formato ISO
-                "correo": usuario[0][5]
-            }
             #jsonserializable
             # Ensure username exists and password is correct
-            if usuario is None or not check_password_hash(user['clave'], password):
+            if usuario is None or not check_password_hash(usuario[0][2], password):
                 flash('Contraseña Incorrecta')
                 return redirect("/login")
 
             # Remember which user has logged in
-            session["UsuarioID"] = user['UsuarioID']
+            session["UsuarioID"] = usuario[0][0]
             session["username"] = username
             #session["role_user"] = user[0]['role']
 
@@ -111,18 +94,12 @@ def register():
                 "estadoUsuario":request.form.get("estadoUsuario"),
                 "correo": request.form.get("correo")
                 }
-        print('entra')
+        
         #envio de datos a la api
         try:
-            # Ejecutar el procedimiento almacenado para crear un usuario
-            db.execute(
-                text("CALL dbo.CrearUsuario(:nombre_usuario, :clave, :estado_usuario, :correo)"),
-                {'nombre_usuario': data["nombre_usuario"], 'clave': data["clave"], 'estado_usuario':True,'correo': data["correo"]}
-            )
-            # Confirmar la transacción (ya que estamos insertando datos)
-            db.commit()
+            
+            UsuarioModel.add_user(data)
 
-            print(data)
             flash('¡Cuenta creada exitosamente!')
             # Redirect user to login page
             return redirect("/login")
@@ -143,7 +120,13 @@ def logout():
 
 @app.route("/GestionVentas")
 def GestionVentas():
-    return render_template("GestionVentas.html", username=session["username"])
+    productos=ProductoModel.get_products()
+    return render_template("GestionVentas.html", username=session["username"], productos=productos)
+
+@app.route("/GestionProductos")
+def GestionProductos():
+    productos=ProductoModel.get_products()
+    return render_template("GestionProductos.html", username=session["username"], productos=productos)
 
 
 if __name__ == "__main__":

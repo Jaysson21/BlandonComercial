@@ -31,10 +31,18 @@
 
             <li>
                 <a href="/GestionVentas">
-                    <i class='bx bxs-dashboard'></i>
+                    <i class='bx bx-money-withdraw'></i>
                     <span class="links">Gestionar Ventas</span>
                 </a>
                 <span class="tooltip">Gestionar Ventas</span>
+            </li>
+
+            <li>
+                <a href="/GestionProductos">
+                    <i class='bx bxs-receipt'></i>
+                    <span class="links">Inventario</span>
+                </a>
+                <span class="tooltip">Inventario</span>
             </li>
 
             <li>
@@ -43,14 +51,6 @@
                     <span class="links">Users</span>
                 </a>
                 <span class="tooltip">Users</span>
-            </li>
-
-            <li>
-                <a href="#">
-                    <i class='bx bx-conversation'></i>
-                    <span class="links">Chat</span>
-                </a>
-                <span class="tooltip">Chat</span>
             </li>
 
             <li>
@@ -89,10 +89,46 @@
         </div>
     </div>
 
-    <div class="container">
+    <div class="container-main pt-5">
+
+        <p style="color: rgb(252, 120, 25); position:inherit; margin-top: -4vh; margin-left: 2vh;">Usuario:
+            {{username}}</p> <br>
+        <p id="fecha" style="color: rgb(252, 120, 25); position:inherit; margin-top: -4vh; margin-left: 2vh;">Usuario:
+            Cargando...</p>
+
         {% block body %}
         {% endblock %}
     </div>
+
+    <!-- Modal para agregar o editar productos -->
+    <div class="modal fade" id="productoModal" tabindex="-1" aria-labelledby="productoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productoModalLabel">Agregar/Editar Producto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="productoForm">
+                        <div class="mb-3">
+                            <label for="nombreProducto" class="form-label">Nombre del Producto</label>
+                            <input type="text" class="form-control" id="nombreProducto" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="descripcionProducto" class="form-label">Descripción del Producto</label>
+                            <textarea class="form-control" id="descripcionProducto" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
 
 
     <script src="{{url_for('static', filename='js/layout.js')}}"></script>

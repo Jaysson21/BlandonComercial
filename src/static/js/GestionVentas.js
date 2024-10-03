@@ -1,9 +1,3 @@
-// Sample data
-const products = [
-    { id: '1', name: 'Arroz', price: 19.99 },
-    { id: '2', name: 'Frijoles', price: 29.99 },
-    { id: '3', name: 'Maíz', price: 39.99 },
-];
 
 const customers = [
     { id: '1', name: 'Juan Pérez', email: 'juan@ejemplo.com' },
@@ -40,12 +34,13 @@ function populateSelect(selectElement, items) {
 }
 
 populateSelect(customerSelect, customers);
-populateSelect(productSelect, products);
 
 // Add product to sale
 addProductButton.addEventListener('click', () => {
     const productId = productSelect.value;
-    const product = products.find(p => p.id === productId);
+    const selectElement = document.getElementById('productSelect');
+    const product = selectElement.options[selectElement.selectedIndex].text;
+
     if (product && parseInt(quantityInput.value) > 0) {
         const newItem = {
             product,
@@ -66,7 +61,7 @@ function updateSaleItemsTable() {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td data-label="Producto">${item.product.name}</td>
-            <td data-label="Precio">$${(item.manualPrice !== undefined ? item.manualPrice : item.product.price).toFixed(2)}${item.manualPrice !== undefined ? ' (Manual)' : ''}</td>
+            <td data-label="Precio">$${item.manualPrice}</td>
             <td data-label="Cantidad">${item.quantity}</td>
             <td data-label="Subtotal">$${((item.manualPrice !== undefined ? item.manualPrice : item.product.price) * item.quantity).toFixed(2)}</td>
             <td data-label="Acciones">
