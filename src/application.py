@@ -127,11 +127,7 @@ def GestionVentas():
 def GestionProductos():
     productos=ProductoModel.get_products()
     return render_template("GestionProductos.html", username=session["username"], productos=productos)
-
-@app.route("/GestionProducto")
-def GestionProducto():
-    return render_template("GestionProducto.html", username=session["username"])
-    
+  
 @app.route("/GestionCliente")
 def GestionCliente():
     return render_template("GestionCliente.html", username=session["username"])
