@@ -1,6 +1,5 @@
-// Initialize clients array
-let clients = [];
-let nextId = 1; // Simulating auto-increment ID
+// Initialize clients array (no longer needed to simulate ID)
+let clients = [];  // This will be filled from the backend
 
 // DOM Elements
 const addClientForm = document.getElementById('addClientForm');
@@ -10,6 +9,12 @@ const editModal = new bootstrap.Modal(document.getElementById('editModal'));
 const editClientForm = document.getElementById('editClientForm');
 const saveEditButton = document.getElementById('saveEditButton');
 const searchInput = document.getElementById('searchInput');
+
+// Populate clients from server-side data
+function populateClients(clientsFromServer) {
+    clients = clientsFromServer;
+    clients.forEach(client => addClientToList(client));
+}
 
 // Add client
 addClientForm.addEventListener('submit', (e) => {
@@ -21,7 +26,7 @@ addClientForm.addEventListener('submit', (e) => {
 
     if (name) {
         const newClient = {
-            id: nextId++,
+            id: clients.length > 0 ? clients[clients.length - 1].id + 1 : 1,  // Generate new ID
             nombre: name,
             telefono: phone,
             email: email,
@@ -32,6 +37,8 @@ addClientForm.addEventListener('submit', (e) => {
         clients.push(newClient);
         addClientToList(newClient);
         addClientForm.reset();
+
+        // Aquí podrías enviar el nuevo cliente al backend con una llamada AJAX si es necesario.
     }
 });
 
@@ -102,6 +109,8 @@ saveEditButton.addEventListener('click', () => {
         client.direccion = document.getElementById('editClientAddress').value.trim();
         updateClientInList(client);
         editModal.hide();
+
+        // Aquí podrías enviar los cambios al backend con una llamada AJAX si es necesario.
     }
 });
 
@@ -133,6 +142,8 @@ function deleteClient(clientId) {
             tr.remove();
         }
         updateNoClientsVisibility();
+
+        // Aquí podrías enviar la solicitud de eliminación al backend con una llamada AJAX si es necesario.
     }
 }
 
@@ -153,5 +164,5 @@ searchInput.addEventListener('input', () => {
     updateNoClientsVisibility();
 });
 
-// Initial "No clients" visibility check
+
 updateNoClientsVisibility();

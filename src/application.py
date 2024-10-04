@@ -11,6 +11,7 @@ import requests
 #models
 from model.UsuarioModel import UsuarioModel 
 from model.ProductoModel import ProductoModel
+from model.ClienteModel import ClienteModel
 
 app = Flask(__name__)
 
@@ -120,17 +121,24 @@ def logout():
 
 @app.route("/GestionVentas")
 def GestionVentas():
+    clientes = ClienteModel.get_clients()
     productos=ProductoModel.get_products()
-    return render_template("GestionVentas.html", username=session["username"], productos=productos)
+    return render_template("GestionVentas.html", username=session["username"], clientes=clientes, productos=productos)
 
 @app.route("/GestionProductos")
 def GestionProductos():
     productos=ProductoModel.get_products()
-    return render_template("GestionProductos.html", username=session["username"], productos=productos)
+    return render_template("GestionProductos.html", username=session["username"], productos=productos, )
   
 @app.route("/GestionCliente")
-def GestionCliente():
-    return render_template("GestionCliente.html", username=session["username"])
+def GestionClientes():
+    clientes = ClienteModel.get_clients()
+    return render_template("GestionCliente.html", username=session["username"], clientes=clientes)
+
+@app.route("/GestionPagos")
+def GestionPagos():
+    clientes = ClienteModel.get_clients()
+    return render_template("GestionPagos.html", username=session["username"], clientes=clientes)
 
 
 if __name__ == "__main__":

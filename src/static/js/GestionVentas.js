@@ -1,10 +1,3 @@
-
-const customers = [
-    { id: '1', name: 'Juan Pérez', email: 'juan@ejemplo.com' },
-    { id: '2', name: 'María García', email: 'maria@ejemplo.com' },
-    { id: '3', name: 'Carlos Rodríguez', email: 'carlos@ejemplo.com' },
-];
-
 let saleItems = [];
 
 // DOM Elements
@@ -12,7 +5,6 @@ const customerSelect = document.getElementById('customerSelect');
 const productSelect = document.getElementById('productSelect');
 const quantityInput = document.getElementById('quantity');
 const manualPriceInput = document.getElementById('manualPrice');
-const useManualPriceCheckbox = document.getElementById('useManualPrice');
 const addProductButton = document.getElementById('addProduct');
 const saleItemsTable = document.getElementById('saleItems');
 const totalElement = document.getElementById('total');
@@ -22,18 +14,6 @@ const editQuantityInput = document.getElementById('editQuantity');
 const editManualPriceInput = document.getElementById('editManualPrice');
 const saveEditButton = document.getElementById('saveEdit');
 const closeModalButton = document.getElementById('closeModal');
-
-// Populate selects
-function populateSelect(selectElement, items) {
-    items.forEach(item => {
-        const option = document.createElement('option');
-        option.value = item.id;
-        option.textContent = item.name;
-        selectElement.appendChild(option);
-    });
-}
-
-populateSelect(customerSelect, customers);
 
 // Add product to sale
 addProductButton.addEventListener('click', () => {
@@ -45,7 +25,7 @@ addProductButton.addEventListener('click', () => {
         const newItem = {
             product,
             quantity: parseInt(quantityInput.value),
-            manualPrice: useManualPriceCheckbox.checked ? parseFloat(manualPriceInput.value) : undefined
+            manualPrice: parseFloat(manualPriceInput.value) // Always use manual price entered by the user
         };
         saleItems.push(newItem);
         updateSaleItemsTable();
@@ -60,10 +40,10 @@ function updateSaleItemsTable() {
     saleItems.forEach((item, index) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td data-label="Producto">${item.product.name}</td>
-            <td data-label="Precio">$${item.manualPrice}</td>
+            <td data-label="Producto">${item.product}</td>
+            <td data-label="Precio">$${item.manualPrice.toFixed(2)}</td>
             <td data-label="Cantidad">${item.quantity}</td>
-            <td data-label="Subtotal">$${((item.manualPrice !== undefined ? item.manualPrice : item.product.price) * item.quantity).toFixed(2)}</td>
+            <td data-label="Subtotal">$${(item.manualPrice * item.quantity).toFixed(2)}</td>
             <td data-label="Acciones">
                 <button class="btn btn-sm btn-primary edit-button" data-index="${index}">Editar</button>
                 <button class="btn btn-sm btn-danger delete-button" data-index="${index}">Eliminar</button>
@@ -77,8 +57,7 @@ function updateSaleItemsTable() {
 // Update total
 function updateTotal() {
     const total = saleItems.reduce((sum, item) => {
-        const price = item.manualPrice !== undefined ? item.manualPrice : item.product.price;
-        return sum + price * item.quantity;
+        return sum + item.manualPrice * item.quantity;
     }, 0);
     totalElement.textContent = `Total: $${total.toFixed(2)}`;
 }
@@ -88,12 +67,11 @@ function resetProductForm() {
     productSelect.value = '';
     quantityInput.value = '1';
     manualPriceInput.value = '';
-    useManualPriceCheckbox.checked = false;
 }
 
 // Remove product from sale
 saleItemsTable.addEventListener('click', (e) => {
-    if (e.target.classList.contains('remove-button')) {
+    if (e.target.classList.contains('delete-button')) {
         const index = parseInt(e.target.dataset.index);
         saleItems.splice(index, 1);
         updateSaleItemsTable();
@@ -139,28 +117,23 @@ generateSaleButton.addEventListener('click', () => {
         return;
     }
 
-    const customer = customers.find(c => c.id === selectedCustomerId);
+    // Obtenemos los datos del cliente directamente del select
+    const selectedCustomerName = customerSelect.options[customerSelect.selectedIndex].text;
     const total = saleItems.reduce((sum, item) => {
-        const price = item.manualPrice !== undefined ? item.manualPrice : item.product.price;
-        return sum + price * item.quantity;
+        return sum + item.manualPrice * item.quantity;
     }, 0);
 
-    // Here you would typically send this data to your backend
+    // Aquí normalmente enviarías los datos al backend
     console.log('Venta generada:', {
-        customer,
+        cliente: { id: selectedCustomerId, name: selectedCustomerName },
         items: saleItems,
         total
     });
 
-    alert(`Venta para ${customer.name} por un total de $${total.toFixed(2)} ha sido creada.`);
+    alert(`Venta para ${selectedCustomerName} por un total de $${total.toFixed(2)} ha sido creada.`);
 
     // Reset the form
     saleItems = [];
     updateSaleItemsTable();
     customerSelect.value = '';
-});
-
-// Toggle manual price input
-useManualPriceCheckbox.addEventListener('change', (e) => {
-    manualPriceInput.disabled = !e.target.checked;
 });
