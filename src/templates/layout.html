@@ -100,7 +100,7 @@
     <div class="container-main pt-5">
 
         <p style="color: rgb(252, 120, 25); position:inherit; margin-top: -4vh; margin-left: 2vh;">Usuario:
-            {{username}}</p> <br>
+            {{nameuser}}</p> <br>
         <p id="fecha" style="color: rgb(252, 120, 25); position:inherit; margin-top: -4vh; margin-left: 2vh;">Usuario:
             Cargando...</p>
 
@@ -117,16 +117,18 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="productoForm">
+                    <form id="productoForm" action="/addProduct" method="POST">
                         <div class="mb-3">
                             <label for="nombreProducto" class="form-label">Nombre del Producto</label>
-                            <input type="text" class="form-control" id="nombreProducto" required>
+                            <input name="nombreProducto" type="text" class="form-control" id="nombreProducto" required>
                         </div>
                         <div class="mb-3">
                             <label for="descripcionProducto" class="form-label">Descripción del Producto</label>
-                            <textarea class="form-control" id="descripcionProducto" rows="3" required></textarea>
+                            <textarea name="descripcionProducto" class="form-control" id="descripcionProducto" rows="3"
+                                required></textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button id="btn-addProduct" type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                            disabled>Guardar</button>
                     </form>
                 </div>
             </div>
@@ -140,6 +142,10 @@
 
 
     <script src="{{url_for('static', filename='js/layout.js')}}"></script>
+
+    <script src=" //cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
         integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"

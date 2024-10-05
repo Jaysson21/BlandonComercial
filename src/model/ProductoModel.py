@@ -60,7 +60,7 @@ class ProductoModel():
             # Ejecutar el procedimiento almacenado para crear un usuario
             db.execute(
                 text("CALL dbo.guardar_producto(:nombre, :descripcion)"),
-                {'nombre': producto["nombre"], 'descripcion': producto["descripcion"]}
+                producto.to_json()
             )
             # Confirmar la transacción (ya que estamos insertando datos)
             db.commit()
@@ -84,11 +84,11 @@ class ProductoModel():
 
 
     @classmethod
-    def delete_product(self, producto):
+    def delete_product(self, id):
         try:
             db.execute(
                 text("CALL dbo.eliminar_producto(:producto_id)"),
-                {'producto_id': producto["produtoid"]}
+                {'producto_id': id}
             )
 
             db.commit()

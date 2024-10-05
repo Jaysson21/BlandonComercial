@@ -1,126 +1,69 @@
-// Initialize products array
-let products = [];
-let nextId = 1; // Simulating auto-increment ID
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('productoForm');
+    const nombreProducto = document.getElementById('nombreProducto');
+    const descripcionProducto = document.getElementById('descripcionProducto');
+    const btnAddProduct = document.getElementById('btn-addProduct');
 
-// DOM Elements
-const addProductForm = document.getElementById('addProductForm');
-const productList = document.getElementById('productList');
-const noProductsRow = document.getElementById('noProductsRow');
-const editModal = new bootstrap.Modal(document.getElementById('editModal'));
-const editProductForm = document.getElementById('editProductForm');
-const saveEditButton = document.getElementById('saveEditButton');
+    document.getElementById('btn-addProduct').addEventListener('click', e => {
+        // Prevenir el envío automático del formulario
+        e.preventDefault();
 
-// Add product
-addProductForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const nameInput = document.getElementById('productName');
-    const descriptionInput = document.getElementById('productDescription');
-    const name = nameInput.value.trim();
-    const description = descriptionInput.value.trim();
+        // Mostrar alerta de éxito con SweetAlert2
+        Swal.fire({
+            title: 'Producto Agregado Exitosamente',
+            icon: 'success',
+            showConfirmButton: false, // Eliminar el botón de confirmación
+            timer: 1500 // Mostrar el mensaje durante 2 segundos
+        });
 
-    if (name) {
-        const newProduct = {
-            id: nextId++,
-            nombre: name,
-            descripcion: description
-        };
+        // Usar setTimeout para retrasar el envío del formulario
+        setTimeout(() => {
+            document.getElementById('productoForm').submit();
+        }, 1500); // Retrasar 1.5 segundos antes de enviar el formulario
+    });
 
-        products.push(newProduct);
-        addProductToList(newProduct);
-        nameInput.value = '';
-        descriptionInput.value = '';
-    }
-});
-
-// Add a single product to the list
-function addProductToList(product) {
-    const tbody = productList.querySelector('tbody');
-    const tr = document.createElement('tr');
-    tr.dataset.id = product.id;
-    tr.innerHTML = `
-        <td>${product.id}</td>
-        <td>${product.nombre}</td>
-        <td>${product.descripcion}</td>
-        <td>
-            <button class="btn btn-sm btn-primary edit-button" data-id="${product.id}">Editar</button>
-            <button class="btn btn-sm btn-danger delete-button" data-id="${product.id}">Eliminar</button>
-        </td>
-    `;
-    tbody.insertBefore(tr, noProductsRow);
-    updateNoProductsVisibility();
-}
-
-// Update "No products" row visibility
-function updateNoProductsVisibility() {
-    if (products.length === 0) {
-        noProductsRow.style.display = 'table-row';
-    } else {
-        noProductsRow.style.display = 'none';
-    }
-}
-
-// Edit and delete product
-productList.addEventListener('click', (e) => {
-    const target = e.target;
-    if (target.classList.contains('edit-button')) {
-        const productId = parseInt(target.dataset.id);
-        openEditModal(productId);
-    } else if (target.classList.contains('delete-button')) {
-        const productId = parseInt(target.dataset.id);
-        deleteProduct(productId);
-    }
-});
-
-// Open edit modal
-function openEditModal(productId) {
-    const product = products.find(p => p.id === productId);
-    if (product) {
-        document.getElementById('editProductName').value = product.nombre;
-        document.getElementById('editProductDescription').value = product.descripcion;
-        editProductForm.dataset.productId = productId;
-        editModal.show();
-    }
-}
-
-// Save edited product
-saveEditButton.addEventListener('click', () => {
-    const productId = parseInt(editProductForm.dataset.productId);
-    const product = products.find(p => p.id === productId);
-    if (product) {
-        product.nombre = document.getElementById('editProductName').value.trim();
-        product.descripcion = document.getElementById('editProductDescription').value.trim();
-        updateProductInList(product);
-        editModal.hide();
-    }
-});
-
-// Update a single product in the list
-function updateProductInList(product) {
-    const tr = productList.querySelector(`tr[data-id="${product.id}"]`);
-    if (tr) {
-        tr.innerHTML = `
-            <td>${product.id}</td>
-            <td>${product.nombre}</td>
-            <td>${product.descripcion}</td>
-            <td>
-                <button class="btn btn-sm btn-primary edit-button" data-id="${product.id}">Editar</button>
-                <button class="btn btn-sm btn-danger delete-button" data-id="${product.id}">Eliminar</button>
-            </td>
-        `;
-    }
-}
-
-// Delete product
-function deleteProduct(productId) {
-    if (confirm('¿Está seguro de que desea eliminar este producto?')) {
-        products = products.filter(p => p.id !== productId);
-        const tr = productList.querySelector(`tr[data-id="${productId}"]`);
-        if (tr) {
-            tr.remove();
+    // Función para habilitar/deshabilitar el botón si los campos están llenos
+    function checkForm() {
+        // Si ambos campos tienen valor, habilitamos el botón
+        if (nombreProducto.value.trim() !== '' && descripcionProducto.value.trim() !== '') {
+            btnAddProduct.disabled = false;
+        } else {
+            btnAddProduct.disabled = true;
         }
-        updateNoProductsVisibility();
     }
+
+    // Escuchamos los eventos input en los campos del formulario
+    nombreProducto.addEventListener('input', checkForm);
+    descripcionProducto.addEventListener('input', checkForm);
+
+    // Verificamos al cargar la página para el caso de que los campos ya tengan algún valor
+    document.addEventListener('DOMContentLoaded', checkForm);
+
+});
+
+function deleteProduct(id) {
+    Swal.fire({
+        title: '¿Desea eliminar el producto? Sku: ' + id,
+        showDenyButton: false,
+        showCancelButton: true,
+        confirmButtonText: 'Si'
+    }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Producto eliminado exitosamente',
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 1000
+            }).then((result) => {
+                setTimeout(() => {
+                    window.location.href = "/deleteProduct/" + id;
+                }, 1000);
+
+            })
+        } else if (result.isDenied) {
+            Swal.fire('El producto no ha sido eliminado', '', 'info')
+        }
+    })
 }
 
-// Initial "No products" visibility check
-updateNoProductsVisibility();

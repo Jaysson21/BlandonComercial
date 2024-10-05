@@ -6,7 +6,6 @@ class Producto:
 
     def to_json(self):
         return {
-            'productoid': self.productoid,
             'nombre': self.nombre,
             'descripcion': self.descripcion
         }

@@ -30,7 +30,7 @@ class UsuarioModel():
             
             # Formatear los resultados en un diccionario
             for i in range(len(usuarioCSL)):
-                user = Usuario(usuarioid=usuarioCSL[i][0],nombreusuario=usuarioCSL[i][1],
+                user = Usuario(usuarioid=usuarioCSL[i][0],nombreusuario=usuarioCSL[i][1],codigousuario=usuarioCSL[i][6],
                             clave=usuarioCSL[i][2],estadousuario=usuarioCSL[i][3],
                             fechacreacion=usuarioCSL[i][4],correo=usuarioCSL[i][5])
                 
@@ -61,8 +61,8 @@ class UsuarioModel():
         try:
             # Ejecutar el procedimiento almacenado para crear un usuario
             db.execute(
-                text("CALL dbo.CrearUsuario(:nombre_usuario, :clave, :estado_usuario, :correo)"),
-                {'nombre_usuario': user["nombre_usuario"], 'clave': user["clave"], 'estado_usuario':True,'correo': user["correo"]}
+                text("CALL dbo.CrearUsuario(:nombre_usuario,:codigo_usuario, :clave, :estado_usuario, :correo)"),
+                {'nombre_usuario': user["nombre_usuario"],'codigo_usuario': user["codigo_usuario"], 'clave': user["clave"], 'estado_usuario':True,'correo': user["correo"]}
             )
             # Confirmar la transacción (ya que estamos insertando datos)
             db.commit()

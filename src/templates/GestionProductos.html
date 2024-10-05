@@ -30,7 +30,8 @@
                     <td>
                         <button class="btn btn-warning btn-sm me-2" data-bs-toggle="modal"
                             data-bs-target="#productroModal">Editar</button>
-                        <button class="btn btn-danger btn-sm">Eliminar</button>
+                        <button name="btn-deleteProduct" onclick="deleteProduct({{p.0}})"
+                            class="btn btn-danger btn-sm">Eliminar</button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -40,5 +41,5 @@
     </div>
 </div>
 
-<!--script src="{{url_for('static', filename='js/GestionVentas.js')}}"></script-->
+<script src="{{url_for('static', filename='js/GestionProducto.js')}}"></script>
 {% endblock %}
