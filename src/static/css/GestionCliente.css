@@ -9,9 +9,14 @@ body {
 #clientList {
     width: 100%;
 }
-
+.table-responsive {
+    max-height: 400px;
+    overflow-x: auto;
+    overflow-y: auto; 
+}
 #clientList th, #clientList td {
     vertical-align: middle;
+    white-space: nowrap; /* Evita que el texto se divida en varias líneas */
 }
 
 #noClientsRow {
@@ -57,6 +62,19 @@ body {
 
     #searchInput {
         font-size: 0.9rem;
+    }
+
+    .table-responsive {
+        overflow-x: auto; /* Asegura que el scroll horizontal se active en pantallas pequeñas */
+    }
+
+    #clientList {
+        width: max-content; /* Permite que la tabla se ajuste y no se comprima */
+    }
+
+    #clientList th, #clientList td {
+        white-space: nowrap; /* Evita la ruptura del texto en pantallas pequeñas */
+        padding: 0.5rem 0.3rem;
     }
 }
 

@@ -134,12 +134,42 @@
             </div>
         </div>
     </div>
-
-
-
-
-
-
+    
+    <!-- Modal para editar cliente -->
+    <div class="modal fade" id="editModalClient" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Editar Cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editClientForm">
+                        <div class="mb-3">
+                            <label for="editClientName" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="editClientName" maxlength="100" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editClientPhone" class="form-label">Teléfono</label>
+                            <input type="tel" class="form-control" id="editClientPhone" maxlength="20">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editClientEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="editClientEmail" maxlength="100">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editClientAddress" class="form-label">Dirección</label>
+                            <textarea class="form-control" id="editClientAddress" rows="3" maxlength="255"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" id="saveEditButton">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="{{url_for('static', filename='js/layout.js')}}"></script>
 

@@ -15,6 +15,7 @@ from model.ClienteModel import ClienteModel
 
 #entities
 from model.entities.Producto import Producto
+from model.entities.Cliente import Cliente
 
 
 app = Flask(__name__)
@@ -161,12 +162,44 @@ def deleteProduct(id):
     ProductoModel.delete_product(id)
     return redirect("/GestionProductos")
     
-
+#Para los Clientes
 @app.route("/GestionCliente")
 def GestionClientes():
     clientes = ClienteModel.get_clients()
     return render_template("GestionCliente.html", username=session["username"], clientes=clientes, nameuser=session["nameUser"])
 
+@app.route("/addClient", methods=["POST"])
+def addClient():
+    if request.method == "POST":
+        nombres = request.form.get("nombreCliente")
+        apellidos = request.form.get("apellidoCliente")
+        email = request.form.get("emailCliente")
+        telefono = request.form.get("telefonoCliente")
+        direccion = request.form.get("direccionCliente")
+
+        if not nombres:
+            flash('Ingrese un nombre de Cliente')
+            return redirect("/GestionCliente")
+        
+        if not apellidos:
+            flash('Ingrese un apellido de Cliente')
+            return redirect("/GestionCliente")
+        
+        if not email:
+            flash('Ingrese un email de Cliente')
+            return redirect("/GestionCliente")
+        
+        if not telefono:
+            flash('Ingrese un teléfono de Cliente')
+            return redirect("/GestionCliente")
+        
+        # Añadir cliente
+        c = Cliente(clienteid=0, nombres=nombres, apellidos=apellidos, email=email, telefono=telefono, direccion=direccion, fecharegistro=None)
+        ClienteModel.add_client(c)
+
+        return redirect("/GestionCliente")
+
+#Para los Pagos
 @app.route("/GestionPagos")
 def GestionPagos():
     clientes = ClienteModel.get_clients()

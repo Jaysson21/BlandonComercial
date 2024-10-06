@@ -17,7 +17,6 @@ engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
 
 class ClienteModel:
-
     @classmethod
     def get_clients(self):
         """Obtener todos los clientes."""
@@ -68,17 +67,14 @@ class ClienteModel:
     def add_client(self, cliente):
         """Agregar un nuevo cliente."""
         try:
+            # Ejecutar el procedimiento almacenado para crear un cliente
             db.execute(
                 text("CALL dbo.guardar_cliente(:nombres, :apellidos, :telefono, :email, :direccion)"),
-                {
-                    'nombres': cliente["nombres"],
-                    'apellidos': cliente["apellidos"],
-                    'telefono': cliente["telefono"],
-                    'email': cliente["email"],
-                    'direccion': cliente["direccion"]
-                }
+                cliente.to_json()
             )
+            # Confirmar la transacción (ya que estamos insertando datos)
             db.commit()
+
             return 1
         except Exception as ex:
             raise Exception(ex)
