@@ -3,6 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from funciones import *
 from sqlalchemy.sql import text
+
 #objeto
 from .entities.Producto import Producto
 
@@ -57,7 +58,7 @@ class ProductoModel():
     @classmethod
     def add_product(self, producto):
         try:
-            # Ejecutar el procedimiento almacenado para crear un usuario
+            # Ejecutar el procedimiento almacenado para crear un Producto
             db.execute(
                 text("CALL dbo.guardar_producto(:nombre, :descripcion)"),
                 producto.to_json()
@@ -74,7 +75,11 @@ class ProductoModel():
         try:
             db.execute(
                 text("CALL dbo.actualizar_producto(:producto_id, :nombre, :descripcion)"),
-                {'producto_id': producto["produtoid"], 'nombre': producto["nombre"], 'descripcion': producto["descripcion"]}
+                {
+                 'producto_id': producto["produtoid"],
+                 'nombre': producto["nombre"],
+                 'descripcion': producto["descripcion"]
+                }
             )
             db.commit()
 
