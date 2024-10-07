@@ -124,13 +124,14 @@ def logout():
     session.clear()
     return redirect('/loginL.html')
 
+#***************************************************************************************************** PARA LAS VENTAS
 @app.route("/GestionVentas")
 def GestionVentas():
     clientes = ClienteModel.get_clients()
     productos=ProductoModel.get_products()
     return render_template("GestionVentas.html", username=session["username"], clientes=clientes, productos=productos, nameuser=session["nameUser"])
 
-#Productos
+#***************************************************************************************************** PARA LOS PRODUCTOS
 @app.route("/GestionProductos")
 def GestionProductos():
     productos=ProductoModel.get_products()
@@ -162,7 +163,7 @@ def deleteProduct(id):
     ProductoModel.delete_product(id)
     return redirect("/GestionProductos")
     
-#Para los Clientes
+#***************************************************************************************************** PARA LOS CLIENTES
 @app.route("/GestionCliente")
 def GestionClientes():
     clientes = ClienteModel.get_clients()
@@ -218,7 +219,7 @@ def updateClient():
         return redirect("/GestionCliente")
 
 
-#Para los Pagos
+#***************************************************************************************************** PARA LOS PAGOS
 @app.route("/GestionPagos")
 def GestionPagos():
     clientes = ClienteModel.get_clients()
