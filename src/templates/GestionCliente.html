@@ -74,7 +74,7 @@
                                         <td>
                                             <button class="btn btn-sm btn-primary edit-button" data-id="{{ cliente['clienteid'] }}">Editar</button>
                                             <button class="btn btn-sm btn-danger delete-button" data-id="{{ cliente['clienteid'] }}">Eliminar</button>
-                                        </td>
+                                        </td>                                        
                                     </tr>
                                     {% endfor %}
                                 {% else %}
@@ -92,6 +92,6 @@
 </div>
 </div>
 
-<script src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
 <script src="{{url_for('static', filename='js/GestionCliente.js')}}"></script>
+<script src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
 {% endblock %}

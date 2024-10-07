@@ -34,7 +34,7 @@ class ClienteModel:
                     'telefono': cliente[3],
                     'email': cliente[4],
                     'direccion': cliente[5],
-                    'fecharegistro': cliente[6]
+                    'fecharegistro': cliente[6].strftime('%d/%m/%Y %H:%M:%S')
                 })
 
             return ListaClientes
@@ -80,18 +80,18 @@ class ClienteModel:
             raise Exception(ex)
 
     @classmethod
-    def update_client(self, cliente):
-        """Actualizar un cliente existente."""
+    def update_client(cls, cliente):
+        """Actualizar un cliente existente en la base de datos"""
         try:
             db.execute(
                 text("CALL dbo.actualizar_cliente(:clienteid, :nombres, :apellidos, :telefono, :email, :direccion)"),
                 {
-                    'clienteid': cliente["clienteid"],
-                    'nombres': cliente["nombres"],
-                    'apellidos': cliente["apellidos"],
-                    'telefono': cliente["telefono"],
-                    'email': cliente["email"],
-                    'direccion': cliente["direccion"]
+                    'clienteid': cliente.clienteid,
+                    'nombres': cliente.nombres,
+                    'apellidos': cliente.apellidos,
+                    'telefono': cliente.telefono,
+                    'email': cliente.email,
+                    'direccion': cliente.direccion
                 }
             )
             db.commit()
@@ -99,15 +99,3 @@ class ClienteModel:
         except Exception as ex:
             raise Exception(ex)
 
-    @classmethod
-    def delete_client(self, clienteid):
-        """Eliminar un cliente."""
-        try:
-            db.execute(
-                text("CALL dbo.eliminar_cliente(:clienteid)"),
-                {'clienteid': clienteid}
-            )
-            db.commit()
-            return 1
-        except Exception as ex:
-            raise Exception(ex)

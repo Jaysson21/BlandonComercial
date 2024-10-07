@@ -199,6 +199,25 @@ def addClient():
 
         return redirect("/GestionCliente")
 
+@app.route("/updateClient", methods=["POST"])
+def updateClient():
+    if request.method == "POST":
+        clienteid = request.form.get("clienteid")
+        nombres = request.form.get("nombreCliente")
+        apellidos = request.form.get("apellidoCliente")
+        telefono = request.form.get("telefonoCliente")
+        email = request.form.get("emailCliente")
+        direccion = request.form.get("direccionCliente")
+
+        # Crear el cliente con los nuevos datos
+        c = Cliente(clienteid=clienteid, nombres=nombres, apellidos=apellidos, telefono=telefono, email=email, direccion=direccion, fecharegistro=None)
+
+        # Llamar al método para actualizar el cliente en la base de datos
+        ClienteModel.update_client(c)
+
+        return redirect("/GestionCliente")
+
+
 #Para los Pagos
 @app.route("/GestionPagos")
 def GestionPagos():

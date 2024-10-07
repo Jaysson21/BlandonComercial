@@ -5,7 +5,6 @@ let clients = [];  // This will be filled from the backend
 const addClientForm = document.getElementById('addClientForm');
 const clientList = document.getElementById('clientList');
 const noClientsRow = document.getElementById('noClientsRow');
-const editModal = new bootstrap.Modal(document.getElementById('editModal'));
 const editClientForm = document.getElementById('editClientForm');
 const saveEditButton = document.getElementById('saveEditButton');
 const searchInput = document.getElementById('searchInput');
@@ -16,111 +15,14 @@ function populateClients(clientsFromServer) {
     clients.forEach(client => addClientToList(client));
 }
 
-// Add client
-addClientForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const name = document.getElementById('clientName').value.trim();
-    const phone = document.getElementById('clientPhone').value.trim();
-    const email = document.getElementById('clientEmail').value.trim();
-    const address = document.getElementById('clientAddress').value.trim();
-
-    if (name) {
-        const newClient = {
-            id: clients.length > 0 ? clients[clients.length - 1].id + 1 : 1,  // Generate new ID
-            nombre: name,
-            telefono: phone,
-            email: email,
-            direccion: address,
-            fechaRegistro: new Date().toISOString()
-        };
-
-        clients.push(newClient);
-        addClientToList(newClient);
-        addClientForm.reset();
-
-        // Aquí podrías enviar el nuevo cliente al backend con una llamada AJAX si es necesario.
-    }
-});
-
-// Add a single client to the list
-function addClientToList(client) {
-    const tbody = clientList.querySelector('tbody');
-    const tr = document.createElement('tr');
-    tr.dataset.id = client.id;
-    tr.innerHTML = `
-        <td>${client.id}</td>
-        <td>${client.nombre}</td>
-        <td>${client.telefono}</td>
-        <td>${client.email}</td>
-        <td>${client.direccion}</td>
-        <td>${new Date(client.fechaRegistro).toLocaleString()}</td>
-        <td>
-            <button class="btn btn-sm btn-primary edit-button" data-id="${client.id}">Editar</button>
-            <button class="btn btn-sm btn-danger delete-button" data-id="${client.id}">Eliminar</button>
-        </td>
-    `;
-    tbody.insertBefore(tr, noClientsRow);
-    updateNoClientsVisibility();
-}
-
-// Update "No clients" row visibility
-function updateNoClientsVisibility() {
-    const visibleClients = clientList.querySelectorAll('tbody tr:not([style*="display: none"])');
-    if (visibleClients.length === 0) {
-        noClientsRow.style.display = 'table-row';
-    } else {
-        noClientsRow.style.display = 'none';
-    }
-}
-
-// Edit and delete client
-clientList.addEventListener('click', (e) => {
-    const target = e.target;
-    if (target.classList.contains('edit-button')) {
-        const clientId = parseInt(target.dataset.id);
-        openEditModal(clientId);
-    } else if (target.classList.contains('delete-button')) {
-        const clientId = parseInt(target.dataset.id);
-        deleteClient(clientId);
-    }
-});
-
-// Open edit modal
-function openEditModal(clientId) {
-    const client = clients.find(c => c.id === clientId);
-    if (client) {
-        document.getElementById('editClientName').value = client.nombre;
-        document.getElementById('editClientPhone').value = client.telefono;
-        document.getElementById('editClientEmail').value = client.email;
-        document.getElementById('editClientAddress').value = client.direccion;
-        editClientForm.dataset.clientId = clientId;
-        editModal.show();
-    }
-}
-
-// Save edited client
-saveEditButton.addEventListener('click', () => {
-    const clientId = parseInt(editClientForm.dataset.clientId);
-    const client = clients.find(c => c.id === clientId);
-    if (client) {
-        client.nombre = document.getElementById('editClientName').value.trim();
-        client.telefono = document.getElementById('editClientPhone').value.trim();
-        client.email = document.getElementById('editClientEmail').value.trim();
-        client.direccion = document.getElementById('editClientAddress').value.trim();
-        updateClientInList(client);
-        editModal.hide();
-
-        // Aquí podrías enviar los cambios al backend con una llamada AJAX si es necesario.
-    }
-});
-
 // Update a single client in the list
 function updateClientInList(client) {
     const tr = clientList.querySelector(`tr[data-id="${client.id}"]`);
     if (tr) {
         tr.innerHTML = `
             <td>${client.id}</td>
-            <td>${client.nombre}</td>
+            <td>${client.nombres}</td>
+            <td>${client.apellidos}</td>
             <td>${client.telefono}</td>
             <td>${client.email}</td>
             <td>${client.direccion}</td>
@@ -133,18 +35,57 @@ function updateClientInList(client) {
     }
 }
 
-// Delete client
-function deleteClient(clientId) {
-    if (confirm('¿Está seguro de que desea eliminar este cliente?')) {
-        clients = clients.filter(c => c.id !== clientId);
-        const tr = clientList.querySelector(`tr[data-id="${clientId}"]`);
-        if (tr) {
-            tr.remove();
-        }
-        updateNoClientsVisibility();
+document.querySelectorAll('.edit-button').forEach(function(button) {
+    button.addEventListener('click', function() {
+        // Obtener el ID del cliente del botón
+        let clientId = this.getAttribute('data-id');
+        
+        // Obtener la fila de la tabla correspondiente al cliente
+        let row = this.closest('tr');
+        let nombres = row.cells[0].innerText;  // Columna Nombres
+        let apellidos = row.cells[1].innerText;  // Columna Apellidos
+        let telefono = row.cells[2].innerText;  // Columna Teléfono
+        let email = row.cells[3].innerText;  // Columna Email
+        let direccion = row.cells[4].innerText;  // Columna Dirección
 
-        // Aquí podrías enviar la solicitud de eliminación al backend con una llamada AJAX si es necesario.
-    }
+        // Rellenar el formulario del modal con los datos del cliente
+        document.getElementById('editClientId').value = clientId;
+        document.getElementById('editClientName').value = nombres;
+        document.getElementById('editClientSurName').value = apellidos;
+        document.getElementById('editClientPhone').value = telefono;
+        document.getElementById('editClientEmail').value = email;
+        document.getElementById('editClientAddress').value = direccion;
+
+        // Mostrar el modal
+        let editModal = new bootstrap.Modal(document.getElementById('editModalClient'));
+        editModal.show();
+    });
+});
+
+function deleteProduct(id) {
+    Swal.fire({
+        title: '¿Desea eliminar el producto? Sku: ' + id,
+        showDenyButton: false,
+        showCancelButton: true,
+        confirmButtonText: 'Si'
+    }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Producto eliminado exitosamente',
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 1000
+            }).then((result) => {
+                setTimeout(() => {
+                    window.location.href = "/deleteProduct/" + id;
+                }, 1000);
+
+            })
+        } else if (result.isDenied) {
+            Swal.fire('El producto no ha sido eliminado', '', 'info')
+        }
+    })
 }
 
 // Search functionality
@@ -163,6 +104,3 @@ searchInput.addEventListener('input', () => {
     
     updateNoClientsVisibility();
 });
-
-
-updateNoClientsVisibility();
