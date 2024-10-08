@@ -22,7 +22,7 @@ class ClienteModel:
         """Obtener todos los clientes."""
         try:
             ListaClientes = []
-            clientes = db.execute(text("SELECT * FROM dbo.clientes")).fetchall()
+            clientes = db.execute(text("SELECT * FROM dbo.clientes ORDER BY nombres")).fetchall()
             db.commit()
 
             # Formatear los resultados en una lista
@@ -32,9 +32,9 @@ class ClienteModel:
                     'nombres': cliente[1],
                     'apellidos': cliente[2],
                     'telefono': cliente[3],
-                    'email': cliente[4],
+                    'cedula': cliente[4],
                     'direccion': cliente[5],
-                    'fecharegistro': cliente[6].strftime('%d/%m/%Y %H:%M:%S')
+                    'fecharegistro': cliente[6].strftime('%d/%m/%Y')
                 })
 
             return ListaClientes
@@ -55,7 +55,7 @@ class ClienteModel:
                     'nombres': cliente[1],
                     'apellidos': cliente[2],
                     'telefono': cliente[3],
-                    'email': cliente[4],
+                    'cedula': cliente[4],
                     'direccion': cliente[5],
                     'fecharegistro': cliente[6]
                 }
@@ -69,7 +69,7 @@ class ClienteModel:
         try:
             # Ejecutar el procedimiento almacenado para crear un cliente
             db.execute(
-                text("CALL dbo.guardar_cliente(:nombres, :apellidos, :telefono, :email, :direccion)"),
+                text("CALL dbo.guardar_cliente(:nombres, :apellidos, :telefono, :cedula, :direccion)"),
                 cliente.to_json()
             )
             # Confirmar la transacción (ya que estamos insertando datos)
@@ -84,16 +84,29 @@ class ClienteModel:
         """Actualizar un cliente existente en la base de datos"""
         try:
             db.execute(
-                text("CALL dbo.actualizar_cliente(:clienteid, :nombres, :apellidos, :telefono, :email, :direccion)"),
+                text("CALL dbo.actualizar_cliente(:clienteid, :nombres, :apellidos, :telefono, :cedula, :direccion)"),
                 {
                     'clienteid': cliente.clienteid,
                     'nombres': cliente.nombres,
                     'apellidos': cliente.apellidos,
                     'telefono': cliente.telefono,
-                    'email': cliente.email,
+                    'cedula': cliente.cedula,
                     'direccion': cliente.direccion
                 }
             )
+            db.commit()
+            return 1
+        except Exception as ex:
+            raise Exception(ex)
+        
+    @classmethod
+    def delete_client(self, id):
+        try:
+            db.execute(
+                text("CALL dbo.eliminar_cliente(:clienteid)"),
+                {'clienteid': id}
+            )
+
             db.commit()
             return 1
         except Exception as ex:

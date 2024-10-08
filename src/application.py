@@ -174,7 +174,7 @@ def addClient():
     if request.method == "POST":
         nombres = request.form.get("nombreCliente")
         apellidos = request.form.get("apellidoCliente")
-        email = request.form.get("emailCliente")
+        cedula = request.form.get("cedulaCliente")
         telefono = request.form.get("telefonoCliente")
         direccion = request.form.get("direccionCliente")
 
@@ -186,8 +186,8 @@ def addClient():
             flash('Ingrese un apellido de Cliente')
             return redirect("/GestionCliente")
         
-        if not email:
-            flash('Ingrese un email de Cliente')
+        if not cedula:
+            flash('Ingrese un cedula de Cliente')
             return redirect("/GestionCliente")
         
         if not telefono:
@@ -195,7 +195,7 @@ def addClient():
             return redirect("/GestionCliente")
         
         # Añadir cliente
-        c = Cliente(clienteid=0, nombres=nombres, apellidos=apellidos, email=email, telefono=telefono, direccion=direccion, fecharegistro=None)
+        c = Cliente(clienteid=0, nombres=nombres, apellidos=apellidos, cedula=cedula, telefono=telefono, direccion=direccion, fecharegistro=None)
         ClienteModel.add_client(c)
 
         return redirect("/GestionCliente")
@@ -207,16 +207,22 @@ def updateClient():
         nombres = request.form.get("nombreCliente")
         apellidos = request.form.get("apellidoCliente")
         telefono = request.form.get("telefonoCliente")
-        email = request.form.get("emailCliente")
+        cedula = request.form.get("cedulaCliente")
         direccion = request.form.get("direccionCliente")
 
         # Crear el cliente con los nuevos datos
-        c = Cliente(clienteid=clienteid, nombres=nombres, apellidos=apellidos, telefono=telefono, email=email, direccion=direccion, fecharegistro=None)
+        c = Cliente(clienteid=clienteid, nombres=nombres, apellidos=apellidos, telefono=telefono, cedula=cedula, direccion=direccion, fecharegistro=None)
 
         # Llamar al método para actualizar el cliente en la base de datos
         ClienteModel.update_client(c)
 
         return redirect("/GestionCliente")
+    
+@app.route("/deleteClient/<int:id>")
+def deleteClient(id):
+    #eliminar Cliente
+    ClienteModel.delete_client(id)
+    return redirect("/GestionCliente")
 
 
 #***************************************************************************************************** PARA LOS PAGOS
