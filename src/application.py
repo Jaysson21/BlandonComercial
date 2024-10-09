@@ -159,46 +159,59 @@ def addProduct():
         nombre = request.form.get("nombreProducto")
         descripcion = request.form.get("descripcionProducto")
 
-        if not request.form.get("nombreProducto"):
-            flash('Ingrese un nombre de Producto')
-            return redirect("/GestionProductos")
+        # Validaciones de campos
+        if not nombre:
+            return jsonify({'success': False, 'message': 'Ingrese un nombre de Producto'}), 400
         
-        if not request.form.get("descripcionProducto"):
-            flash('Ingrese una descripcion del Producto')
-            return redirect("/GestionProductos")
+        if not descripcion:
+            return jsonify({'success': False, 'message': 'Ingrese una descripción del Producto'}), 400
         
-        #Añadir producto
-        p = Producto(productoid=0,nombre=nombre,descripcion=descripcion)
-        ProductoModel.add_product(p)
+        try:
+            # Añadir producto a la base de datos
+            p = Producto(productoid=0, nombre=nombre, descripcion=descripcion)
+            ProductoModel.add_product(p)
 
-        return redirect("/GestionProductos")
+            # Devolver respuesta de éxito
+            return jsonify({'success': True, 'message': 'Producto agregado exitosamente'})
+
+        except Exception as e:
+            return jsonify({'success': False, 'message': str(e)}), 500
+
     
-@app.route("/updateProduct/<id>", methods=["POST"])
-def updateProduct(id):
+@app.route("/updateProduct/", methods=["POST"])
+def updateProduct():
     if request.method == "POST":
+        
+        #Obtener datos del formulario
+        productid = request.form.get("productid")
         nombre = request.form.get("nombreProducto")
         descripcion = request.form.get("descripcionProducto")
 
-        if not request.form.get("nombreProducto"):
-            flash('Ingrese un nombre de Producto')
-            return redirect("/GestionProductos")
+        #Valida Campos
+        if not nombre or not descripcion:
+            return jsonify({'success': False, 'message': 'Todos los campos son obligatorios'}), 400
         
-        if not request.form.get("descripcionProducto"):
-            flash('Ingrese una descripcion del Producto')
-            return redirect("/GestionProductos")
-        
-        #Editar producto
-        #p = Producto(productoid=id,nombre=nombre,descripcion=descripcion)
-        #ProductoModel.update_product(p)
-        print(id)
+        try:
+            #Editar producto
+            p = Producto(productoid=productid,nombre=nombre,descripcion=descripcion)
+            ProductoModel.update_product(p)
+        except IntegrityError:
+            return jsonify({'success': False, 'message': 'Error: La cédula ya está registrada.'})
+        except Exception as e:
+            return jsonify({'success': False, 'message': str(e)})
 
-        return redirect("/GestionProductos")
+        return jsonify({'success': True})
       
-@app.route("/deleteProduct/<id>")
+@app.route("/deleteProduct/<int:id>", methods=["POST"])
 def deleteProduct(id):
-    #eliminar producto
-    ProductoModel.delete_product(id)
-    return redirect("/GestionProductos")
+    try:
+        # Eliminar el producto de la base de datos
+        ProductoModel.delete_product(id)
+        return jsonify({'success': True, 'message': 'Producto eliminado exitosamente.'})
+
+    except Exception as e:
+        return jsonify({'success': False, 'message': 'Error: Ha ocurrido un problema al eliminar el Producto. ' + str(e)})
+
     
 #***************************************************************************************************** PARA LOS CLIENTES
 @app.route("/GestionCliente")
@@ -216,22 +229,9 @@ def addClient():
         telefono = request.form.get("telefonoCliente")
         direccion = request.form.get("direccionCliente")
 
-        # Validar los campos
-        if not nombres:
-            flash('Ingrese un nombre de Cliente', 'error')
-            return redirect("/GestionCliente")
-        
-        if not apellidos:
-            flash('Ingrese un apellido de Cliente', 'error')
-            return redirect("/GestionCliente")
-        
-        if not cedula:
-            flash('Ingrese una cédula de Cliente', 'error')
-            return redirect("/GestionCliente")
-        
-        if not telefono:
-            flash('Ingrese un teléfono de Cliente', 'error')
-            return redirect("/GestionCliente")
+        # Validar campos vacíos en una sola línea
+        if not nombres or not apellidos or not telefono or not cedula or not direccion:
+            return jsonify({'success': False, 'message': 'Todos los campos son obligatorios'}), 400
         
         # Crear el objeto cliente
         c = Cliente(clienteid=0, nombres=nombres, apellidos=apellidos, cedula=cedula, telefono=telefono, direccion=direccion, fecharegistro=None)
@@ -251,6 +251,8 @@ def addClient():
 
         return redirect("/GestionCliente")
 
+from flask import jsonify, request
+
 @app.route("/updateClient", methods=["POST"])
 def updateClient():
     if request.method == "POST":
@@ -262,24 +264,30 @@ def updateClient():
         cedula = request.form.get("cedulaCliente")
         direccion = request.form.get("direccionCliente")
 
-        # Crear el cliente con los nuevos datos
-        c = Cliente(clienteid=clienteid, nombres=nombres, apellidos=apellidos, telefono=telefono, cedula=cedula, direccion=direccion, fecharegistro=None)
+        # Validar campos vacíos
+        if not clienteid or not nombres or not apellidos or not telefono or not cedula or not direccion:
+            return jsonify({'success': False, 'message': 'Todos los campos son obligatorios'}), 400
+        
+        try:
+            c = Cliente(clienteid=clienteid, nombres=nombres, apellidos=apellidos, telefono=telefono, cedula=cedula, direccion=direccion, fecharegistro=None)
+            ClienteModel.update_client(c)
 
-        # Llamar al método para actualizar el cliente en la base de datos
-        ClienteModel.update_client(c)
+            return jsonify({'success': True, 'message': 'Cliente actualizado exitosamente'})
+        
+        except Exception as e:
+            return jsonify({'success': False, 'message': f'Error al actualizar el cliente: {str(e)}'}), 500
 
-        return redirect("/GestionCliente")
 
-@app.route("/deleteClient/<int:id>")
+@app.route("/deleteClient/<int:id>", methods=["POST"])
 def deleteClient(id):
     try:
-        # Eliminar cliente de la base de datos
+        # Eliminar el producto de la base de datos
         ClienteModel.delete_client(id)
-        flash('Cliente eliminado exitosamente.', 'success')
+        return jsonify({'success': True, 'message': 'Cleinte eliminado exitosamente.'})
+
     except Exception as e:
-        # Manejar cualquier error al eliminar el cliente
-        flash('Error: Ha ocurrido un problema al eliminar el cliente.', 'error')
-    return redirect("/GestionCliente")
+        return jsonify({'success': False, 'message': 'Error: Ha ocurrido un problema al eliminar el Cliente. ' + str(e)})
+
 
 
 #***************************************************************************************************** PARA LOS PAGOS

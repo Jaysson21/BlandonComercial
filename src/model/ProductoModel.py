@@ -73,14 +73,14 @@ class ProductoModel():
             raise Exception(ex)
 
     @classmethod
-    def update_product(self, producto):
+    def update_product(cls, producto):
         try:
             db.execute(
-                text("CALL dbo.actualizar_producto(:producto_id, :nombre, :descripcion)"),
+                text("CALL dbo.actualizar_producto(:productoid, :nombre, :descripcion)"),
                 {
-                 'producto_id': producto["produtoid"],
-                 'nombre': producto["nombre"],
-                 'descripcion': producto["descripcion"]
+                 'productoid': producto.productoid,
+                 'nombre': producto.nombre,
+                 'descripcion': producto.descripcion
                 }
             )
             db.commit()

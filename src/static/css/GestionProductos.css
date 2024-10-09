@@ -1,6 +1,25 @@
-/* Estilo para el contenedor que habilita el scroll */
-.scroll-panel {
-    max-height: 90vh; /* Altura máxima del panel */
-    overflow-y: auto; /* Habilitar scroll vertical */
+.card {
+    margin-bottom: 20px;
+}
+
+.table-responsive {
+    max-height: 65vh;
     overflow-x: auto;
+    overflow-y: auto; 
+}
+
+#productList {
+    width: 100%;
+}
+
+#productList th, #productList td {
+    vertical-align: middle;
+}
+
+#noProductsRow {
+    display: none;
+}
+
+#productName, #productDescription, #editProductName, #editProductDescription {
+    max-width: 100%;
 }

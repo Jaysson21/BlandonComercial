@@ -262,7 +262,7 @@ ul{
 .navmenu.open .logo-container #btn-menu{
     right: 0;
     position: relative;
-    margin-right: 2px; 
+ 
     background-image: url('../assets/LOGO2.svg'); /* Ruta del archivo SVG */
 
 }

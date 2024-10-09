@@ -1,129 +1,214 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('productoForm');
-    const nombreProducto = document.getElementById('nombreProducto');
-    const descripcionProducto = document.getElementById('descripcionProducto');
+// DOM Elements
+const addProductForm = document.getElementById('addProductForm');
+const productList = document.getElementById('productList');
+const noProductsRow = document.getElementById('noProductsRow');
+//const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+const editProductForm = document.getElementById('editProductForm');
+const saveEditButton = document.getElementById('saveEditButton');
 
-    document.getElementById('btnFormAddProd').addEventListener('click', e => {
-        nombreProducto.value = '';
-        descripcionProducto.value = '';
-        var btnGuardar = document.getElementById('btn-editProduct');
-        btnGuardar.id = 'btn-addProduct';
-    });
+window.onload = function () {
+    let loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+    loadingModal.show();
 
-    document.getElementById('btn-addProduct').addEventListener('click', e => {
-        // Prevenir el envío automático del formulario
-        e.preventDefault();
+    setTimeout(() => {
+        loadingModal.hide();
+    }, 500);  // Tiempo de espera para que la transición se complete
+};
 
-        // Mostrar alerta de éxito con SweetAlert2
-        Swal.fire({
-            title: 'Producto Agregado Exitosamente',
-            icon: 'success',
-            showConfirmButton: false, // Eliminar el botón de confirmación
-            timer: 1500 // Mostrar el mensaje durante 2 segundos
-        });
+// Manejar el envío del formulario de agregar producto
+document.getElementById("addProductForm").addEventListener("submit", function (event) {
+    event.preventDefault();  // Evitar el envío inmediato del formulario para mostrar la pantalla de espera
 
-        // Usar setTimeout para retrasar el envío del formulario
-        setTimeout(() => {
-            document.getElementById('productoForm').submit();
-        }, 1500); // Retrasar 1.5 segundos antes de enviar el formulario
-    });
+    showLoadingModal();  // Mostrar el modal de espera
 
-    // Función para habilitar/deshabilitar el botón si los campos están llenos
-    function checkForm() {
-        var btnAddProduct = document.getElementById('btn-addProduct');
-        if (!btnAddProduct) {
-            btnAddProduct = document.getElementById('btn-editProduct');
-        }
+    // Crear un objeto FormData para capturar los datos del formulario
+    const formData = new FormData(this);
 
-        // Si ambos campos tienen valor, habilitamos el botón
-        if (nombreProducto.value.trim() !== '' && descripcionProducto.value.trim() !== '') {
-            btnAddProduct.disabled = false;
+    // Enviar el formulario de manera asíncrona con fetch()
+    fetch(this.action, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())  // Asumimos que el servidor responde con JSON
+    .then(data => {
+        hideLoadingModal();  // Ocultar el modal de espera cuando se recibe la respuesta
+        if (data.success) {
+            // Si el servidor responde con éxito, recarga la página o redirige
+            window.location.reload();  // O redirige a otra página si es necesario
         } else {
-            btnAddProduct.disabled = true;
-        }
-    }
-
-    // Escuchamos los eventos input en los campos del formulario
-    nombreProducto.addEventListener('input', checkForm);
-    descripcionProducto.addEventListener('input', checkForm);
-
-    // Verificamos al cargar la página para el caso de que los campos ya tengan algún valor
-    document.addEventListener('DOMContentLoaded', checkForm);
-
-});
-
-document.querySelectorAll('.btnEditProduct').forEach(function (button) {
-    button.addEventListener('click', function () {
-
-        // Obtener la fila de la tabla correspondiente al cliente
-        let row = this.closest('tr');
-        let producId = row.cells[0].innerText;
-        let nombre = row.cells[1].innerText;  // Columna Nombres
-        let descripcion = row.cells[2].innerText;  // Columna Apellidos
-
-        // Rellenar el formulario del modal con los datos del cliente
-        document.getElementById('nombreProducto').value = nombre;
-        document.getElementById('descripcionProducto').value = descripcion;
-
-        // Mostrar el modal
-        let editModal = new bootstrap.Modal(document.getElementById('productoModal'));
-        // Selecciona el formulario
-        var formulario = document.getElementById('productoForm');
-        var btnGuardar = document.getElementById('btn-addProduct');
-
-        btnGuardar.id = 'btn-editProduct';
-
-        // Cambia la ruta de acción del formulario
-        formulario.action = '/updateProduct/' + producId;
-
-        document.getElementById('btn-editProduct').addEventListener('click', e => {
-            // Prevenir el envío automático del formulario
-            e.preventDefault();
-
-            // Mostrar alerta de éxito con SweetAlert2
-            Swal.fire({
-                title: 'Producto modificado Exitosamente',
-                icon: 'success',
-                showConfirmButton: false, // Eliminar el botón de confirmación
-                timer: 1500 // Mostrar el mensaje durante 2 segundos
-            });
-
-            // Usar setTimeout para retrasar el envío del formulario
-            setTimeout(() => {
-                document.getElementById('productoForm').submit();
-            }, 1500); // Retrasar 1.5 segundos antes de enviar el formulario
-
-        });
-
-        editModal.show();
-
-
-    });
-});
-
-function deleteProduct(id) {
-    Swal.fire({
-        title: '¿Desea eliminar el producto? Sku: ' + id,
-        showDenyButton: false,
-        showCancelButton: true,
-        confirmButtonText: 'Si'
-    }).then((result) => {
-        /* Read more about isConfirmed, isDenied below */
-        if (result.isConfirmed) {
-            Swal.fire({
-                title: 'Producto eliminado exitosamente',
-                icon: 'success',
-                showConfirmButton: false,
-                timer: 1000
-            }).then((result) => {
-                setTimeout(() => {
-                    window.location.href = "/deleteProduct/" + id;
-                }, 1000);
-
-            })
-        } else if (result.isDenied) {
-            Swal.fire('El producto no ha sido eliminado', '', 'info')
+            // Si hay errores, puedes mostrar mensajes de error aquí
+            alert('Ocurrió un error: ' + data.message);
         }
     })
+    .catch(error => {
+        hideLoadingModal();  // Ocultar el modal de espera si hay un error
+        alert('Ocurrió un error al enviar los datos.');
+    });
+});
+
+// Para abrir el modal de editar Productos y cargar los datos 
+document.querySelectorAll(".edit-button").forEach(function (button) {
+    button.addEventListener("click", function () {
+        // Obtener el ID del Producto
+        let productID = this.getAttribute("data-id");
+
+        // Obtener la fila de la tabla correspondiente al producto
+        let row = this.closest("tr");
+        let productName = row.cells[1].innerText; 
+        let productDescription = row.cells[2].innerText; 
+    
+        // Rellenar el formulario del modal con los datos del producto 
+        document.getElementById('editProductId').value = productID;
+        document.getElementById('editProductName').value = productName;
+        document.getElementById('editProductDescription').value = productDescription;
+    
+        // Mostrar el modal
+        let editModal = new bootstrap.Modal(document.getElementById("editModalProduct"));
+        editModal.show();
+
+        // Al enviar el formulario de actualizar Productos
+        document.getElementById("editProductForm").addEventListener("submit", function (event) {
+                event.preventDefault(); // Evitar el envío inmediato para mostrar la pantalla de espera
+
+                editModal.hide();
+                showLoadingModal(); 
+
+                // Crear un objeto FormData para capturar los datos del formulario
+                const formData = new FormData(this);
+
+                // Enviar el formulario de manera asíncrona con fetch()
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json()) 
+                .then(data => {
+                    hideLoadingModal();
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        alert('Ocurrió un error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    hideLoadingModal();
+                    alert('Ocurrió un error al enviar los datos.');
+                });
+            });
+    });
+});
+
+// Añadir evento para abrir el modal de edición con doble clic en la fila
+document.querySelectorAll("table tr").forEach(function (row) {
+    row.addEventListener("dblclick", function () {
+        // Obtener el botón de editar dentro de la fila correspondiente
+        let editButton = row.querySelector(".edit-button");
+
+        // Simular el clic en el botón de editar
+        if (editButton) {
+            editButton.click(); // Llamar a la función de clic para editar
+        }
+    });
+});
+
+// Función para eliminar un Producto
+function deleteProduct(id, nombre) {
+    Swal.fire({
+        title: "¿Deseas eliminar el Producto " + nombre + "?",
+        showCancelButton: true,
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar",
+        icon: "warning",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Mostrar modal de espera (con tu lógica actual de modal de espera)
+            showLoadingModal();
+
+            // Enviar la solicitud de eliminación de forma asíncrona
+            fetch("/deleteProduct/" + id, {
+                method: "POST",
+            })
+            .then(response => response.json())
+            .then((data) => {
+                // Ocultar el modal de espera cuando se reciba la respuesta
+                hideLoadingModal();
+
+                if (data.success) {
+                    // Mostrar SweetAlert de éxito y recargar la página
+                    Swal.fire({
+                        title: "Producto eliminado exitosamente",
+                        icon: "success",
+                        showConfirmButton: false,
+                        timer: 1000,
+                    }).then(() => {
+                        // Recargar la página después de eliminar
+                        window.location.reload();
+                    });
+                } else {
+                    // Si hubo un error, mostrar el mensaje de error
+                    Swal.fire({
+                        title: "Error",
+                        text: data.message,
+                        icon: "error",
+                    });
+                }
+            })
+            .catch((error) => {
+                hideLoadingModal();  // Ocultar modal de espera en caso de error
+                Swal.fire({
+                    title: "Error",
+                    text: "Ocurrió un error al eliminar el producto.",
+                    icon: "error",
+                });
+            });
+        }
+    });
 }
 
+// Añadir evento click al botón de eliminar
+document.addEventListener("DOMContentLoaded", function () {
+    const deleteButtons = document.querySelectorAll(".delete-button");
+    deleteButtons.forEach((button) => {
+        button.addEventListener("click", function () {
+            const productId = this.getAttribute("data-id");
+            const productName = this.getAttribute("data-nombre");
+            deleteProduct(productId, productName);
+        });
+    });
+});
+
+
+//Funciones para mostrar y ocultar modal de espera
+function showLoadingModal() {
+    let loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+    loadingModal.show();
+}
+
+function hideLoadingModal() {
+    let loadingModal = bootstrap.Modal.getInstance(document.getElementById('loadingModal'));
+    if (loadingModal) {
+        loadingModal.hide();
+    }
+}
+
+
+//Busqueda de Productos desde la barrra
+document.addEventListener('DOMContentLoaded', function() {
+    var searchInput = document.getElementById('searchInput');
+    var tableRows = document.querySelectorAll('#productList tbody tr');
+
+    searchInput.addEventListener('keyup', function() {
+        var searchValue = this.value.toLowerCase();
+
+        tableRows.forEach(function(row) {
+            var productName = row.cells[1].textContent.toLowerCase();
+            var productDescription = row.cells[2].textContent.toLowerCase();
+
+            if (productName.includes(searchValue) || productDescription.includes(searchValue)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+});

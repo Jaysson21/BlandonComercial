@@ -1,6 +1,3 @@
-// Initialize clients array (no longer needed to simulate ID)
-let clients = []; // This will be filled from the backend
-
 // DOM Elements
 const addClientForm = document.getElementById("addClientForm");
 const clientList = document.getElementById("clientList");
@@ -9,34 +6,23 @@ const editClientForm = document.getElementById("editClientForm");
 const saveEditButton = document.getElementById("saveEditButton");
 const searchInput = document.getElementById("searchInput");
 
+window.onload = function () {
+    let loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+    loadingModal.show();
+
+    setTimeout(() => {
+        loadingModal.hide();
+    }, 500);  // Tiempo de espera para que la transición se complete
+};
+
+
 // Populate clients from server-side data
 function populateClients(clientsFromServer) {
     clients = clientsFromServer;
     clients.forEach((client) => addClientToList(client));
 }
 
-// Update a single client in the list
-function updateClientInList(client) {
-    const tr = clientList.querySelector(`tr[data-id="${client.id}"]`);
-    if (tr) {
-        tr.innerHTML = `
-            <td>${client.id}</td>
-            <td>${client.nombres}</td>
-            <td>${client.apellidos}</td>
-            <td>${client.telefono}</td>
-            <td>${client.cedula}</td>
-            <td>${client.direccion}</td>
-            <td>${new Date(client.fechaRegistro).toLocaleString()}</td>
-            <td>
-                <button class="btn btn-sm btn-primary edit-button" data-id="${client.id
-            }">Editar</button>
-                <button class="btn btn-sm btn-danger delete-button" data-id="${client.id
-            }">Eliminar</button>
-            </td>
-        `;
-    }
-}
-
+// Funcion para Editar Clientes
 document.querySelectorAll(".edit-button").forEach(function (button) {
     button.addEventListener("click", function () {
         // Obtener el ID del cliente del botón
@@ -44,11 +30,11 @@ document.querySelectorAll(".edit-button").forEach(function (button) {
 
         // Obtener la fila de la tabla correspondiente al cliente
         let row = this.closest("tr");
-        let nombres = row.cells[0].getAttribute("data-nombres"); // Obtener nombres guardados
-        let apellidos = row.cells[0].getAttribute("data-apellidos"); //Obtener los apellidos
-        let telefono = row.cells[1].innerText; // Columna Teléfono
-        let cedula = row.cells[2].innerText; // Columna Cedula
-        let direccion = row.cells[3].innerText; // Columna Dirección
+        let nombres = row.cells[0].getAttribute("data-nombres");
+        let apellidos = row.cells[0].getAttribute("data-apellidos");
+        let telefono = row.cells[1].innerText;
+        let cedula = row.cells[2].innerText;
+        let direccion = row.cells[3].innerText;
 
         // Rellenar el formulario del modal con los datos del cliente
         document.getElementById("editClientId").value = clientId;
@@ -59,44 +45,103 @@ document.querySelectorAll(".edit-button").forEach(function (button) {
         document.getElementById("editClientAddress").value = direccion;
 
         // Mostrar el modal
-        let editModal = new bootstrap.Modal(
-            document.getElementById("editModalClient")
-        );
+        let editModal = new bootstrap.Modal(document.getElementById("editModalClient"));
         editModal.show();
 
         // Al enviar el formulario de actualizar cliente
-        document
-            .getElementById("editClientForm")
-            .addEventListener("submit", function (event) {
-                event.preventDefault(); // Evitar el envío inmediato para mostrar la pantalla de espera
+        document.getElementById("editClientForm").addEventListener("submit", function (event) {
+            event.preventDefault(); // Evitar el envío inmediato para mostrar la pantalla de espera
 
-                showLoadingModal();
+            // Ocultar el modal de editar cliente
+            editModal.hide();
 
-                setTimeout(() => {
-                    this.submit();
-                }, 1500); // Espera de 1.5 segundos antes de enviar
+            // Mostrar el modal de espera
+            showLoadingModal();
+
+            // Simular una solicitud asíncrona para enviar el formulario
+            const formData = new FormData(this);
+            fetch(this.action, {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideLoadingModal();  // Ocultar el modal de espera
+                if (data.success) {
+                    // Si la actualización es exitosa, recargar la página o redirigir
+                    window.location.reload();
+                } else {
+                    // Si ocurre un error, mostrar mensaje de error
+                    alert('Ocurrió un error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                hideLoadingModal();  // Ocultar el modal de espera en caso de error
+                alert('Ocurrió un error al enviar los datos.');
             });
+        });
     });
 });
 
-// Función para eliminar un cliente
-function deleteClient(id, nombreCompleto) {
+// Añadir evento para abrir el modal de edición con doble clic en la fila
+document.querySelectorAll("table tr").forEach(function (row) {
+    row.addEventListener("dblclick", function () {
+        // Obtener el botón de editar dentro de la fila correspondiente
+        let editButton = row.querySelector(".edit-button");
+
+        // Simular el clic en el botón de editar
+        if (editButton) {
+            editButton.click(); // Llamar a la función de clic para editar
+        }
+    });
+});
+
+// Función para eliminar un Producto
+function deleteClient(id, nombre) {
     Swal.fire({
-        title: "¿Deseas eliminar al cliente: " + nombreCompleto + "?",
+        title: "¿Deseas eliminar el Cliente " + nombre + "?",
         showCancelButton: true,
         confirmButtonText: "Sí, eliminar",
         cancelButtonText: "Cancelar",
         icon: "warning",
     }).then((result) => {
         if (result.isConfirmed) {
-            Swal.fire({
-                title: "Cliente eliminado exitosamente",
-                icon: "success",
-                showConfirmButton: false,
-                timer: 1000,
-            }).then(() => {
-                // Redirigir para eliminar el cliente en el backend
-                window.location.href = "/deleteClient/" + id;
+            
+            showLoadingModal();
+
+            // Enviar la solicitud de eliminación de forma asíncrona
+            fetch("/deleteClient/" + id, {
+                method: "POST",
+            })
+            .then(response => response.json())
+            .then((data) => {
+                
+                hideLoadingModal();
+
+                if (data.success) {
+                    Swal.fire({
+                        title: "Cliente eliminado exitosamente",
+                        icon: "success",
+                        showConfirmButton: false,
+                        timer: 1000,
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: "Error",
+                        text: data.message,
+                        icon: "error",
+                    });
+                }
+            })
+            .catch((error) => {
+                hideLoadingModal();
+                Swal.fire({
+                    title: "Error",
+                    text: "Ocurrió un error al eliminar el cliente, asegurese que no tiene una venta asociada",
+                    icon: "error",
+                });
             });
         }
     });
@@ -114,6 +159,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+//Filtrar en la tabla Clientes con la barra de busqueda
 document.addEventListener('DOMContentLoaded', function() {
     // Captura el input de búsqueda
     var searchInput = document.getElementById('searchInput');
@@ -149,60 +195,15 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-/*// Inicializar la animación Lottie para el modal de carga
-document.addEventListener('DOMContentLoaded', function () {
-    lottie.loadAnimation({
-        container: document.getElementById('loadingAnimation'), // ID del contenedor de la animación
-        renderer: 'svg',
-        loop: true,
-        autoplay: true,
-        path: url('../assets/loading.json') // Ruta al archivo JSON que subiste (ajusta según tu ruta)
-    });
-});*/
-
-// Función para mostrar el modal de espera
+//Funciones para mostrar y ocultar modal de espera
 function showLoadingModal() {
-    let loadingModal = new bootstrap.Modal(
-        document.getElementById("loadingModal")
-    );
+    let loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
     loadingModal.show();
 }
 
-// Función para ocultar el modal después de 1.5 segundos
 function hideLoadingModal() {
-    setTimeout(function () {
-        let loadingModal = bootstrap.Modal.getInstance(
-            document.getElementById("loadingModal")
-        );
+    let loadingModal = bootstrap.Modal.getInstance(document.getElementById('loadingModal'));
+    if (loadingModal) {
         loadingModal.hide();
-    }, 1500); // Espera de 1.5 segundos antes de ocultarlo
+    }
 }
-
-// Al enviar el formulario de agregar cliente
-document
-    .getElementById("addClientForm")
-    .addEventListener("submit", function (event) {
-        event.preventDefault(); // Evitar el envío inmediato para mostrar la pantalla de espera
-
-        showLoadingModal();
-        setTimeout(() => {
-            this.submit();
-        }, 1500); // Espera de 1.5 segundos antes de enviar
-    });
-
-// Search functionality
-searchInput.addEventListener("input", () => {
-    const searchTerm = searchInput.value.toLowerCase();
-    const rows = clientList.querySelectorAll("tbody tr:not(#noClientsRow)");
-
-    rows.forEach((row) => {
-        const text = row.textContent.toLowerCase();
-        if (text.includes(searchTerm)) {
-            row.style.display = "";
-        } else {
-            row.style.display = "none";
-        }
-    });
-
-    updateNoClientsVisibility();
-});
