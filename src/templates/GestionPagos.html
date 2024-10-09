@@ -28,12 +28,15 @@
                                 <label for="saleSelect" class="form-label">Venta</label>
                                 <select class="form-select" id="saleSelect" required>
                                     <option value="">Seleccione una venta</option>
+                                    {% for venta in ventas %}
+                                    <option value="{{ venta['ventaid'] }}">{{ venta['observacion'] }}</option>
+                                    {% endfor %}
                                 </select>
                             </div>
                             <div class="mb-3">
                                 <label for="paymentAmount" class="form-label">Monto del Pago</label>
                                 <div class="input-group">
-                                    <span class="input-group-text">$</span>
+                                    <span class="input-group-text">C$</span>
                                     <input type="number" class="form-control" id="paymentAmount" step="0.01" min="0"
                                         required />
                                 </div>

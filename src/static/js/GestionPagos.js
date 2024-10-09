@@ -17,7 +17,7 @@ const saleSelect = document.getElementById('saleSelect');
 const editClientSelect = document.getElementById('editClientSelect');
 const editSaleSelect = document.getElementById('editSaleSelect');
 
-// Función para cargar los clientes pasados desde el backend
+/*// Función para cargar los clientes pasados desde el backend
 function populateClients(clientsFromServer) {
     clients = clientsFromServer; // Asignar los clientes recibidos desde el backend
     clients.forEach(client => {
@@ -29,7 +29,7 @@ function populateClients(clientsFromServer) {
         const editOption = option.cloneNode(true);
         editClientSelect.appendChild(editOption);
     });
-}
+}*/
 
 document.addEventListener('DOMContentLoaded', function () {
     // Inicializar Select2 en el select de clientes

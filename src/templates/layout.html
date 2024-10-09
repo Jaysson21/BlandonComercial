@@ -154,6 +154,10 @@
                     <form id="editClientForm" action="/updateClient" method="POST">
                         <input type="hidden" id="editClientId" name="clienteid">
                         <div class="mb-3">
+                            <label for="editClientCedula" class="form-label">Cedula</label>
+                            <input type="cedula" class="form-control" id="editClientCedula" name="cedulaCliente" readonly maxlength="100">
+                        </div>
+                        <div class="mb-3">
                             <label for="editClientName" class="form-label">Nombres</label>
                             <input type="text" class="form-control" id="editClientName" name="nombreCliente"
                                 maxlength="100" required>
@@ -167,10 +171,6 @@
                             <label for="editClientPhone" class="form-label">Teléfono</label>
                             <input type="tel" class="form-control" id="editClientPhone" name="telefonoCliente"
                                 maxlength="20">
-                        </div>
-                        <div class="mb-3">
-                            <label for="editClientCedula" class="form-label">Cedula</label>
-                            <input type="cedula" class="form-control" id="editClientCedula" name="cedulaCliente" readonly maxlength="100">
                         </div>
                         <div class="mb-3">
                             <label for="editClientAddress" class="form-label">Dirección</label>

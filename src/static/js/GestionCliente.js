@@ -15,13 +15,6 @@ window.onload = function () {
     }, 500);  // Tiempo de espera para que la transición se complete
 };
 
-
-// Populate clients from server-side data
-function populateClients(clientsFromServer) {
-    clients = clientsFromServer;
-    clients.forEach((client) => addClientToList(client));
-}
-
 // Funcion para Editar Clientes
 document.querySelectorAll(".edit-button").forEach(function (button) {
     button.addEventListener("click", function () {
@@ -30,10 +23,10 @@ document.querySelectorAll(".edit-button").forEach(function (button) {
 
         // Obtener la fila de la tabla correspondiente al cliente
         let row = this.closest("tr");
-        let nombres = row.cells[0].getAttribute("data-nombres");
-        let apellidos = row.cells[0].getAttribute("data-apellidos");
-        let telefono = row.cells[1].innerText;
-        let cedula = row.cells[2].innerText;
+        let cedula = row.cells[0].innerText;
+        let nombres = row.cells[1].getAttribute("data-nombres");
+        let apellidos = row.cells[1].getAttribute("data-apellidos");
+        let telefono = row.cells[2].innerText;
         let direccion = row.cells[3].innerText;
 
         // Rellenar el formulario del modal con los datos del cliente
@@ -91,7 +84,7 @@ document.querySelectorAll("table tr").forEach(function (row) {
 
         // Simular el clic en el botón de editar
         if (editButton) {
-            editButton.click(); // Llamar a la función de clic para editar
+            editButton.click();
         }
     });
 });
@@ -173,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Combinar nombre y apellidos para búsqueda
             var fullName = row.querySelector('td[data-nombres]').textContent.toLowerCase() + ' ' + row.querySelector('td[data-apellidos]').textContent.toLowerCase();
             var phone = row.cells[1].textContent.toLowerCase();
-            var cedula = row.cells[2].textContent.toLowerCase();
+            var cedula = row.cells[0].textContent.toLowerCase();
             var direccion = row.cells[3].textContent.toLowerCase();
             
             // Filtrar resultados

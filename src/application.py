@@ -21,6 +21,7 @@ import requests
 from model.UsuarioModel import UsuarioModel 
 from model.ProductoModel import ProductoModel
 from model.ClienteModel import ClienteModel
+from model.VentaModel import VentaModel
 
 #entities
 from model.entities.Producto import Producto
@@ -294,7 +295,8 @@ def deleteClient(id):
 @app.route("/GestionPagos")
 def GestionPagos():
     clientes = ClienteModel.get_clients()
-    return render_template("GestionPagos.html", username=session["username"], clientes=clientes, nameuser=session["nameUser"])
+    ventas = VentaModel.get_sales()
+    return render_template("GestionPagos.html", username=session["username"], clientes=clientes, ventas=ventas, nameuser=session["nameUser"])
 
 
 if __name__ == "__main__":
