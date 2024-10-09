@@ -15,12 +15,14 @@
                         <form id="addPaymentForm">
                             <div class="mb-3">
                                 <label for="clientSelect" class="form-label">Cliente</label>
-                                <select id="customerSelect" class="form-control">
+                                <select id="customerSelect" class="form-control" style="width: 100%;">
                                     <option value="">Seleccione un cliente</option>
                                     {% for cliente in clientes %}
-                                    <option value="{{ cliente['clienteid'] }}">{{ cliente['nombres'] }} {{ cliente['apellidos'] }}</option>
+                                    <option value="{{ cliente['clienteid'] }}">{{ cliente['nombres'] }} {{
+                                        cliente['apellidos'] }}</option>
                                     {% endfor %}
                                 </select>
+
                             </div>
                             <div class="mb-3">
                                 <label for="saleSelect" class="form-label">Venta</label>

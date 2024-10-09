@@ -9,8 +9,9 @@ body {
 #clientList {
     width: 100%;
 }
+
 .table-responsive {
-    max-height: 400px;
+    max-height: 65vh;
     overflow-x: auto;
     overflow-y: auto; 
 }

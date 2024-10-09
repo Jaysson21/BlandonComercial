@@ -1,10 +1,18 @@
-from flask import Flask, render_template, jsonify, request, flash, redirect, sessions
+from flask import Flask, render_template, jsonify, request, flash, redirect, sessions, redirect, url_for, session
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy import create_engine
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import scoped_session, sessionmaker
 from funciones import *
 from sqlalchemy.sql import text
+ 
+from dotenv import load_dotenv
+import os
+
+# Cargar las variables del archivo .env
+load_dotenv()
+
 import uuid
 import requests
 
@@ -172,37 +180,52 @@ def GestionClientes():
 @app.route("/addClient", methods=["POST"])
 def addClient():
     if request.method == "POST":
+        # Obtener los datos del formulario
         nombres = request.form.get("nombreCliente")
         apellidos = request.form.get("apellidoCliente")
         cedula = request.form.get("cedulaCliente")
         telefono = request.form.get("telefonoCliente")
         direccion = request.form.get("direccionCliente")
 
+        # Validar los campos
         if not nombres:
-            flash('Ingrese un nombre de Cliente')
+            flash('Ingrese un nombre de Cliente', 'error')
             return redirect("/GestionCliente")
         
         if not apellidos:
-            flash('Ingrese un apellido de Cliente')
+            flash('Ingrese un apellido de Cliente', 'error')
             return redirect("/GestionCliente")
         
         if not cedula:
-            flash('Ingrese un cedula de Cliente')
+            flash('Ingrese una cédula de Cliente', 'error')
             return redirect("/GestionCliente")
         
         if not telefono:
-            flash('Ingrese un teléfono de Cliente')
+            flash('Ingrese un teléfono de Cliente', 'error')
             return redirect("/GestionCliente")
         
-        # Añadir cliente
+        # Crear el objeto cliente
         c = Cliente(clienteid=0, nombres=nombres, apellidos=apellidos, cedula=cedula, telefono=telefono, direccion=direccion, fecharegistro=None)
-        ClienteModel.add_client(c)
+        
+        try:
+            # Añadir cliente a la base de datos
+            ClienteModel.add_client(c)
+            flash('Cliente agregado exitosamente.', 'success')
+        except IntegrityError:
+            # Manejar error de cédula duplicada
+            flash('Error: La cédula ya está registrada. Por favor revisa los datos.', 'error')
+            return redirect("/GestionCliente")
+        except Exception as e:
+            # Manejar cualquier otro error
+            flash('Error: Ha ocurrido un problema. Por favor, revisa los datos e intenta de nuevo.', 'error')
+            return redirect("/GestionCliente")
 
         return redirect("/GestionCliente")
 
 @app.route("/updateClient", methods=["POST"])
 def updateClient():
     if request.method == "POST":
+        # Obtener los datos del formulario
         clienteid = request.form.get("clienteid")
         nombres = request.form.get("nombreCliente")
         apellidos = request.form.get("apellidoCliente")
@@ -217,11 +240,16 @@ def updateClient():
         ClienteModel.update_client(c)
 
         return redirect("/GestionCliente")
-    
+
 @app.route("/deleteClient/<int:id>")
 def deleteClient(id):
-    #eliminar Cliente
-    ClienteModel.delete_client(id)
+    try:
+        # Eliminar cliente de la base de datos
+        ClienteModel.delete_client(id)
+        flash('Cliente eliminado exitosamente.', 'success')
+    except Exception as e:
+        # Manejar cualquier error al eliminar el cliente
+        flash('Error: Ha ocurrido un problema al eliminar el cliente.', 'error')
     return redirect("/GestionCliente")
 
 

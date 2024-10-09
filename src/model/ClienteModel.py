@@ -17,6 +17,7 @@ engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
 
 class ClienteModel:
+    
     @classmethod
     def get_clients(self):
         """Obtener todos los clientes."""

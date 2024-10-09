@@ -31,6 +31,15 @@ function populateClients(clientsFromServer) {
     });
 }
 
+document.addEventListener('DOMContentLoaded', function () {
+    // Inicializar Select2 en el select de clientes
+    $('#customerSelect').select2({
+        placeholder: 'Seleccione un cliente', // Placeholder
+        allowClear: true  // Permite limpiar la selección
+    });
+});
+
+
 // Función para cargar ventas basadas en el cliente seleccionado
 function populateSaleSelect(clientId, selectElement) {
     selectElement.innerHTML = '<option value="">Seleccione una venta</option>';

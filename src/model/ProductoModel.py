@@ -3,7 +3,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from funciones import *
 from sqlalchemy.sql import text
-
 #objeto
 from .entities.Producto import Producto
 
@@ -25,7 +24,7 @@ class ProductoModel():
             ListaProducto=[]
             
             productoCSL = db.execute(text(
-                "SELECT * FROM dbo.productos")).fetchall()
+                "SELECT * FROM dbo.obtenerproductos()")).fetchall()
 
             # Extraer los resultados
             db.commit()
