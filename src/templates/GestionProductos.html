@@ -6,12 +6,13 @@
 
     <!-- Botón para agregar nuevo producto -->
     <div class="d-flex justify-content-end mb-3">
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productoModal">Agregar Producto</button>
+        <button id="btnFormAddProd" class="btn btn-primary" data-bs-toggle="modal"
+            data-bs-target="#productoModal">Agregar Producto</button>
     </div>
 
     <div class="scroll-panel border border-2 p-2">
         <!-- Tabla para listar productos -->
-        <table class="table table-striped table-hover">
+        <table id="tableProducts" class="table table-striped table-hover">
             <thead class="table-dark">
                 <tr>
                     <th>Sku</th>
@@ -28,8 +29,7 @@
                     <td>{{p.1}}</td>
                     <td>{{p.2}}</td>
                     <td>
-                        <button class="btn btn-warning btn-sm me-2" data-bs-toggle="modal"
-                            data-bs-target="#productroModal">Editar</button>
+                        <button id="btnEditProduct" class="btn btn-warning btn-sm me-2">Editar</button>
                         <button name="btn-deleteProduct" onclick="deleteProduct({{p.0}})"
                             class="btn btn-danger btn-sm">Eliminar</button>
                     </td>

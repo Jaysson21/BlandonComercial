@@ -1,12 +1,10 @@
 from flask import Flask, render_template, jsonify, request, flash, redirect, sessions
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
-from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
 from funciones import *
-from sqlalchemy.sql import text
 import uuid
 import requests
+
 
 #models
 from model.UsuarioModel import UsuarioModel 
@@ -135,7 +133,7 @@ def GestionVentas():
 @app.route("/GestionProductos")
 def GestionProductos():
     productos=ProductoModel.get_products()
-    return render_template("GestionProductos.html", username=session["username"], productos=productos, nameuser=session["nameUser"] )
+    return render_template("GestionProductos.html", username=session["username"], productos=productos, nameuser=session["nameUser"])
 
 @app.route("/addProduct", methods=["POST"])
 def addProduct():
@@ -154,6 +152,27 @@ def addProduct():
         #Añadir producto
         p = Producto(productoid=0,nombre=nombre,descripcion=descripcion)
         ProductoModel.add_product(p)
+
+        return redirect("/GestionProductos")
+    
+@app.route("/updateProduct/<id>", methods=["POST"])
+def updateProduct(id):
+    if request.method == "POST":
+        nombre = request.form.get("nombreProducto")
+        descripcion = request.form.get("descripcionProducto")
+
+        if not request.form.get("nombreProducto"):
+            flash('Ingrese un nombre de Producto')
+            return redirect("/GestionProductos")
+        
+        if not request.form.get("descripcionProducto"):
+            flash('Ingrese una descripcion del Producto')
+            return redirect("/GestionProductos")
+        
+        #Editar producto
+        #p = Producto(productoid=id,nombre=nombre,descripcion=descripcion)
+        #ProductoModel.update_product(p)
+        print(id)
 
         return redirect("/GestionProductos")
 

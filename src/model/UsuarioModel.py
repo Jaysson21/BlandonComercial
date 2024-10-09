@@ -3,10 +3,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from funciones import *
 from sqlalchemy.sql import text
+from dotenv import load_dotenv
 #objeto
 from .entities.Usuario import Usuario
 
-app = Flask(__name__)
+load_dotenv()
 
 # Check for environment variable
 if not os.getenv("DATABASE_URL"):
