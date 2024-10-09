@@ -1,10 +1,10 @@
 class Cliente:
-    def __init__(self, clienteid, nombres, apellidos, telefono, email, direccion, fecharegistro):
+    def __init__(self, clienteid, nombres, apellidos, telefono, cedula, direccion, fecharegistro):
         self.clienteid = clienteid
         self.nombres = nombres
         self.apellidos = apellidos
         self.telefono = telefono
-        self.email = email
+        self.cedula = cedula
         self.direccion = direccion
         self.fecharegistro = fecharegistro
 
@@ -14,7 +14,7 @@ class Cliente:
             'nombres': self.nombres,
             'apellidos': self.apellidos,
             'telefono': self.telefono,
-            'email': self.email,
+            'cedula': self.cedula,
             'direccion': self.direccion,
             'fecharegistro': self.fecharegistro
         }
