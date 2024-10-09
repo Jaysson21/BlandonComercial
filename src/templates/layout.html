@@ -12,6 +12,9 @@
     <link rel="stylesheet" href="{{url_for('static', filename='css/layout.css')}}">
     <!-- BOXICONS -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+    <!-- Incluir jQuery para manejar AJAX -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 
 <body>
@@ -97,12 +100,17 @@
         </div>
     </div>
 
-    <div class="container-main pt-5">
-
-        <p style="color: rgb(252, 120, 25); position:inherit; margin-top: -4vh; margin-left: 2vh;">Usuario:
-            {{nameuser}}</p> <br>
-        <p id="fecha" style="color: rgb(252, 120, 25); position:inherit; margin-top: -4vh; margin-left: 2vh;">Usuario:
-            Cargando...</p>
+    <div class="container-main pt-3">
+        <div class="row">
+            <div class="col" style="text-align: left;">
+                <p style="color: rgb(252, 120, 25);">
+                    {{nameuser}}</p>
+            </div>
+            <div class="col" style="text-align: right;">
+                <p id="fecha" style="color: rgb(252, 120, 25);">
+                    Cargando...</p>
+            </div>
+        </div>
 
         {% block body %}
         {% endblock %}
@@ -197,9 +205,8 @@
     <script src="{{url_for('static', filename='js/layout.js')}}"></script>
     <script src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
 
-    <script src=" //cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src=" //cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
         integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
@@ -207,7 +214,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
         integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
         crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.6.10/lottie.min.js"></script>
 
 
 </body>

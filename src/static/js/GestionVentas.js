@@ -1,139 +1,86 @@
-let saleItems = [];
 
-// DOM Elements
-const customerSelect = document.getElementById('customerSelect');
-const productSelect = document.getElementById('productSelect');
-const quantityInput = document.getElementById('quantity');
-const manualPriceInput = document.getElementById('manualPrice');
-const addProductButton = document.getElementById('addProduct');
-const saleItemsTable = document.getElementById('saleItems');
-const totalElement = document.getElementById('total');
-const generateSaleButton = document.getElementById('generateSale');
-const editModal = document.getElementById('editModal');
-const editQuantityInput = document.getElementById('editQuantity');
-const editManualPriceInput = document.getElementById('editManualPrice');
-const saveEditButton = document.getElementById('saveEdit');
-const closeModalButton = document.getElementById('closeModal');
+// Función para realizar la búsqueda con AJAX
+$('#buscador').on('keyup', function () {
+    const query = $(this).val();
 
-// Add product to sale
-addProductButton.addEventListener('click', () => {
-    const productId = productSelect.value;
-    const selectElement = document.getElementById('productSelect');
-    const product = selectElement.options[selectElement.selectedIndex].text;
+    // Verificar si el usuario ha escrito algo
+    if (query.length > 0) {
+        // Realizar la solicitud AJAX
+        $.ajax({
+            url: '/buscar_producto', // Ruta a tu API o servidor
+            method: 'GET',
+            data: { query: query },
+            success: function (response) {
+                // Limpiar resultados anteriores
+                $('#listaResultados').empty();
 
-    if (product && parseInt(quantityInput.value) > 0) {
-        const newItem = {
-            product,
-            quantity: parseInt(quantityInput.value),
-            manualPrice: parseFloat(manualPriceInput.value) // Always use manual price entered by the user
-        };
-        saleItems.push(newItem);
-        updateSaleItemsTable();
-        resetProductForm();
+                // Verificar si se encontraron resultados
+                if (response.length > 0) {
+                    // Agregar cada resultado como un <li> en la lista
+                    response.forEach(function (producto) {
+                        $('#listaResultados').append(
+                            `<li class="list-group-item">${producto.nombre} - Código: ${producto.productoid}</li>`
+                        );
+                    });
+                } else {
+                    // Si no hay resultados
+                    $('#listaResultados').append('<li class="list-group-item">No se encontraron productos.</li>');
+                }
+            }
+        });
+    } else {
+        // Limpiar resultados si la búsqueda es muy corta
+        $('#listaResultados').empty();
     }
 });
 
-// Update sale items table
-function updateSaleItemsTable() {
-    const tbody = saleItemsTable.querySelector('tbody');
-    tbody.innerHTML = '';
-    saleItems.forEach((item, index) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td data-label="Producto">${item.product}</td>
-            <td data-label="Precio">$${item.manualPrice.toFixed(2)}</td>
-            <td data-label="Cantidad">${item.quantity}</td>
-            <td data-label="Subtotal">$${(item.manualPrice * item.quantity).toFixed(2)}</td>
-            <td data-label="Acciones">
-                <button class="btn btn-sm btn-primary edit-button" data-index="${index}">Editar</button>
-                <button class="btn btn-sm btn-danger delete-button" data-index="${index}">Eliminar</button>
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
-    updateTotal();
+/*
+// Función para buscar cliente (Simulación)
+function buscarCliente() {
+    // Aquí puedes hacer una solicitud AJAX para buscar el cliente en la base de datos
+    // Datos simulados del cliente encontrados
+    document.getElementById('direccionCliente').value = 'Calle Falsa 123';
+    document.getElementById('telefonoCliente').value = '123-456-7890';
 }
 
-// Update total
-function updateTotal() {
-    const total = saleItems.reduce((sum, item) => {
-        return sum + item.manualPrice * item.quantity;
-    }, 0);
-    totalElement.textContent = `Total: $${total.toFixed(2)}`;
-}
+let productos = [];
+let total = 0;
 
-// Reset product form
-function resetProductForm() {
-    productSelect.value = '';
-    quantityInput.value = '1';
-    manualPriceInput.value = '';
-}
+// Función para agregar productos a la tabla
+function agregarProducto() {
+    const codigo = document.getElementById('codigoProducto').value;
+    const nombre = document.getElementById('nombreProducto').value;
+    const precio = parseFloat(document.getElementById('precioProducto').value);
+    const cantidad = parseInt(document.getElementById('cantidadProducto').value);
 
-// Remove product from sale
-saleItemsTable.addEventListener('click', (e) => {
-    if (e.target.classList.contains('delete-button')) {
-        const index = parseInt(e.target.dataset.index);
-        saleItems.splice(index, 1);
-        updateSaleItemsTable();
-    } else if (e.target.classList.contains('edit-button')) {
-        const index = parseInt(e.target.dataset.index);
-        openEditModal(index);
-    }
-});
-
-// Edit product
-let editingIndex = -1;
-
-function openEditModal(index) {
-    editingIndex = index;
-    const item = saleItems[index];
-    editQuantityInput.value = item.quantity;
-    editManualPriceInput.value = item.manualPrice !== undefined ? item.manualPrice : '';
-    editModal.style.display = 'block';
-}
-
-saveEditButton.addEventListener('click', () => {
-    if (editingIndex !== -1) {
-        saleItems[editingIndex].quantity = parseInt(editQuantityInput.value);
-        const manualPrice = parseFloat(editManualPriceInput.value);
-        saleItems[editingIndex].manualPrice = !isNaN(manualPrice) ? manualPrice : undefined;
-        updateSaleItemsTable();
-        closeEditModal();
-    }
-});
-
-closeModalButton.addEventListener('click', closeEditModal);
-
-function closeEditModal() {
-    editModal.style.display = 'none';
-    editingIndex = -1;
-}
-
-// Generate sale
-generateSaleButton.addEventListener('click', () => {
-    const selectedCustomerId = customerSelect.value;
-    if (saleItems.length === 0 || !selectedCustomerId) {
-        alert('Por favor, seleccione un cliente y añada al menos un producto a la venta.');
+    if (!codigo || !nombre || !precio || !cantidad) {
+        alert('Por favor, completa todos los campos del producto.');
         return;
     }
 
-    // Obtenemos los datos del cliente directamente del select
-    const selectedCustomerName = customerSelect.options[customerSelect.selectedIndex].text;
-    const total = saleItems.reduce((sum, item) => {
-        return sum + item.manualPrice * item.quantity;
-    }, 0);
+    const subtotal = precio * cantidad;
+    total += subtotal;
 
-    // Aquí normalmente enviarías los datos al backend
-    console.log('Venta generada:', {
-        cliente: { id: selectedCustomerId, name: selectedCustomerName },
-        items: saleItems,
-        total
-    });
+    // Agregar producto al array
+    productos.push({ codigo, nombre, precio, cantidad, subtotal });
 
-    alert(`Venta para ${selectedCustomerName} por un total de $${total.toFixed(2)} ha sido creada.`);
+    // Actualizar tabla de productos
+    const tablaProductos = document.getElementById('tablaProductos');
+    const fila = `<tr>
+                <td>${codigo}</td>
+                <td>${nombre}</td>
+                <td>$${precio.toFixed(2)}</td>
+                <td>${cantidad}</td>
+                <td>$${subtotal.toFixed(2)}</td>
+            </tr>`;
+    tablaProductos.innerHTML += fila;
 
-    // Reset the form
-    saleItems = [];
-    updateSaleItemsTable();
-    customerSelect.value = '';
-});
+    // Actualizar total
+    document.getElementById('montoTotal').innerText = total.toFixed(2);
+
+    // Limpiar campos de producto
+    document.getElementById('codigoProducto').value = '';
+    document.getElementById('nombreProducto').value = '';
+    document.getElementById('precioProducto').value = '';
+    document.getElementById('cantidadProducto').value = 1;
+}*/

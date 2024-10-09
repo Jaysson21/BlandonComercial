@@ -3,12 +3,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from funciones import *
 from sqlalchemy.sql import text
-from dotenv import load_dotenv
 
 #objeto
 from .entities.Producto import Producto
 
-load_dotenv()
 
 # Check for environment variable
 if not os.getenv("DATABASE_URL"):
@@ -23,7 +21,7 @@ class ProductoModel():
     @classmethod
     def get_products(self):
         try:
-            ListaProducto=[]
+            lista_productos=[]
             
             productoCSL = db.execute(text(
                 "SELECT * FROM dbo.productos")).fetchall()
@@ -32,12 +30,16 @@ class ProductoModel():
             db.commit()
             
             # Formatear los resultados en un diccionario
-            for i in range(len(productoCSL)):
-                ListaProducto.append([productoCSL[i][0],productoCSL[i][1],
-                            productoCSL[i][2]])
-                i+=1
-
-            return ListaProducto
+             # Convertir cada producto en un diccionario
+            for producto in productoCSL:
+                producto_dict = {
+                    "productoid": str(producto[0]),   # Asegúrate de que los nombres de las claves coincidan con los campos reales
+                    "nombre": producto[1],
+                    "descripcion": producto[2]
+                }
+                lista_productos.append(producto_dict)
+           
+            return lista_productos
         except Exception as ex:
             raise Exception(ex)
         

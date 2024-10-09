@@ -135,6 +135,13 @@ def GestionProductos():
     productos=ProductoModel.get_products()
     return render_template("GestionProductos.html", username=session["username"], productos=productos, nameuser=session["nameUser"])
 
+@app.route('/buscar_producto', methods=["GET"])
+def buscar_producto():
+    query = request.args.get('query', '').lower()
+    products = ProductoModel.get_products()
+    resultados = [p for p in products if query in p['nombre'].lower() or query in p['productoid']]
+    return jsonify(resultados[:3])
+
 @app.route("/addProduct", methods=["POST"])
 def addProduct():
     if request.method == "POST":
