@@ -16,6 +16,7 @@ load_dotenv()
 import uuid
 import requests
 
+
 #models
 from model.UsuarioModel import UsuarioModel 
 from model.ProductoModel import ProductoModel
@@ -143,7 +144,14 @@ def GestionVentas():
 @app.route("/GestionProductos")
 def GestionProductos():
     productos=ProductoModel.get_products()
-    return render_template("GestionProductos.html", username=session["username"], productos=productos, nameuser=session["nameUser"] )
+    return render_template("GestionProductos.html", username=session["username"], productos=productos, nameuser=session["nameUser"])
+
+@app.route('/buscar_producto', methods=["GET"])
+def buscar_producto():
+    query = request.args.get('query', '').lower()
+    products = ProductoModel.get_products()
+    resultados = [p for p in products if query in p['nombre'].lower() or query in p['productoid']]
+    return jsonify(resultados[:3])
 
 @app.route("/addProduct", methods=["POST"])
 def addProduct():
@@ -164,7 +172,28 @@ def addProduct():
         ProductoModel.add_product(p)
 
         return redirect("/GestionProductos")
+    
+@app.route("/updateProduct/<id>", methods=["POST"])
+def updateProduct(id):
+    if request.method == "POST":
+        nombre = request.form.get("nombreProducto")
+        descripcion = request.form.get("descripcionProducto")
 
+        if not request.form.get("nombreProducto"):
+            flash('Ingrese un nombre de Producto')
+            return redirect("/GestionProductos")
+        
+        if not request.form.get("descripcionProducto"):
+            flash('Ingrese una descripcion del Producto')
+            return redirect("/GestionProductos")
+        
+        #Editar producto
+        #p = Producto(productoid=id,nombre=nombre,descripcion=descripcion)
+        #ProductoModel.update_product(p)
+        print(id)
+
+        return redirect("/GestionProductos")
+      
 @app.route("/deleteProduct/<id>")
 def deleteProduct(id):
     #eliminar producto

@@ -15,26 +15,31 @@
                     <form action="/addClient" method="POST" id="addClientForm">
                         <div class="mb-3">
                             <label for="clientName" class="form-label">Nombres</label>
-                            <input type="text" placeholder="Nombres del Cliente" class="form-control" id="clientName" name="nombreCliente" maxlength="100" required>
+                            <input type="text" placeholder="Nombres del Cliente" class="form-control" id="clientName"
+                                name="nombreCliente" maxlength="100" required>
                         </div>
                         <div class="mb-3">
                             <label for="clientSurName" class="form-label">Apellidos</label>
-                            <input type="text" placeholder="Apellidos del Cliente" class="form-control" id="clientSurName" name="apellidoCliente" maxlength="100" required>
+                            <input type="text" placeholder="Apellidos del Cliente" class="form-control"
+                                id="clientSurName" name="apellidoCliente" maxlength="100" required>
                         </div>
                         <div class="mb-3">
                             <label for="clientPhone" class="form-label">Teléfono</label>
-                            <input type="tel" placeholder="8888-8888" class="form-control" id="clientPhone" name="telefonoCliente" maxlength="20">
+                            <input type="tel" placeholder="8888-8888" class="form-control" id="clientPhone"
+                                name="telefonoCliente" maxlength="20">
                         </div>
                         <div class="mb-3">
                             <label for="clientCedula" class="form-label">Cedula</label>
-                            <input type="cedula" placeholder="000-000000-0000A" class="form-control" id="clientCedula" name="cedulaCliente" maxlength="100">
+                            <input type="cedula" placeholder="000-000000-0000A" class="form-control" id="clientCedula"
+                                name="cedulaCliente" maxlength="100">
                         </div>
                         <div class="mb-3">
                             <label for="clientAddress" class="form-label">Dirección</label>
-                            <textarea class="form-control" placeholder="Dirección..." id="clientAddress" name="direccionCliente" rows="3" maxlength="255"></textarea>
+                            <textarea class="form-control" placeholder="Dirección..." id="clientAddress"
+                                name="direccionCliente" rows="3" maxlength="255"></textarea>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Registrar Cliente</button>
-                    </form>                    
+                    </form>
                 </div>
             </div>
         </div>
@@ -62,26 +67,30 @@
                             </thead>
                             <tbody>
                                 {% if clientes %}
-                                    {% for cliente in clientes %}
-                                    <tr data-id="{{ cliente['clienteid'] }}"> <!-- Mantén el data-id en la fila -->
-                                        <td data-nombres="{{ cliente['nombres'] }}" data-apellidos="{{ cliente['apellidos'] }}">
-                                            {{ cliente['nombres'] }} {{ cliente['apellidos'] }}
-                                        </td>
-                                        <td>{{ cliente['telefono'] }}</td>
-                                        <td>{{ cliente['cedula'] }}</td>
-                                        <td>{{ cliente['direccion'] }}</td>
-                                        <td>{{ cliente['fecharegistro'] }}</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-primary edit-button" data-id="{{ cliente['clienteid'] }}">Editar</button>
-                                            <button class="btn btn-sm btn-danger delete-button" data-id="{{ cliente['clienteid'] }}" data-nombre="{{ cliente['nombres'] }} {{ cliente['apellidos'] }}">Eliminar</button>
-                                        </td>
-                                    </tr>
-                                    
-                                    {% endfor %}
+                                {% for cliente in clientes %}
+                                <tr data-id="{{ cliente['clienteid'] }}"> <!-- Mantén el data-id en la fila -->
+                                    <td data-nombres="{{ cliente['nombres'] }}"
+                                        data-apellidos="{{ cliente['apellidos'] }}">
+                                        {{ cliente['nombres'] }} {{ cliente['apellidos'] }}
+                                    </td>
+                                    <td>{{ cliente['telefono'] }}</td>
+                                    <td>{{ cliente['cedula'] }}</td>
+                                    <td>{{ cliente['direccion'] }}</td>
+                                    <td>{{ cliente['fecharegistro'] }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary edit-button"
+                                            data-id="{{ cliente['clienteid'] }}">Editar</button>
+                                        <button class="btn btn-sm btn-danger delete-button"
+                                            data-id="{{ cliente['clienteid'] }}"
+                                            data-nombre="{{ cliente['nombres'] }} {{ cliente['apellidos'] }}">Eliminar</button>
+                                    </td>
+                                </tr>
+
+                                {% endfor %}
                                 {% else %}
-                                    <tr id="noClientsRow">
-                                        <td colspan="6" class="text-center">No hay clientes registrados</td>
-                                    </tr>
+                                <tr id="noClientsRow">
+                                    <td colspan="6" class="text-center">No hay clientes registrados</td>
+                                </tr>
                                 {% endif %}
                             </tbody>
                         </table>
@@ -94,5 +103,4 @@
 </div>
 
 <script src="{{url_for('static', filename='js/GestionCliente.js')}}"></script>
-<script src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
 {% endblock %}
