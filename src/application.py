@@ -175,7 +175,7 @@ def updateProduct(id):
         print(id)
 
         return redirect("/GestionProductos")
-
+      
 @app.route("/deleteProduct/<id>")
 def deleteProduct(id):
     #eliminar producto
