@@ -1,20 +1,9 @@
-from flask import Flask, render_template, jsonify, request, flash, redirect, sessions, redirect, url_for, session
+from flask import Flask, render_template, jsonify, request, flash, redirect, redirect, url_for, session
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
-from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import scoped_session, sessionmaker
 from funciones import *
-from sqlalchemy.sql import text
- 
-from dotenv import load_dotenv
-import os
-
-# Cargar las variables del archivo .env
-load_dotenv()
-
 import uuid
-import requests
 
 
 #models
@@ -34,6 +23,9 @@ app = Flask(__name__)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
+
+#lista producto
+ProductsList = []
 
 @app.route("/")
 def index():
@@ -138,20 +130,23 @@ def logout():
 @app.route("/GestionVentas")
 def GestionVentas():
     clientes = ClienteModel.get_clients()
-    productos=ProductoModel.get_products()
-    return render_template("GestionVentas.html", username=session["username"], clientes=clientes, productos=productos, nameuser=session["nameUser"])
+    actualizar_listaProd()
+    return render_template("GestionVentas.html", username=session["username"], clientes=clientes, nameuser=session["nameUser"])
 
 #***************************************************************************************************** PARA LOS PRODUCTOS
 @app.route("/GestionProductos")
 def GestionProductos():
-    productos=ProductoModel.get_products()
-    return render_template("GestionProductos.html", username=session["username"], productos=productos, nameuser=session["nameUser"])
+    actualizar_listaProd()
+    return render_template("GestionProductos.html", username=session["username"], productos=ProductsList, nameuser=session["nameUser"])
+
+def actualizar_listaProd():
+    global ProductsList
+    ProductsList=ProductoModel.get_products()
 
 @app.route('/buscar_producto', methods=["GET"])
 def buscar_producto():
     query = request.args.get('query', '').lower()
-    products = ProductoModel.get_products()
-    resultados = [p for p in products if query in p['nombre'].lower() or query in p['productoid']]
+    resultados = [p for p in ProductsList if query in p['nombre'].lower() or query in p['productoid']]
     return jsonify(resultados[:3])
 
 @app.route("/addProduct", methods=["POST"])
