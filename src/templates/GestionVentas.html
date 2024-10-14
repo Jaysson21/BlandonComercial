@@ -5,34 +5,48 @@
 <body class="container my-4">
     <!-- Sección de Búsqueda de Cliente -->
     <div class="card mb-4">
-        <h2>Iniciar nueva venta</h2>
+        <h2>Nueva venta</h2>
         <div class="card-header">Buscar Cliente</div>
         <div class="card-body">
             <form id="clienteForm">
                 <div class="row g-3">
-                    <div class="col-md-6">
+                    <!-- Selector de filtro -->
+                    <div class="col-sm-2">
+                        <label for="filtro" class="form-label">Buscar por:</label>
+                        <select id="filtro" class="form-select">
+                            <option value="cedula">Cédula</option>
+                            <option value="nombre">Telefono</option>
+                        </select>
+                    </div>
+                    <div class="col-md-5">
                         <label for="cedulaCliente" class="form-label">Cédula del Cliente</label>
                         <input type="text" class="form-control" id="cedulaCliente" placeholder="Ingrese cédula">
                     </div>
-                    <div class="col-md-6">
-                        <label for="nombreCliente" class="form-label">Nombre del Cliente</label>
-                        <select id="selectNombreCliente" class="form-select" style="width: 100%;">
-                            <option value="1">Opción 1</option>
-                            <option value="2">Opción 2</option>
-                            <option value="3">Opción 3</option>
-                            <option value="4">Opción 4</option>
-                            <option value="5">Opción 5</option>
-                        </select>
+                    <div class="col-md-1 d-flex flex-column">
+                        <a href="#btnInitSell" id="btn-searchClient" class="mt-auto">
+                            <i class="bx bx-search" style="font-size: 2rem; color: rgb(252, 120, 25);"></i>
+                        </a>
+                        <!--button type="button" class="btn btn-primary mt-auto" onclick=" buscarCliente()">Buscar</button-->
                     </div>
-                    <div class="col-12 text-end mt-3">
-                        <button type="button" class="btn btn-primary" onclick="buscarCliente()">Buscar Cliente</button>
+                    <div class="col-md-3 d-flex flex-column">
+                        <a href="#" class="mt-auto btn-searchClient" style="font-size: 1rem; color: rgb(252, 120, 25);">
+                            <i class="bx bx-plus">
+                            </i>
+                            Busqueda Avanzada
+                        </a>
+
                     </div>
+
                 </div>
 
                 <!-- Sección para cargar datos del cliente -->
                 <div id="clienteDatos" class="mt-4">
                     <h5>Datos del Cliente</h5>
                     <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="NombreCliente" class="form-label">Nombre:</label>
+                            <input type="text" class="form-control" id="NombreCliente" disabled>
+                        </div>
                         <div class="col-md-6">
                             <label for="direccionCliente" class="form-label">Dirección</label>
                             <input type="text" class="form-control" id="direccionCliente" disabled>
@@ -41,6 +55,15 @@
                             <label for="telefonoCliente" class="form-label">Teléfono</label>
                             <input type="text" class="form-control" id="telefonoCliente" disabled>
                         </div>
+                        <div class="col-md-3 d-flex flex-column">
+                            <a id="btnInitSell" href="#" class=" btn btn-primary mt-auto btn-searchClient"
+                                style="font-size: 1rem;" aria-disabled="true">
+                                <i class="bx bxs-badge-dollar">
+                                </i>
+                                Iniciar venta
+                            </a>
+                        </div>
+
                     </div>
                 </div>
             </form>
@@ -54,30 +77,21 @@
             <form id="productoForm">
                 <div class="row g-3">
                     <div class="col-md-6">
-
                         <label for="codigoProducto" class="form-label">Código del Producto</label>
-                        <div class="mb-4">
-                            <input type="text" id="buscador" class="form-control" placeholder="Buscar productos...">
+                        <div id="btn_code" class="mb-4">
+                            <input style="width: auto; display: inline;" type="text" id="buscador" class="form-control"
+                                placeholder="Buscar productos...">
+                            <!-- Lista de resultados -->
+                            <ul style="position: relative;" id="listaResultados" class="list-group mt-2">
+                                <!-- Los resultados de la búsqueda se llenarán aquí dinámicamente -->
+                            </ul>
                         </div>
-                        <!-- Lista de resultados -->
-                        <ul style="position: absolute;" id="listaResultados" class="list-group">
-                            <!-- Los resultados de la búsqueda se llenarán aquí dinámicamente -->
-                        </ul>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="precioProducto" class="form-label">Precio</label>
-                        <input type="number" class="form-control" id="precioProducto" disabled>
-                    </div>
-                    <div class="col-md-6">
 
                     </div>
                     <div class="col-md-6">
-                        <label for="cantidadProducto" class="form-label">Cantidad</label>
-                        <input type="number" class="form-control" id="cantidadProducto" min="1" value="1" disabled>
-                    </div>
-                    <div class="col-12 text-end mt-3">
-                        <button type="button" class="btn btn-success" onclick="agregarProducto()">Agregar
-                            Producto</button>
+                        <div id="formProduct" class="formProduct">
+
+                        </div>
                     </div>
                 </div>
             </form>
