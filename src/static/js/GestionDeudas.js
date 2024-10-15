@@ -2,7 +2,6 @@
 const addPaymentForm = document.getElementById('addPaymentForm');
 const paymentHistory = document.getElementById('paymentHistory');
 const noPaymentsRow = document.getElementById('noPaymentsRow');
-//const editModal = new bootstrap.Modal(document.getElementById('editModal'));
 const editPaymentForm = document.getElementById('editPaymentForm');
 const saveEditButton = document.getElementById('saveEditButton');
 const searchInput = document.getElementById('searchInput');
@@ -11,17 +10,25 @@ const saleSelect = document.getElementById('saleSelect');
 const editClientSelect = document.getElementById('editClientSelect');
 const editSaleSelect = document.getElementById('editSaleSelect');
 
-document.getElementById('searchSalesForm').addEventListener('submit', function (e) {
-    e.preventDefault();  // Evitar el comportamiento por defecto del formulario
+//Cargar la pantalla
+window.onload = function () {
+    let loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+    loadingModal.show();
 
-    debugger
+    setTimeout(() => {
+        loadingModal.hide();
+    }, 500);  // Tiempo de espera para que la transición se complete
+};
+
+document.getElementById('searchSalesForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+
     const clienteId = document.getElementById('customerSelect').value;
 
     if (clienteId) {
-        // Mostrar el modal de carga
+
         showLoadingModal();
-        debugger
-        // Hacer la solicitud POST al backend usando fetch API
+        
         fetch(`/SalesCustomer/${clienteId}`, {
             method: 'POST',
             headers: {
@@ -30,9 +37,9 @@ document.getElementById('searchSalesForm').addEventListener('submit', function (
         })
         .then(response => response.json())
         .then(data => {
-            // Ocultar el modal de carga
+
             hideLoadingModal();
-            debugger
+        
             if (data.success) {
                 // Llenar la tabla con las ventas del cliente seleccionado
                 populateSalesTable(data.ventas);
@@ -41,7 +48,6 @@ document.getElementById('searchSalesForm').addEventListener('submit', function (
             }
         })
         .catch(error => {
-            // Ocultar el modal de carga en caso de error
             hideLoadingModal();
             console.error('Error:', error);
             alert('Ocurrió un error al buscar las ventas.');
@@ -51,13 +57,21 @@ document.getElementById('searchSalesForm').addEventListener('submit', function (
     }
 });
 
-// Función para mostrar el modal de carga
+//Manejo de errores
+document.addEventListener("DOMContentLoaded", function () {
+    // Si hay un mensaje de error (div.alert-danger), mostrar el modal
+    if (document.querySelector(".alert-danger")) {
+        let errorModal = new bootstrap.Modal(document.getElementById("errorModal"));
+        errorModal.show();
+    }
+});
+
+//Funciones para mostrar y ocultar modal de espera
 function showLoadingModal() {
     let loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
     loadingModal.show();
 }
 
-// Función para ocultar el modal de carga
 function hideLoadingModal() {
     let loadingModal = bootstrap.Modal.getInstance(document.getElementById('loadingModal'));
     if (loadingModal) {
@@ -65,12 +79,12 @@ function hideLoadingModal() {
     }
 }
 
+
 // Función para rellenar la tabla de ventas
 function populateSalesTable(ventas) {
     const tbody = document.querySelector('#paymentHistory tbody');
     tbody.innerHTML = '';  // Limpiar el contenido actual
 
-    debugger
     if (ventas.length > 0) {
         ventas.forEach(venta => {
             const row = document.createElement('tr');
@@ -78,9 +92,8 @@ function populateSalesTable(ventas) {
 
             row.innerHTML = `
                 <td>${venta.ventaid}</td>
-                <td>${venta.clienteid}</td>
+                <td>${venta.nombres}</td>
                 <td>${venta.monto}</td>
-                <td>${venta.direccion}</td>
                 <td>${venta.fechaventa}</td>
                 <td>
                     <button class="btn btn-sm btn-primary">Ver Detalles</button>
@@ -94,10 +107,18 @@ function populateSalesTable(ventas) {
     }
 }
 
-// Asignar la cédula seleccionada al campo de cédula en el formulario
-document.getElementById('customerSelect').addEventListener('change', function() {
-    const selectedOption = this.options[this.selectedIndex];
-    const cedula = selectedOption.getAttribute('data-cedula');
-    document.getElementById('clientCedula').value = cedula || '';
+// Asignar la cedula del cliente seleccionado
+$(document).ready(function() {
+    $('#customerSelect').select2({
+        placeholder: 'Seleccione un cliente',
+        allowClear: true
+    });
+
+    
+    $('#customerSelect').on('select2:select', function(e) {
+        const cedula = $('#customerSelect option:selected').data('cedula');
+        $('#clientCedula').val(cedula || '');
+    });
 });
+
 

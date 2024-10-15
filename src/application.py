@@ -250,12 +250,10 @@ def addClient():
             return redirect("/GestionCliente")
         except Exception as e:
             # Manejar cualquier otro error
-            flash('Error: Ha ocurrido un problema. Por favor, revisa los datos e intenta de nuevo.', 'error')
+            flash('La cédula ya está registrada. Por favor revisa los datos.', 'error')
             return redirect("/GestionCliente")
 
         return redirect("/GestionCliente")
-
-from flask import jsonify, request
 
 @app.route("/updateClient", methods=["POST"])
 def updateClient():
@@ -304,14 +302,15 @@ def findSales(id):
     try:
         # Buscar las ventas del cliente en la base de datos utilizando el cliente id
         ventas = VentaModel.get_salescustomer(id)
-
+        print(ventas)
         if ventas:
             sales_data = [
                 {
-                    'venta': venta.ventaid,
-                    'cliente': venta.clientid,
-                    'monto': venta.montoventa,
-                    'fechaenta': venta.fechaventa
+                    'ventaid': venta['ventaid'],
+                    'clienteid': venta['clienteid'],
+                    'nombres' : venta['nombres'] + " " + venta['apellidos'],
+                    'monto': venta['montoventa'],
+                    'fechaventa': venta['fechaventa'].strftime('%d/%m/%Y %H:%M')
                 } for venta in ventas
             ]
             return jsonify({

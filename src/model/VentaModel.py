@@ -63,11 +63,13 @@ class VentaModel:
                 ListaVentasCustomer.append({
                     'ventaid': venta[0],
                     'clienteid': venta[1],
-                    'fechaventa': venta[2],
-                    'tipoventa': venta[3],
-                    'observacion': venta[4],
-                    'estadoventa': venta[5],
-                    'montoventa': venta[6]
+                    'nombres' : venta[2],
+                    'apellidos' : venta[3],
+                    'fechaventa': venta[4],
+                    'tipoventa': venta[5],
+                    'observacion': venta[6],
+                    'estadoventa': venta[7],
+                    'montoventa': venta[8]
                 })
 
             return ListaVentasCustomer
