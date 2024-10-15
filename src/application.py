@@ -215,6 +215,14 @@ def GestionClientes():
     clientes = ClienteModel.get_clients()
     return render_template("GestionCliente.html", username=session["username"], clientes=clientes, nameuser=session["nameUser"])
 
+@app.route('/buscar_cliente', methods=["GET"])
+def buscar_cliente():
+    query = request.args.get('query', '').upper()
+    resultados = ClienteModel.get_clientById(query)
+    print(resultados)
+    return jsonify(resultados)
+
+
 @app.route("/addClient", methods=["POST"])
 def addClient():
     if request.method == "POST":

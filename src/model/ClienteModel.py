@@ -3,11 +3,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from funciones import *
 from sqlalchemy.sql import text
-from dotenv import load_dotenv
 #Objeto
 from .entities.Cliente import Cliente
-
-load_dotenv()
 
 # Check for environment variable
 if not os.getenv("DATABASE_URL"):
@@ -44,13 +41,13 @@ class ClienteModel:
             raise Exception(ex)
 
     @classmethod
-    def get_clientById(self, clienteid):
+    def get_clientById(self, cedula):
         """Obtener un cliente por su ID."""
         try:
-            cliente = db.execute(text("SELECT * FROM dbo.clientes WHERE clienteid = :clienteid"),
-                                 {'clienteid': clienteid}).fetchone()
+            cliente = db.execute(text("SELECT * FROM dbo.clientes WHERE cedula = :cedula"),
+                                 {'cedula': cedula}).fetchone()
             db.commit()
-
+                  
             if cliente:
                 return {
                     'clienteid': cliente[0],
@@ -61,7 +58,7 @@ class ClienteModel:
                     'direccion': cliente[5],
                     'fecharegistro': cliente[6]
                 }
-            return None
+            return cliente
         except Exception as ex:
             raise Exception(ex)
 
