@@ -284,15 +284,45 @@ def deleteClient(id):
     except Exception as e:
         return jsonify({'success': False, 'message': 'Error: Ha ocurrido un problema al eliminar el Cliente. ' + str(e)})
 
-
-
 #***************************************************************************************************** PARA LOS PAGOS
-@app.route("/GestionPagos")
-def GestionPagos():
+@app.route("/GestionDeudas")
+def GestionDeudas():
     clientes = ClienteModel.get_clients()
     ventas = VentaModel.get_sales()
-    return render_template("GestionPagos.html", username=session["username"], clientes=clientes, ventas=ventas, nameuser=session["nameUser"])
+    return render_template("GestionDeudas.html", username=session["username"], clientes=clientes, ventas=ventas, nameuser=session["nameUser"])
 
+@app.route("/SalesCustomer/<int:id>", methods=["POST"])
+def findSales(id):
+    try:
+        # Buscar las ventas del cliente en la base de datos utilizando el cliente id
+        ventas = VentaModel.get_salescustomer(id)
 
+        if ventas:
+            sales_data = [
+                {
+                    'venta': venta.ventaid,
+                    'cliente': venta.clientid,
+                    'monto': venta.montoventa,
+                    'fechaenta': venta.fechaventa
+                } for venta in ventas
+            ]
+            return jsonify({
+                'success': True, 
+                'message': 'Ventas encontradas exitosamente.', 
+                'ventas': sales_data
+            })
+        else:
+            return jsonify({
+                'success': False, 
+                'message': 'No se encontraron ventas para este cliente.'
+            })
+    except Exception as e:
+        return jsonify({
+            'success': False, 
+            'message': 'Error: Ha ocurrido un problema al buscar las ventas. ' + str(e)
+        })
+
+    
+#*******************************************************************************************************
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080, debug=True)
