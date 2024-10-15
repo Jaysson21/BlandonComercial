@@ -1,0 +1,69 @@
+{% extends 'layout.html'%}
+{% block body %}
+<link rel="stylesheet" href="{{url_for('static', filename='css/GestionPagos.css')}}">
+
+<div class="container">
+
+    <h1 class="text-center mb-4">Administrar Deudas</h1>
+
+    <div class="row g-3">
+        <div class="col-12 col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="h5 mb-0">Buscar el Cliente</h2>
+                </div>
+                <div class="card-body">
+                    <form action="/SalesCustomer" method="POST" id="searchSalesForm">
+                        <div class="mb-3">
+                            <label for="customerSelect" class="form-label">Cliente</label>
+                            <select id="customerSelect" class="form-control" style="width: 100%;">
+                                <option value="">Seleccione un cliente</option>
+                                {% for cliente in clientes %}
+                                <option value="{{ cliente['clienteid'] }}" data-cedula="{{ cliente['cedula'] }}">
+                                    {{ cliente['nombres'] }} {{ cliente['apellidos'] }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="clientCedula" class="form-label">Cédula</label>
+                            <input type="text" placeholder="000-000000" class="form-control" id="clientCedula" name="cedulaCliente" maxlength="100">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Buscar Ventas</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="h5 mb-0">Lista de Ventas</h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover" id="paymentHistory">
+                            <thead>
+                                <tr>
+                                    <th>Venta</th>
+                                    <th>Cliente</th>
+                                    <th>Monto</th>
+                                    <th>Fecha de Venta</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr id="noSalesRow">
+                                    <td colspan="6" class="text-center">No se encontraron ventas.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{url_for('static', filename='js/GestionDeudas.js')}}"></script>
+{% endblock %}

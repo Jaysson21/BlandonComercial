@@ -1,0 +1,36 @@
+.card {
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    background-color: #fff;
+}
+
+
+h2 {
+    margin-bottom: 1rem;
+    font-size: 1.8rem;
+}
+
+.modal {
+    display: none;
+}
+
+.modal.show {
+    display: block;
+}
+
+.modal-dialog {
+    max-width: 500px;
+}
+
+.modal-header {
+    position: relative;
+}
+
+.close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+}
+
+
