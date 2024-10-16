@@ -219,9 +219,14 @@ def GestionClientes():
 def buscar_cliente():
     query = request.args.get('query', '').upper()
     resultados = ClienteModel.get_clientById(query)
-    print(resultados)
-    return jsonify(resultados)
+    
+    if resultados:
+        return jsonify(resultados)
+    else:
+        flash('No se encontro registro del cliente')
+        return jsonify({'success': False, 'message': 'No se encontro registro del cliente'}), 400
 
+    
 
 @app.route("/addClient", methods=["POST"])
 def addClient():
@@ -333,4 +338,4 @@ def findSales(id):
     
 #*******************************************************************************************************
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    app.run(host="0.0.0.0", port=8080)

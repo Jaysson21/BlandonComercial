@@ -27,4 +27,3 @@ sqlparse
 urllib3
 virtualenv
 Werkzeug
-psycopg2
