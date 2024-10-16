@@ -20,43 +20,6 @@ window.onload = function () {
     }, 500);  // Tiempo de espera para que la transición se complete
 };
 
-document.getElementById('searchSalesForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-
-    const clienteId = document.getElementById('customerSelect').value;
-
-    if (clienteId) {
-
-        showLoadingModal();
-        
-        fetch(`/SalesCustomer/${clienteId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-        })
-        .then(response => response.json())
-        .then(data => {
-
-            hideLoadingModal();
-        
-            if (data.success) {
-                // Llenar la tabla con las ventas del cliente seleccionado
-                populateSalesTable(data.ventas);
-            } else {
-                alert('No se encontraron ventas para este cliente.');
-            }
-        })
-        .catch(error => {
-            hideLoadingModal();
-            console.error('Error:', error);
-            alert('Ocurrió un error al buscar las ventas.');
-        });
-    } else {
-        alert('Por favor, seleccione un cliente.');
-    }
-});
-
 //Manejo de errores
 document.addEventListener("DOMContentLoaded", function () {
     // Si hay un mensaje de error (div.alert-danger), mostrar el modal
@@ -79,33 +42,53 @@ function hideLoadingModal() {
     }
 }
 
+// Escuchar el evento click del botón Buscar Ventas
+document.getElementById('buscarVentasBtn').addEventListener('click', function (e) {
+    updateTotal();
+});
 
-// Función para rellenar la tabla de ventas
-function populateSalesTable(ventas) {
-    const tbody = document.querySelector('#paymentHistory tbody');
-    tbody.innerHTML = '';  // Limpiar el contenido actual
 
-    if (ventas.length > 0) {
-        ventas.forEach(venta => {
-            const row = document.createElement('tr');
-            row.setAttribute('data-id', venta.ventaid);
+// Actualizar total basado en los valores de la columna 'Monto'
+function updateTotal() {
+    const rows = document.querySelectorAll('#paymentHistory tbody tr');
+    let total = 0;
 
-            row.innerHTML = `
-                <td>${venta.ventaid}</td>
-                <td>${venta.nombres}</td>
-                <td>${venta.monto}</td>
-                <td>${venta.fechaventa}</td>
-                <td>
-                    <button class="btn btn-sm btn-primary">Ver Detalles</button>
-                    <button class="btn btn-sm btn-danger delete-button" data-id="${venta.ventaid}">Eliminar</button>
-                </td>
-            `;
-            tbody.appendChild(row);
-        });
-    } else {
-        tbody.innerHTML = '<tr id="noSalesRow"><td colspan="6" class="text-center">No se encontraron ventas.</td></tr>';
-    }
+    rows.forEach(row => {
+        const montoCell = row.querySelector('td:nth-child(3)');
+        if (montoCell) {
+            const monto = parseFloat(montoCell.textContent.replace('C$', '').trim());
+            if (!isNaN(monto)) {
+                total += monto;
+            }
+        }
+    });
+
+    const totalElement = document.getElementById('total');
+    totalElement.innerHTML = `<strong>Total: C$${total.toFixed(2)}</strong>`;
 }
+
+// Mostrar detalles de las ventas
+document.addEventListener('click', function (event) {
+    if (event.target && event.target.matches('button.btn-primary')) {
+        const row = event.target.closest('tr');
+
+        if (row) {
+            // Obtener los valores desde los atributos data-*
+            const ventaId = row.getAttribute('data-id');
+            const clienteNombre = row.getAttribute('data-nombres');
+            const montoVenta = row.getAttribute('data-monto');
+            const fechaVenta = row.getAttribute('data-fecha');
+
+            document.getElementById('clienteNombre').textContent = clienteNombre || 'N/A';
+            document.getElementById('fechaVenta').textContent = fechaVenta || 'N/A';
+            document.getElementById('ventaMonto').textContent = `${montoVenta || '0.00'}`;
+
+            let detallesModal = new bootstrap.Modal(document.getElementById('detallesModal'));
+            detallesModal.show();
+        }
+    }
+});
+
 
 // Asignar la cedula del cliente seleccionado
 $(document).ready(function() {

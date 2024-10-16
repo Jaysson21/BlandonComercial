@@ -1,6 +1,6 @@
 {% extends 'layout.html'%}
 {% block body %}
-<link rel="stylesheet" href="{{url_for('static', filename='css/GestionPagos.css')}}">
+<link rel="stylesheet" href="{{url_for('static', filename='css/GestionDeudas.css')}}">
 
 <div class="container">
 
@@ -16,7 +16,7 @@
                     <form action="/SalesCustomer" method="POST" id="searchSalesForm">
                         <div class="mb-3">
                             <label for="customerSelect" class="form-label">Cliente</label>
-                            <select id="customerSelect" class="form-control" style="width: 100%;">
+                            <select id="customerSelect" class="form-control" name="cliente_id" style="width: 100%;">
                                 <option value="">Seleccione un cliente</option>
                                 {% for cliente in clientes %}
                                 <option value="{{ cliente['clienteid'] }}" data-cedula="{{ cliente['cedula'] }}">
@@ -29,8 +29,8 @@
                             <label for="clientCedula" class="form-label">Cédula</label>
                             <input type="text" placeholder="000-000000" class="form-control" id="clientCedula" name="cedulaCliente" readonly>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Buscar Ventas</button>
-                    </form>
+                        <button type="submit" class="btn btn-primary w-100" id="buscarVentasBtn">Buscar Ventas</button>
+                    </form>                    
                 </div>
             </div>
         </div>
@@ -49,16 +49,33 @@
                                     <th>Cliente</th>
                                     <th>Monto</th>
                                     <th>Fecha de Venta</th>
-                                    <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr id="noSalesRow">
-                                    <td colspan="6" class="text-center">No se encontraron ventas.</td>
-                                </tr>
+                                {% if ventas %}
+                                    {% for venta in ventas %}
+                                    <tr>
+                                        <td>{{ venta['ventaid'] }}</td>
+                                        <td>{{ venta['nombres'] }}</td>
+                                        <td>C$ {{ '%.2f' % venta['monto'] }}</td>
+                                        <td>{{ venta['fechaventa'] }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="6" class="text-center">{{ error_message or 'No se encontraron ventas para este cliente' }}</td>
+                                    </tr>
+                                {% endif %}
                             </tbody>
                         </table>
+                        
                     </div>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <div id="total" class="font-weight-bold"><strong>Total: C$00.00</strong></div>
+                        <button class="btn btn-success">
+                            <i class='bx bx-money'></i> Pagar
+                        </button>
+                    </div>                    
                 </div>
             </div>
         </div>

@@ -12,6 +12,8 @@ body {
 
 #paymentHistory th, #paymentHistory td {
     vertical-align: middle;
+    vertical-align: middle;
+    white-space: nowrap; /* Evita que el texto se divida en varias líneas */
 }
 
 #noPaymentsRow {

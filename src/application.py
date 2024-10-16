@@ -295,39 +295,39 @@ def deleteClient(id):
 def GestionDeudas():
     clientes = ClienteModel.get_clients()
     ventas = VentaModel.get_sales()
-    return render_template("GestionDeudas.html", username=session["username"], clientes=clientes, ventas=ventas, nameuser=session["nameUser"])
+    return render_template("GestionDeudas.html", username=session["username"], clientes=clientes, nameuser=session["nameUser"])
 
-@app.route("/SalesCustomer/<int:id>", methods=["POST"])
-def findSales(id):
+@app.route("/SalesCustomer", methods=["POST"])
+def findSales():
     try:
-        # Buscar las ventas del cliente en la base de datos utilizando el cliente id
-        ventas = VentaModel.get_salescustomer(id)
-        print(ventas)
-        if ventas:
-            sales_data = [
-                {
-                    'ventaid': venta['ventaid'],
-                    'clienteid': venta['clienteid'],
-                    'nombres' : venta['nombres'] + " " + venta['apellidos'],
-                    'monto': venta['montoventa'],
-                    'fechaventa': venta['fechaventa'].strftime('%d/%m/%Y %H:%M')
-                } for venta in ventas
-            ]
-            return jsonify({
-                'success': True, 
-                'message': 'Ventas encontradas exitosamente.', 
-                'ventas': sales_data
-            })
-        else:
-            return jsonify({
-                'success': False, 
-                'message': 'No se encontraron ventas para este cliente.'
-            })
+        # Obtener el cliente_id del formulario
+        cliente_id = request.form['cliente_id']
+
+        # Buscar las ventas del cliente en la base de datos
+        ventas = VentaModel.get_salescustomer(cliente_id)
+
+        # Filtrar solo los campos que quieres mostrar en la tabla
+        sales_data = [
+            {
+                'ventaid': venta['ventaid'],
+                'nombres': venta['nombres'] + " " + venta['apellidos'],
+                'monto': (venta['montoventa']),
+                'fechaventa': venta['fechaventa'].strftime('%d/%m/%Y %H:%M')
+            } for venta in ventas
+        ]
+
+        print(sales_data)
+
+        # Obtener nuevamente los clientes para mantener la lista en la página
+        clientes = ClienteModel.get_clients()
+
+        return render_template('GestionDeudas.html', username=session["username"], clientes=clientes, ventas=sales_data, nameuser=session["nameUser"])
+
     except Exception as e:
-        return jsonify({
-            'success': False, 
-            'message': 'Error: Ha ocurrido un problema al buscar las ventas. ' + str(e)
-        })
+        clientes = ClienteModel.get_clients()  # Asegurarse de obtener los clientes incluso en caso de error
+        return render_template('GestionDeudas.html', username=session["username"], clientes=clientes, ventas=[], error_message=f'Error al buscar ventas: {str(e)}', nameuser=session["nameUser"])
+
+
 
     
 #*******************************************************************************************************
