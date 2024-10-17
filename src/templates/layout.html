@@ -111,7 +111,8 @@
     </div>
 
     <!-- Modal para editar producto -->
-    <div class="modal fade" id="editModalProduct" tabindex="-1" aria-labelledby="editModalProductLabel" aria-hidden="true">
+    <div class="modal fade" id="editModalProduct" tabindex="-1" aria-labelledby="editModalProductLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -123,12 +124,13 @@
                         <input type="hidden" id="editProductId" name="productid">
                         <div class="mb-3">
                             <label for="editProductName" class="form-label">Nombre del Producto</label>
-                            <input type="text" class="form-control" id="editProductName" name="nombreProducto" maxlength="50" required>
+                            <input type="text" class="form-control" id="editProductName" name="nombreProducto"
+                                maxlength="50" required>
                         </div>
                         <div class="mb-3">
                             <label for="editProductDescription" class="form-label">Descripción</label>
-                            <textarea class="form-control" id="editProductDescription" name="descripcionProducto" rows="3"
-                                maxlength="255"></textarea>
+                            <textarea class="form-control" id="editProductDescription" name="descripcionProducto"
+                                rows="3" maxlength="255"></textarea>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -136,7 +138,7 @@
                         </div>
                     </form>
                 </div>
-                
+
             </div>
         </div>
     </div>
@@ -155,7 +157,8 @@
                         <input type="hidden" id="editClientId" name="clienteid">
                         <div class="mb-3">
                             <label for="editClientCedula" class="form-label">Cedula</label>
-                            <input type="cedula" class="form-control" id="editClientCedula" name="cedulaCliente" readonly maxlength="100">
+                            <input type="cedula" class="form-control" id="editClientCedula" name="cedulaCliente"
+                                readonly maxlength="100">
                         </div>
                         <div class="mb-3">
                             <label for="editClientName" class="form-label">Nombres</label>
@@ -227,6 +230,66 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal de Detalles de Venta -->
+    <div class="modal fade" id="detallesVentaModal" tabindex="-1" aria-labelledby="detallesVentaModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detallesVentaModalLabel">Detalles de la Venta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Información del Cliente y Venta -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p><strong>Cliente:</strong> <span id="clienteNombre"></span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Fecha de Venta:</strong> <span id="fechaVenta"></span></p>
+                        </div>
+                    </div>
+
+                    <!-- Resumen de la venta -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <p><strong>Monto Total:</strong> C$<span id="ventaMonto"></span></p>
+                        </div>
+                    </div>
+
+                    <!-- Detalles de los productos -->
+                    <h6>Detalles de Productos</h6>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unitario (C$)</th>
+                                <th>Subtotal (C$)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productosTableBody">
+                            <!-- Aquí se llenarán los productos dinámicamente -->
+                        </tbody>
+                    </table>
+
+                    <!-- Total final -->
+                    <div class="row mt-3">
+                        <div class="col-md-12 text-end">
+                            <h5><strong>Total:</strong> C$<span id="ventaTotal"></span></h5>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 
 
 

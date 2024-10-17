@@ -1,103 +1,120 @@
 // DOM Elements
-const addPaymentForm = document.getElementById('addPaymentForm');
-const paymentHistory = document.getElementById('paymentHistory');
-const noPaymentsRow = document.getElementById('noPaymentsRow');
-//const editModal = new bootstrap.Modal(document.getElementById('editModal'));
-const editPaymentForm = document.getElementById('editPaymentForm');
-const saveEditButton = document.getElementById('saveEditButton');
-const searchInput = document.getElementById('searchInput');
 const clientSelect = document.getElementById('customerSelect');
-const saleSelect = document.getElementById('saleSelect');
-const editClientSelect = document.getElementById('editClientSelect');
-const editSaleSelect = document.getElementById('editSaleSelect');
+const paymentHistory = document.getElementById('paymentHistory');
 
-document.getElementById('searchSalesForm').addEventListener('submit', function (e) {
-    e.preventDefault();  // Evitar el comportamiento por defecto del formulario
+// Filtrar las ventas por cliente en el objeto 'sales_data'
+function filtrarVentasPorCliente(clienteId) {
+    return sales_data.filter(venta => venta.clienteid == clienteId);
+}
 
-    debugger
+// Evento para manejar el clic en "Buscar Ventas"
+document.getElementById('buscarVentasBtn').addEventListener('click', function (e) {
+    e.preventDefault();
+
     const clienteId = document.getElementById('customerSelect').value;
 
     if (clienteId) {
-        // Mostrar el modal de carga
-        showLoadingModal();
-        debugger
-        // Hacer la solicitud POST al backend usando fetch API
-        fetch(`/SalesCustomer/${clienteId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Ocultar el modal de carga
-            hideLoadingModal();
-            debugger
-            if (data.success) {
-                // Llenar la tabla con las ventas del cliente seleccionado
-                populateSalesTable(data.ventas);
-            } else {
-                alert('No se encontraron ventas para este cliente.');
-            }
-        })
-        .catch(error => {
-            // Ocultar el modal de carga en caso de error
-            hideLoadingModal();
-            console.error('Error:', error);
-            alert('Ocurrió un error al buscar las ventas.');
-        });
+        // Filtrar las ventas del cliente seleccionado
+        const ventasFiltradas = filtrarVentasPorCliente(clienteId);
+
+        // Actualizar la tabla con las ventas filtradas
+        actualizarTablaVentas(ventasFiltradas);
+
+        // Actualizar el total
+        updateTotal();
     } else {
-        alert('Por favor, seleccione un cliente.');
+        alert('Por favor, seleccione un cliente antes de buscar las ventas.');
     }
 });
 
-// Función para mostrar el modal de carga
-function showLoadingModal() {
-    let loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
-    loadingModal.show();
-}
+// Actualizar la tabla de ventas
+function actualizarTablaVentas(ventasFiltradas) {
+    const tbody = paymentHistory.querySelector('tbody');
+    tbody.innerHTML = '';  // Limpiar la tabla actual
 
-// Función para ocultar el modal de carga
-function hideLoadingModal() {
-    let loadingModal = bootstrap.Modal.getInstance(document.getElementById('loadingModal'));
-    if (loadingModal) {
-        loadingModal.hide();
-    }
-}
-
-// Función para rellenar la tabla de ventas
-function populateSalesTable(ventas) {
-    const tbody = document.querySelector('#paymentHistory tbody');
-    tbody.innerHTML = '';  // Limpiar el contenido actual
-
-    debugger
-    if (ventas.length > 0) {
-        ventas.forEach(venta => {
+    if (ventasFiltradas.length > 0) {
+        ventasFiltradas.forEach(venta => {
             const row = document.createElement('tr');
-            row.setAttribute('data-id', venta.ventaid);
-
             row.innerHTML = `
                 <td>${venta.ventaid}</td>
-                <td>${venta.clienteid}</td>
-                <td>${venta.monto}</td>
-                <td>${venta.direccion}</td>
-                <td>${venta.fechaventa}</td>
+                <td>${venta.nombres} ${venta.apellidos}</td>
+                <td>C$${(venta.montoventa) ? Number(venta.montoventa).toFixed(2) : '0.00'}</td>
+                <td>${new Date(venta.fechaventa).toLocaleDateString()}</td>
                 <td>
-                    <button class="btn btn-sm btn-primary">Ver Detalles</button>
+                    <button class="btn btn-sm btn-primary" data-id="${venta.ventaid}">Ver detalles</button>
                     <button class="btn btn-sm btn-danger delete-button" data-id="${venta.ventaid}">Eliminar</button>
                 </td>
             `;
             tbody.appendChild(row);
         });
     } else {
-        tbody.innerHTML = '<tr id="noSalesRow"><td colspan="6" class="text-center">No se encontraron ventas.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center">No se encontraron ventas para este cliente.</td></tr>';
     }
 }
 
-// Asignar la cédula seleccionada al campo de cédula en el formulario
-document.getElementById('customerSelect').addEventListener('change', function() {
-    const selectedOption = this.options[this.selectedIndex];
-    const cedula = selectedOption.getAttribute('data-cedula');
-    document.getElementById('clientCedula').value = cedula || '';
+// Actualizar el total basado en los valores de la columna 'Monto'
+function updateTotal() {
+    const rows = document.querySelectorAll('#paymentHistory tbody tr');
+    let total = 0;
+
+    rows.forEach(row => {
+        const montoCell = row.querySelector('td:nth-child(3)');
+        if (montoCell) {
+            const monto = parseFloat(montoCell.textContent.replace('C$', '').trim());
+            if (!isNaN(monto)) {
+                total += monto;
+            }
+        }
+    });
+
+    const totalElement = document.getElementById('total');
+    totalElement.innerHTML = `<strong>Total: C$${total.toFixed(2)}</strong>`;
+}
+
+// Asignar la cédula del cliente seleccionado
+$(document).ready(function() {
+    $('#customerSelect').select2({
+        placeholder: 'Seleccione un cliente',
+        allowClear: true
+    });
+
+    $('#customerSelect').on('select2:select', function(e) {
+        const cedula = $('#customerSelect option:selected').data('cedula');
+        $('#clientCedula').val(cedula || '');
+    });
 });
+
+// Mostrar detalles de las ventas en el modal
+document.addEventListener('click', function (event) {
+    if (event.target && event.target.matches('button.btn-primary')) {
+        
+        const ventaId = event.target.getAttribute('data-id');  // Obtener el ID directamente del botón
+        console.log(ventaId);
+
+        if (ventaId) {
+            // Buscar los detalles de la venta en 'sales_data' usando el 'ventaId'
+            const venta = sales_data.find(v => v.ventaid == ventaId);
+
+            if (venta) {
+                // Llenar el modal con la información de la venta
+                const clienteNombre = `${venta.nombres} ${venta.apellidos}`;
+                const montoVenta = venta.montoventa ? Number(venta.montoventa).toFixed(2) : '0.00';
+                const fechaVenta = new Date(venta.fechaventa).toLocaleDateString();
+
+                document.getElementById('clienteNombre').textContent = clienteNombre || 'N/A';
+                document.getElementById('fechaVenta').textContent = fechaVenta || 'N/A';
+                document.getElementById('ventaMonto').textContent = `C$${montoVenta}`;
+
+                // Mostrar el modal
+                let detallesModal = new bootstrap.Modal(document.getElementById('detallesVentaModal'));
+                detallesModal.show();
+            } else {
+                console.error(`No se encontró la venta con ID ${ventaId}`);
+            }
+        } else {
+            console.error("No se encontró el atributo data-id en el botón.");
+        }
+    }
+});
+
 

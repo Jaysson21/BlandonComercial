@@ -1,6 +1,6 @@
 {% extends 'layout.html'%}
 {% block body %}
-<link rel="stylesheet" href="{{url_for('static', filename='css/GestionPagos.css')}}">
+<link rel="stylesheet" href="{{url_for('static', filename='css/GestionDeudas.css')}}">
 
 <div class="container">
 
@@ -13,10 +13,11 @@
                     <h2 class="h5 mb-0">Buscar el Cliente</h2>
                 </div>
                 <div class="card-body">
-                    <form action="/SalesCustomer" method="POST" id="searchSalesForm">
+                    <!-- Eliminamos el action para que no haga POST al servidor -->
+                    <form id="searchSalesForm">
                         <div class="mb-3">
                             <label for="customerSelect" class="form-label">Cliente</label>
-                            <select id="customerSelect" class="form-control" style="width: 100%;">
+                            <select id="customerSelect" class="form-control" name="cliente_id" style="width: 100%;">
                                 <option value="">Seleccione un cliente</option>
                                 {% for cliente in clientes %}
                                 <option value="{{ cliente['clienteid'] }}" data-cedula="{{ cliente['cedula'] }}">
@@ -27,9 +28,10 @@
                         </div>
                         <div class="mb-3">
                             <label for="clientCedula" class="form-label">Cédula</label>
-                            <input type="text" placeholder="000-000000" class="form-control" id="clientCedula" name="cedulaCliente" maxlength="100">
+                            <input type="text" placeholder="000-000000" class="form-control" id="clientCedula"
+                                name="cedulaCliente" readonly>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Buscar Ventas</button>
+                        <button type="submit" class="btn btn-success w-100" id="buscarVentasBtn">Buscar Ventas</button>
                     </form>
                 </div>
             </div>
@@ -49,21 +51,31 @@
                                     <th>Cliente</th>
                                     <th>Monto</th>
                                     <th>Fecha de Venta</th>
-                                    <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr id="noSalesRow">
-                                    <td colspan="6" class="text-center">No se encontraron ventas.</td>
+                                <tr>
+                                    <td colspan="4" class="text-center">Seleccione un cliente para ver las ventas.</td>
                                 </tr>
                             </tbody>
                         </table>
+
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <div id="total" class="font-weight-bold"><strong>Total: C$00.00</strong></div>
+                        <button class="btn btn-success">
+                            <i class='bx bx-money'></i> Pagar
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+    const sales_data = {{ ventas | tojson }};
+</script>
 
 <script src="{{url_for('static', filename='js/GestionDeudas.js')}}"></script>
 {% endblock %}

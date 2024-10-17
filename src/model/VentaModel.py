@@ -23,7 +23,7 @@ class VentaModel:
         "Obtener todas las ventas"
         try:
             ListaVentas = []
-            ventas = db.execute(text("SELECT * FROM dbo.ventas ORDER BY ventaid")).fetchall()
+            ventas = db.execute(text("SELECT * FROM dbo.obtenerventas()")).fetchall()
             db.commit()
 
             # Formatear los resultados en una lista
@@ -31,11 +31,13 @@ class VentaModel:
                 ListaVentas.append({
                     'ventaid': venta[0],
                     'clienteid': venta[1],
-                    'usuarioid': venta[2],
-                    'fechaventa': venta[3],
-                    'tipoventa': venta[4],
-                    'observacion': venta[5],
-                    'estadoventa': venta[6]
+                    'nombres' : venta[2],
+                    'apellidos' : venta[3],
+                    'fechaventa': venta[4],
+                    'tipoventa': venta[5],
+                    'observacion': venta[6],
+                    'estadoventa': venta[7],
+                    'montoventa': venta[8]
 
                 })
 
@@ -63,11 +65,13 @@ class VentaModel:
                 ListaVentasCustomer.append({
                     'ventaid': venta[0],
                     'clienteid': venta[1],
-                    'fechaventa': venta[2],
-                    'tipoventa': venta[3],
-                    'observacion': venta[4],
-                    'estadoventa': venta[5],
-                    'montoventa': venta[6]
+                    'nombres' : venta[2],
+                    'apellidos' : venta[3],
+                    'fechaventa': venta[4],
+                    'tipoventa': venta[5],
+                    'observacion': venta[6],
+                    'estadoventa': venta[7],
+                    'montoventa': venta[8]
                 })
 
             return ListaVentasCustomer
