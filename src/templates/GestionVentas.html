@@ -79,24 +79,28 @@
     <div class="card">
         <div class="card-header">Productos en la Venta</div>
         <div class="card-body">
-            <table class="table table-striped">
+            <table id="tableProducts" class="table table-striped">
                 <thead>
                     <tr>
                         <th>Código</th>
                         <th>Nombre</th>
                         <th>Precio</th>
                         <th>Cantidad</th>
-                        <th>Subtotal</th>
                     </tr>
                 </thead>
                 <tbody id="tablaProductos"></tbody>
             </table>
 
             <!-- Monto total de la venta -->
-            <div class="text-end">
-                <h5>Total: $<span id="montoTotal">0.00</span></h5>
+            <div class="text-end m-2 p-2 border-1 border-success">
+                <h3 style="color: black;">Total: C$ <span id="montoTotal">0.00</span> </h3>
             </div>
         </div>
+    </div>
+
+    <div class="card p-3 align-content-center">
+        <button id="btn-guardarVenta" class="btn btn-success m-1" disabled>GUARDAR VENTA</button>
+        <button class="btn btn-danger m-1">CANCELAR</button>
     </div>
 
 
