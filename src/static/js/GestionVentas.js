@@ -3,29 +3,53 @@
 
 $('#btn-searchClient').on('click', function () {
     const query = $("#cedulaCliente").val();
+    document.getElementById("NombreCliente").value = "";
+    document.getElementById("direccionCliente").value = "";
+    document.getElementById("telefonoCliente").value = "";
     // Verificar si el usuario ha escrito algo
     if (query.length > 0) {
+        showLoadingModal();
         // Realizar la solicitud AJAX
         $.ajax({
             url: '/buscar_cliente', // Ruta a tu API o servidor
             method: 'GET',
             data: { query: query },
             success: function (response) {
+
                 // Verificar si se encontraron resultados
-                console.log(response);
+                if (response && response.nombres && response.apellidos) {
+                    // Si hay datos de cliente
+                    document.getElementById("btnInitSell").removeAttribute("aria-disabled");
+                    document.getElementById("NombreCliente").value = response.nombres + " " + response.apellidos;
+                    document.getElementById("direccionCliente").value = response.direccion;
+                    document.getElementById("telefonoCliente").value = response.telefono;
 
-                document.getElementById("btnInitSell").removeAttribute("aria-disabled");
-                document.getElementById("NombreCliente").value = response.nombres + " " + response.apellidos;
-                document.getElementById("direccionCliente").value = response.direccion;
-                document.getElementById("telefonoCliente").value = response.telefono;
-
+                    // Habilita botón para ventas
+                    document.getElementById("btnInitSell").classList.remove('disabled');
+                    hideLoadingModal();
+                } else {
+                    hideLoadingModal();
+                    // Si no se encontraron resultados
+                    showErrorgModal();
+                }
+            },
+            error: function () {
+                hideLoadingModal();
+                // Manejo de errores si la solicitud AJAX falla
+                showErrorgModal();
             }
-        })
+        });
+    } else {
+        hideLoadingModal();
+        alert("Por favor, ingrese una cédula.");
     }
 });
 
 $('#btnInitSell').on('click', function () {
+    //Deshabilita boton de la venta
+    document.getElementById("btnInitSell").classList.add('disabled');
 
+    //agregar busqueda de productos
     $('#contetn-gestProduct').append(`
         <div class="card-header">Buscar Producto</div>
         <div class="card-body">
@@ -134,3 +158,28 @@ function removeFormProduct() {
 
 }
 
+// Función para mostrar el modal de carga
+function showLoadingModal() {
+    let loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+    loadingModal.show();
+}
+
+function showErrorgModal() {
+    let loadingModal = new bootstrap.Modal(document.getElementById('errorModal'));
+    loadingModal.show();
+}
+
+// Función para ocultar el modal de carga
+function hideLoadingModal() {
+    let loadingModal = bootstrap.Modal.getInstance(document.getElementById('loadingModal'));
+    if (loadingModal) {
+        loadingModal.hide();
+    }
+}
+
+function hideErrorModal() {
+    let loadingModal = bootstrap.Modal.getInstance(document.getElementById('errorModal'));
+    if (loadingModal) {
+        loadingModal.hide();
+    }
+}

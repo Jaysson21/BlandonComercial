@@ -33,4 +33,10 @@ h2 {
     right: 0.5rem;
 }
 
+.disabled {
+    pointer-events: none;
+    color: gray; /* Cambiar el color para que parezca deshabilitado */
+    text-decoration: none; /* Quitar subrayado si es necesario */
+}
+
 

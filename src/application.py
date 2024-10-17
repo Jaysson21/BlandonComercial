@@ -219,9 +219,14 @@ def GestionClientes():
 def buscar_cliente():
     query = request.args.get('query', '').upper()
     resultados = ClienteModel.get_clientById(query)
-    print(resultados)
-    return jsonify(resultados)
+    
+    if resultados:
+        return jsonify(resultados)
+    else:
+        flash('No se encontro registro del cliente')
+        return jsonify({'success': False, 'message': 'No se encontro registro del cliente'}), 400
 
+    
 
 @app.route("/addClient", methods=["POST"])
 def addClient():
@@ -250,10 +255,12 @@ def addClient():
             return redirect("/GestionCliente")
         except Exception as e:
             # Manejar cualquier otro error
-            flash('La cédula ya está registrada. Por favor revisa los datos.', 'error')
+            flash('Error: Ha ocurrido un problema. Por favor, revisa los datos e intenta de nuevo.', 'error')
             return redirect("/GestionCliente")
 
         return redirect("/GestionCliente")
+
+from flask import jsonify, request
 
 @app.route("/updateClient", methods=["POST"])
 def updateClient():
@@ -290,24 +297,45 @@ def deleteClient(id):
     except Exception as e:
         return jsonify({'success': False, 'message': 'Error: Ha ocurrido un problema al eliminar el Cliente. ' + str(e)})
 
-#***************************************************************************************************** PARA LOS DEUDAS
+#***************************************************************************************************** PARA LOS PAGOS
 @app.route("/GestionDeudas")
 def GestionDeudas():
-    # Obtener los clientes y todas las ventas
     clientes = ClienteModel.get_clients()
     ventas = VentaModel.get_sales()
+    return render_template("GestionDeudas.html", username=session["username"], clientes=clientes, ventas=ventas, nameuser=session["nameUser"])
 
-    # Cambiamos el nombre de 'ventas' a 'sales_data'
-    sales_data = VentaModel.get_sales()
+@app.route("/SalesCustomer/<int:id>", methods=["POST"])
+def findSales(id):
+    try:
+        # Buscar las ventas del cliente en la base de datos utilizando el cliente id
+        ventas = VentaModel.get_salescustomer(id)
 
-    return render_template("GestionDeudas.html",
-                            username=session["username"],
-                            clientes=clientes,
-                            ventas=sales_data,  # Cambiar el nombre aquí también
-                            nameuser=session["nameUser"]
-    )
+        if ventas:
+            sales_data = [
+                {
+                    'venta': venta.ventaid,
+                    'cliente': venta.clientid,
+                    'monto': venta.montoventa,
+                    'fechaenta': venta.fechaventa
+                } for venta in ventas
+            ]
+            return jsonify({
+                'success': True, 
+                'message': 'Ventas encontradas exitosamente.', 
+                'ventas': sales_data
+            })
+        else:
+            return jsonify({
+                'success': False, 
+                'message': 'No se encontraron ventas para este cliente.'
+            })
+    except Exception as e:
+        return jsonify({
+            'success': False, 
+            'message': 'Error: Ha ocurrido un problema al buscar las ventas. ' + str(e)
+        })
 
-
+    
 #*******************************************************************************************************
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    app.run(host="0.0.0.0", port=8080)
