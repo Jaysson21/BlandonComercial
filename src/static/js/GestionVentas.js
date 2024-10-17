@@ -1,6 +1,7 @@
 // Función para realizar la búsqueda con AJAX
 //Monto total de la venta
 var montoTotal = 0.00;
+var ClienteID = 0;
 
 $('#btn-searchClient').on('click', function () {
     const query = $("#cedulaCliente").val();
@@ -24,7 +25,7 @@ $('#btn-searchClient').on('click', function () {
                     document.getElementById("NombreCliente").value = response.nombres + " " + response.apellidos;
                     document.getElementById("direccionCliente").value = response.direccion;
                     document.getElementById("telefonoCliente").value = response.telefono;
-
+                    ClienteID = response.clienteid;
                     // Habilita botón para ventas
                     document.getElementById("btnInitSell").classList.remove('disabled');
                     hideLoadingModal();
@@ -159,10 +160,10 @@ $('#btnInitSell').on('click', function () {
                                         $('#tablaProductos').append(
                                             `
                                             <tr data-id="${productoID}">
-                                                <td>${productoID}</td>
+                                                <td class="Codigo">${productoID}</td>
                                                 <td>${productName} - ${productDescripcion}</td>
-                                                <td>${productQuantity}</td>
-                                                <td>${productPrice}</td>
+                                                <td class="Precio">${productPrice}</td>
+                                                <td class="Cantidad">${productQuantity}</td>
                                                 <td>
                                                     <button type="button" class="btn-close" aria-label="Close" style="background-color:red;"></button>
                                                 </td>
@@ -171,7 +172,7 @@ $('#btnInitSell').on('click', function () {
                                         )
 
                                         //habilita boton de guardar venta
-                                        document.getElementById("btn-guardarVenta").removeAttribute("disabled");
+                                        document.getElementById("btnGuardarVenta").removeAttribute("disabled");
                                         //muestra monto total
                                         document.getElementById("montoTotal").textContent = montoTotal;
 
@@ -230,3 +231,77 @@ function hideLoadingModal() {
         loadingModal.hide();
     }
 }
+
+//Guardar ventas
+$('#btnGuardarVenta').on('click', function () {
+    // Recoger los datos del formulario
+    const cliente_id = ClienteID;
+    const usuario_id = 0;
+    const tipo_venta = $('input[name="tipo_venta"]:checked').val(); // Radio button
+    const observacion = $('#observacion').val();
+
+    // Recoger los productos de la tabla de productos
+    let productos = [];
+    $('#tableProducts tbody tr').each(function () {
+        const productoid = $(this).find('.Codigo').text();
+        const cantidad = parseFloat($(this).find('.Cantidad').text());
+        const preciounitario = parseFloat($(this).find('.Precio').text());
+
+
+        if (cantidad > 0 && preciounitario > 0) {
+            productos.push({
+                productoid: productoid,
+                cantidad: cantidad,
+                preciounitario: preciounitario
+            });
+        }
+    });
+
+    // Validar que al menos haya un producto
+    if (productos.length === 0) {
+        alert("Debe agregar al menos un producto a la venta.");
+        return;
+    }
+
+    // Crear el objeto de datos para enviar al servidor
+    const datosVenta = {
+        cliente_id: cliente_id,
+        usuario_id: usuario_id,
+        tipo_venta: tipo_venta,
+        productos: productos,
+        observacion: observacion
+    };
+
+    console.log(datosVenta);
+    // Enviar la solicitud AJAX al servidor
+    $.ajax({
+        url: '/saveSale', // URL donde está tu ruta para guardar la venta
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(datosVenta),
+        success: function (response) {
+            if (response.status === 'success') {
+                // Mostrar SweetAlert de éxito y recargar la página
+                Swal.fire({
+                    title: "Venta registrada exitosamente",
+                    icon: "success",
+                    showConfirmButton: false,
+                    timer: 1000,
+                }).then(() => {
+                    // Recargar la página después de eliminar
+                    window.location.reload();
+                });
+            } else {
+                // Si hubo un error, mostrar el mensaje de error
+                Swal.fire({
+                    title: "Error en venta",
+                    text: data.message,
+                    icon: "error",
+                });
+            }
+        },
+        error: function (xhr, status, error) {
+            alert('Ocurrió un error al registrar la venta. Inténtalo de nuevo.');
+        }
+    });
+});

@@ -68,6 +68,7 @@ def login():
             # Remember which user has logged in
             session["nameUser"] = usuario[0][1]
             session["username"] = username
+            session["user_id"] = usuario[0][0]
 
             #session["role_user"] = user[0]['role']
 
@@ -132,6 +133,20 @@ def GestionVentas():
     clientes = ClienteModel.get_clients()
     actualizar_listaProd()
     return render_template("GestionVentas.html", username=session["username"], clientes=clientes, nameuser=session["nameUser"])
+
+@app.route("/saveSale", methods=["POST", "GET"])
+def saveSale():
+    # Obtener los datos de la solicitud
+    datos = request.json
+    
+    cliente_id = datos.get('cliente_id')
+    usuario_id = session["user_id"]
+    tipo_venta = datos.get('tipo_venta')
+    productos = datos.get('productos')
+    observacion = datos.get('observacion')
+
+    res = VentaModel.saveSale(cliente_id, usuario_id, tipo_venta, productos, observacion)
+    return res
 
 #***************************************************************************************************** PARA LOS PRODUCTOS
 @app.route("/GestionProductos")
