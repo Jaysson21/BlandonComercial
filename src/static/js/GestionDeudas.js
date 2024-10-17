@@ -38,13 +38,17 @@ function actualizarTablaVentas(ventasFiltradas) {
             row.innerHTML = `
                 <td>${venta.ventaid}</td>
                 <td>${venta.nombres} ${venta.apellidos}</td>
-                <td>C$${venta.montoventa.toFixed(2)}</td>
+                <td>C$${(venta.montoventa) ? Number(venta.montoventa).toFixed(2) : '0.00'}</td>
                 <td>${new Date(venta.fechaventa).toLocaleDateString()}</td>
+                <td>
+                    <button class="btn btn-sm btn-primary" data-id="${venta.ventaid}">Ver detalles</button>
+                    <button class="btn btn-sm btn-danger delete-button" data-id="${venta.ventaid}">Eliminar</button>
+                </td>
             `;
             tbody.appendChild(row);
         });
     } else {
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center">No se encontraron ventas para este cliente.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center">No se encontraron ventas para este cliente.</td></tr>';
     }
 }
 
@@ -79,3 +83,38 @@ $(document).ready(function() {
         $('#clientCedula').val(cedula || '');
     });
 });
+
+// Mostrar detalles de las ventas en el modal
+document.addEventListener('click', function (event) {
+    if (event.target && event.target.matches('button.btn-primary')) {
+        
+        const ventaId = event.target.getAttribute('data-id');  // Obtener el ID directamente del botón
+        console.log(ventaId);
+
+        if (ventaId) {
+            // Buscar los detalles de la venta en 'sales_data' usando el 'ventaId'
+            const venta = sales_data.find(v => v.ventaid == ventaId);
+
+            if (venta) {
+                // Llenar el modal con la información de la venta
+                const clienteNombre = `${venta.nombres} ${venta.apellidos}`;
+                const montoVenta = venta.montoventa ? Number(venta.montoventa).toFixed(2) : '0.00';
+                const fechaVenta = new Date(venta.fechaventa).toLocaleDateString();
+
+                document.getElementById('clienteNombre').textContent = clienteNombre || 'N/A';
+                document.getElementById('fechaVenta').textContent = fechaVenta || 'N/A';
+                document.getElementById('ventaMonto').textContent = `C$${montoVenta}`;
+
+                // Mostrar el modal
+                let detallesModal = new bootstrap.Modal(document.getElementById('detallesVentaModal'));
+                detallesModal.show();
+            } else {
+                console.error(`No se encontró la venta con ID ${ventaId}`);
+            }
+        } else {
+            console.error("No se encontró el atributo data-id en el botón.");
+        }
+    }
+});
+
+
