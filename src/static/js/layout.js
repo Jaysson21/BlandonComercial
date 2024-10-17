@@ -60,8 +60,29 @@ function actualizarFechaHora() {
     document.getElementById('fecha').textContent = `Fecha: ${fechaFormateada} - Hora: ${horaFormateada}`;
 }
 
+function saludoInicial() {
+    // Obtener la hora actual
+    const now = new Date();
+    const hour = now.getHours();
+    let greeting = "";
+
+    // Determinar el saludo según la hora
+    if (hour >= 6 && hour < 12) {
+        greeting = "Buenos días";
+    } else if (hour >= 12 && hour < 18) {
+        greeting = "Buenas tardes";
+    } else {
+        greeting = "Buenas noches";
+    }
+
+    // Actualizar el contenido del label
+    document.getElementById("greetingLabel").innerText = greeting;
+}
+
 // Llamar a la función cada segundo (1000 milisegundos)
 setInterval(actualizarFechaHora, 1000);
 
 // Llamar a la función inmediatamente para mostrar la hora sin esperar 1 segundo
 actualizarFechaHora();
+
+saludoInicial()
