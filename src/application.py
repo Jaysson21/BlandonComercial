@@ -290,46 +290,24 @@ def deleteClient(id):
     except Exception as e:
         return jsonify({'success': False, 'message': 'Error: Ha ocurrido un problema al eliminar el Cliente. ' + str(e)})
 
-#***************************************************************************************************** PARA LOS PAGOS
+#***************************************************************************************************** PARA LOS DEUDAS
 @app.route("/GestionDeudas")
 def GestionDeudas():
+    # Obtener los clientes y todas las ventas
     clientes = ClienteModel.get_clients()
     ventas = VentaModel.get_sales()
-    return render_template("GestionDeudas.html", username=session["username"], clientes=clientes, nameuser=session["nameUser"])
 
-@app.route("/SalesCustomer", methods=["POST"])
-def findSales():
-    try:
-        # Obtener el cliente_id del formulario
-        cliente_id = request.form['cliente_id']
+    # Cambiamos el nombre de 'ventas' a 'sales_data'
+    sales_data = VentaModel.get_sales()
 
-        # Buscar las ventas del cliente en la base de datos
-        ventas = VentaModel.get_salescustomer(cliente_id)
-
-        # Filtrar solo los campos que quieres mostrar en la tabla
-        sales_data = [
-            {
-                'ventaid': venta['ventaid'],
-                'nombres': venta['nombres'] + " " + venta['apellidos'],
-                'monto': (venta['montoventa']),
-                'fechaventa': venta['fechaventa'].strftime('%d/%m/%Y %H:%M')
-            } for venta in ventas
-        ]
-
-        print(sales_data)
-
-        # Obtener nuevamente los clientes para mantener la lista en la página
-        clientes = ClienteModel.get_clients()
-
-        return render_template('GestionDeudas.html', username=session["username"], clientes=clientes, ventas=sales_data, nameuser=session["nameUser"])
-
-    except Exception as e:
-        clientes = ClienteModel.get_clients()  # Asegurarse de obtener los clientes incluso en caso de error
-        return render_template('GestionDeudas.html', username=session["username"], clientes=clientes, ventas=[], error_message=f'Error al buscar ventas: {str(e)}', nameuser=session["nameUser"])
+    return render_template("GestionDeudas.html",
+                            username=session["username"],
+                            clientes=clientes,
+                            ventas=sales_data,  # Cambiar el nombre aquí también
+                            nameuser=session["nameUser"]
+    )
 
 
-
-    
 #*******************************************************************************************************
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080, debug=True)
