@@ -1,5 +1,6 @@
 // Función para realizar la búsqueda con AJAX
-
+//Monto total de la venta
+var montoTotal = 0.00;
 
 $('#btn-searchClient').on('click', function () {
     const query = $("#cedulaCliente").val();
@@ -27,6 +28,7 @@ $('#btn-searchClient').on('click', function () {
                     // Habilita botón para ventas
                     document.getElementById("btnInitSell").classList.remove('disabled');
                     hideLoadingModal();
+
                 } else {
                     hideLoadingModal();
                     // Si no se encontraron resultados
@@ -57,9 +59,12 @@ $('#btnInitSell').on('click', function () {
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label for="codigoProducto" class="form-label">Código del Producto</label>
-                        <div id="btn_code" class="mb-4">
-                            <input style="width: auto; display: inline;" type="text" id="buscador"
+                        <div class="mb-4">
+                            <div id="btn_code">
+                                <input style="width: auto; display: inline;" type="text" id="buscador"
                                 class="form-control" placeholder="Buscar productos...">
+                            </div>
+                            
                             <!-- Lista de resultados -->
                             <ul style="position: relative;" id="listaResultados" class="list-group mt-2">
                                 <!-- Los resultados de la búsqueda se llenarán aquí dinámicamente -->
@@ -98,7 +103,7 @@ $('#btnInitSell').on('click', function () {
                         // Agregar cada resultado como un <li> en la lista
                         response.forEach(function (producto) {
                             $('#listaResultados').append(
-                                `<li class="list-group-item item" data-id="${producto.productoid}">${producto.nombre} - Código: ${producto.productoid}</li>`
+                                `<li class="list-group-item item" data-id="${producto.productoid}" data-name="${producto.nombre}" data-description="${producto.descripcion}">${producto.nombre} - ${producto.descripcion} - Código: ${producto.productoid}</li>`
                             );
                         });
 
@@ -107,6 +112,12 @@ $('#btnInitSell').on('click', function () {
 
                                 // Obtener el ID del cliente del botón
                                 let productoID = this.getAttribute("data-id");
+                                let productName = this.getAttribute("data-name");
+                                let productDescripcion = this.getAttribute("data-description");
+                                let productQuantity = "";
+                                let productPrice = "";
+
+
                                 $('#listaResultados').empty();
 
                                 $('#btn_code').append(`<button id="btn-close" type="button" class="btn-close ms-2" aria-label="Close" style="background-color:red;" onClick="removeFormProduct()"></button>`);
@@ -116,21 +127,63 @@ $('#btnInitSell').on('click', function () {
                                 $('#formProduct').append(
                                     `
                                         <div class="mb-3">
+                                            <label for="NombreProducto" class="form-label">Nombre | Descripcion:</label>
+                                            <input type="text" class="form-control" id="NombreProducto" placeholder="nombre" value="${productName} - ${productDescripcion}" disabled>
+                                        </div>
+                                        <div class="mb-3">
                                             <label for="PrecioProducto" class="form-label">Precio:</label>
-                                            <input type="text" class="form-control" id="PrecioProducto" placeholder="precio" required>
+                                            <input type="number" class="form-control" id="PrecioProducto" placeholder="precio" required>
                                         </div>
                                         <div class="mb-3">
                                             <label for="CantidadProducto" class="form-label">Cantidad</label>
                                             <input type="number" class="form-control" id="CantidadProducto" placeholder="Ingrese la cantidad" required>
                                         </div>
-                                        <button type="button" class="btn btn-success">Agregar</button>
+                                        <button id="addProductList" type="button" class="btn btn-success">Agregar</button>
                                         `
                                 );
 
                                 document.getElementById("buscador").value = productoID;
 
+                                //Agregar productos
+                                $('#addProductList').on('click', function () {
+                                    window.location.href = "#tableProducts";
+                                    if (document.getElementById("PrecioProducto").value != '' && document.getElementById("CantidadProducto").value != '') {
+
+                                        productPrice = document.getElementById("PrecioProducto").value;
+                                        productQuantity = document.getElementById("CantidadProducto").value;
+
+                                        //Suma al monto total
+                                        montoTotal = montoTotal + (productPrice * productQuantity);
+
+                                        //Agrega productos a la tabla
+                                        $('#tablaProductos').append(
+                                            `
+                                            <tr data-id="${productoID}">
+                                                <td>${productoID}</td>
+                                                <td>${productName} - ${productDescripcion}</td>
+                                                <td>${productQuantity}</td>
+                                                <td>${productPrice}</td>
+                                                <td>
+                                                    <button type="button" class="btn-close" aria-label="Close" style="background-color:red;"></button>
+                                                </td>
+                                            </tr>
+                                            `
+                                        )
+
+                                        //habilita boton de guardar venta
+                                        document.getElementById("btn-guardarVenta").removeAttribute("disabled");
+                                        //muestra monto total
+                                        document.getElementById("montoTotal").textContent = montoTotal;
+
+                                    } else {
+                                        alert("completa los campos");
+                                    }
+
+                                });
 
                             });
+
+
                         });
                     } else {
                         // Si no hay resultados
@@ -144,6 +197,7 @@ $('#btnInitSell').on('click', function () {
         }
     });
 });
+
 
 function removeFormProduct() {
     let ul = document.getElementById("formProduct");
@@ -172,13 +226,6 @@ function showErrorgModal() {
 // Función para ocultar el modal de carga
 function hideLoadingModal() {
     let loadingModal = bootstrap.Modal.getInstance(document.getElementById('loadingModal'));
-    if (loadingModal) {
-        loadingModal.hide();
-    }
-}
-
-function hideErrorModal() {
-    let loadingModal = bootstrap.Modal.getInstance(document.getElementById('errorModal'));
     if (loadingModal) {
         loadingModal.hide();
     }
