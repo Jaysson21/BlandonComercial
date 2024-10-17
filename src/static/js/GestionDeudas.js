@@ -103,7 +103,10 @@ document.addEventListener('click', function (event) {
 
                 document.getElementById('clienteNombre').textContent = clienteNombre || 'N/A';
                 document.getElementById('fechaVenta').textContent = fechaVenta || 'N/A';
-                document.getElementById('ventaMonto').textContent = `C$${montoVenta}`;
+                document.getElementById('ventaTotal').textContent = `C$${montoVenta}`;
+
+                // Llamar a la función que ya tienes para obtener los productos por venta
+                mostrarDetallesVenta(ventaId);
 
                 // Mostrar el modal
                 let detallesModal = new bootstrap.Modal(document.getElementById('detallesVentaModal'));
@@ -118,3 +121,44 @@ document.addEventListener('click', function (event) {
 });
 
 
+// Función para obtener y mostrar los productos en el modal de detalles
+function mostrarDetallesVenta(ventaId) {
+    fetch(`/detallesVentas/${ventaId}`)
+        .then(response => response.json())
+        .then(data => {
+            const productosTableBody = document.getElementById('productosTableBody');
+            productosTableBody.innerHTML = ''; // Limpiar la tabla actual
+            
+            if (data.success && data.productos.length > 0) {
+                let totalVenta = 0;
+                
+                data.productos.forEach(producto => {
+                    const subtotal = producto.preciounitario * producto.cantidad;
+                    totalVenta += subtotal;
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${producto.nombre}</td>
+                        <td>${producto.cantidad}</td>
+                        <td>C$${producto.preciounitario.toFixed(2)}</td>
+                        <td>C$${subtotal.toFixed(2)}</td>
+                    `;
+                    productosTableBody.appendChild(row);
+                });
+                console.log(productos);
+
+                // Actualizar el total en el modal
+                document.getElementById('ventaTotal').textContent = totalVenta.toFixed(2);
+            } else {
+                // Si no se encuentran productos, mostrar un mensaje
+                productosTableBody.innerHTML = '<tr><td colspan="4" class="text-center">No se encontraron productos para esta venta.</td></tr>';
+            }
+
+            // Mostrar el modal
+            let detallesModal = new bootstrap.Modal(document.getElementById('detallesVentaModal'));
+            detallesModal.show();
+        })
+        .catch(error => {
+            console.error('Error al obtener los productos:', error);
+        });
+}

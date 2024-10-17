@@ -232,68 +232,39 @@
     </div>
 
     <!-- Modal de Detalles de Venta -->
-    <div class="modal fade" id="detallesVentaModal" tabindex="-1" aria-labelledby="detallesVentaModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="detallesVentaModalLabel">Detalles de la Venta</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- Información del Cliente y Venta -->
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <p><strong>Cliente:</strong> <span id="clienteNombre"></span></p>
-                        </div>
-                        <div class="col-md-6">
-                            <p><strong>Fecha de Venta:</strong> <span id="fechaVenta"></span></p>
-                        </div>
-                    </div>
+<div class="modal fade" id="detallesVentaModal" tabindex="-1" aria-labelledby="detallesVentaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detallesVentaModalLabel">Detalles de la Venta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Cliente:</strong> <span id="clienteNombre"></span></p>
+                <p><strong>Fecha de Venta:</strong> <span id="fechaVenta"></span></p>
+                <p><strong>Monto Total:</strong> C$<span id="ventaTotal"></span></p>
 
-                    <!-- Resumen de la venta -->
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <p><strong>Monto Total:</strong> C$<span id="ventaMonto"></span></p>
-                        </div>
-                    </div>
-
-                    <!-- Detalles de los productos -->
-                    <h6>Detalles de Productos</h6>
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Producto</th>
-                                <th>Cantidad</th>
-                                <th>Precio Unitario (C$)</th>
-                                <th>Subtotal (C$)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="productosTableBody">
-                            <!-- Aquí se llenarán los productos dinámicamente -->
-                        </tbody>
-                    </table>
-
-                    <!-- Total final -->
-                    <div class="row mt-3">
-                        <div class="col-md-12 text-end">
-                            <h5><strong>Total:</strong> C$<span id="ventaTotal"></span></h5>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                </div>
+                <!-- Tabla de productos -->
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Precio Unitario</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productosTableBody">
+                        <!-- Aquí se llenarán los productos con JS -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
-
-
-
-
-
-
+</div>
     <script src="{{url_for('static', filename='js/layout.js')}}"></script>
     <script src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
 
