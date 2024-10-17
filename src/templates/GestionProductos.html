@@ -2,7 +2,7 @@
 {% block body %}
 <link rel="stylesheet" href="{{url_for('static', filename='css/GestionProductos.css')}}">
 
-<div class="container">
+<div class="container my-4">
 
     <h1 class="text-center mb-4">Registro de Productos</h1>
 
@@ -16,11 +16,13 @@
                     <form id="addProductForm" method="POST" action="/addProduct">
                         <div class="mb-3">
                             <label for="productName" class="form-label">Nombre del Producto</label>
-                            <input type="text" class="form-control" id="productName" name="nombreProducto" maxlength="50" required>
+                            <input type="text" class="form-control" id="productName" name="nombreProducto"
+                                maxlength="50" required>
                         </div>
                         <div class="mb-3">
                             <label for="productDescription" class="form-label">Descripción</label>
-                            <textarea class="form-control" id="productDescription" name="descripcionProducto" rows="3" maxlength="255" required></textarea>
+                            <textarea class="form-control" id="productDescription" name="descripcionProducto" rows="3"
+                                maxlength="255" required></textarea>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Registrar Producto</button>
                     </form>
@@ -55,8 +57,11 @@
                                     <td>{{ producto['nombre'] }}</td>
                                     <td>{{ producto['descripcion'] }}</td>
                                     <td>
-                                        <button class="btn btn-sm btn-primary edit-button" data-id="{{ producto['productoid'] }}">Editar</button>
-                                        <button class="btn btn-sm btn-danger delete-button" data-id="{{ producto['productoid'] }}" data-nombre="{{ producto['nombre'] }}">Eliminar</button>
+                                        <button class="btn btn-sm btn-primary edit-button"
+                                            data-id="{{ producto['productoid'] }}">Editar</button>
+                                        <button class="btn btn-sm btn-danger delete-button"
+                                            data-id="{{ producto['productoid'] }}"
+                                            data-nombre="{{ producto['nombre'] }}">Eliminar</button>
                                     </td>
                                 </tr>
                                 {% endfor %}

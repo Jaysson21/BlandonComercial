@@ -2,7 +2,7 @@
 {% block body %}
 <link rel="stylesheet" href="{{url_for('static', filename='css/GestionVentas.css')}}">
 
-<body class="container my-4">
+<div class="container my-4">
     <!-- Sección de Búsqueda de Cliente -->
     <div class="card mb-4">
         <h2>Nueva venta</h2>
@@ -103,8 +103,8 @@
         <button class="btn btn-danger m-1">CANCELAR</button>
     </div>
 
+</div>
 
 
-
-    <script src="{{url_for('static', filename='js/GestionVentas.js')}}"></script>
-    {% endblock %}
+<script src="{{url_for('static', filename='js/GestionVentas.js')}}"></script>
+{% endblock %}
