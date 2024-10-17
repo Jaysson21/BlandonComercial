@@ -319,37 +319,13 @@ def GestionDeudas():
     ventas = VentaModel.get_sales()
     return render_template("GestionDeudas.html", username=session["username"], clientes=clientes, ventas=ventas, nameuser=session["nameUser"])
 
-@app.route("/SalesCustomer/<int:id>", methods=["POST"])
-def findSales(id):
+@app.route("/detallesVentas/<int:ventaid>", methods=["GET"])
+def get_products_by_sale(ventaid):
     try:
-        # Buscar las ventas del cliente en la base de datos utilizando el cliente id
-        ventas = VentaModel.get_salescustomer(id)
-
-        if ventas:
-            sales_data = [
-                {
-                    'venta': venta.ventaid,
-                    'cliente': venta.clientid,
-                    'monto': venta.montoventa,
-                    'fechaenta': venta.fechaventa
-                } for venta in ventas
-            ]
-            return jsonify({
-                'success': True, 
-                'message': 'Ventas encontradas exitosamente.', 
-                'ventas': sales_data
-            })
-        else:
-            return jsonify({
-                'success': False, 
-                'message': 'No se encontraron ventas para este cliente.'
-            })
+        productos = VentaModel.get_productos_by_sales(ventaid)
+        return jsonify({'success': True, 'productos': productos})
     except Exception as e:
-        return jsonify({
-            'success': False, 
-            'message': 'Error: Ha ocurrido un problema al buscar las ventas. ' + str(e)
-        })
-
+        return jsonify({'success': False, 'message': str(e)})
     
 #*******************************************************************************************************
 if __name__ == "__main__":
