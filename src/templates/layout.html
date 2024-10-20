@@ -28,6 +28,11 @@
 
 
         <ul class="nav-container">
+            <li class="search">
+                <i class='bx bx-search'></i>
+                <input type="text" placeholder="Search">
+                <span class="tooltip">Search</span>
+            </li>
             <li>
                 <a href="/GestionVentas">
                     <i class='bx bx-money-withdraw'></i>
@@ -232,7 +237,7 @@
                 <div class="modal-body">
                     <p><strong>Cliente:</strong> <span id="clienteNombre"></span></p>
                     <p><strong>Fecha de Venta:</strong> <span id="fechaVenta"></span></p>
-                    <p><strong>Monto Total:</strong> C$<span id="ventaTotal"></span></p>
+                    <p><strong>Monto Total:</strong> C$ <span id="ventaTotal"></span></p>
 
                     <!-- Tabla de productos -->
                     <table class="table table-striped">
@@ -256,44 +261,66 @@
         </div>
     </div>
 
-    <!-- Modal para el Pago Inicial -->
-    <div class="modal fade" id="modalPagoInicial" tabindex="-1" aria-labelledby="modalPagoLabel" aria-hidden="true">
-        <div class="modal-dialog">
+    <!-- Modal para realizar pago -->
+    <div class="modal fade" id="pagoModal" tabindex="-1" aria-labelledby="pagoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalPagoLabel">Pago Inicial | Venta Credito</h5>
+                    <h5 class="modal-title" id="pagoModalLabel">Realizar Pago</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="formVenta">
-                        <div class="mb-3" id="pagoInicialContainer">
-                            <label for="pagoInicial" class="form-label">Monto de Pago Inicial</label>
-                            <input type="number" class="form-control" id="pagoInicial" min="0" step="0.01">
-                        </div>
-                    </form>
+                    <!-- Información del cliente y las ventas -->
+                    <p><strong>Cliente:</strong> <span id="nombreClientePago"></span></p>
+                    <p><strong>Ventas:</strong> <span id="ventaIdsPago"></span></p>
+
+                    <!-- Opciones de pago -->
+                    <h5>Opciones de Pago</h5>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="tipoPago" id="pagoTotal" value="total"
+                            checked>
+                        <label class="form-check-label" for="pagoTotal">
+                            Pagar Total
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="tipoPago" id="pagoParcial" value="parcial">
+                        <label class="form-check-label" for="pagoParcial">
+                            Pagar Parcial
+                        </label>
+                    </div>
+
+                    <!-- Campo para pago parcial -->
+                    <div class="mt-3">
+                        <label for="montoParcialInput" class="form-label">Monto</label>
+                        <input type="number" class="form-control" id="montoParcialInput" placeholder="Monto de la venta"
+                            disabled>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-primary" id="guardarVenta">Guardar Venta</button>
+                    <button type="button" class="btn btn-primary" id="confirmarPagoBtn">Confirmar Pago</button>
                 </div>
             </div>
         </div>
-
-        <script src="{{url_for('static', filename='js/layout.js')}}"></script>
-        <script src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
+    </div>
 
 
-        <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{url_for('static', filename='js/layout.js')}}"></script>
+    <script src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
 
-        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
-            integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous">
-            </script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
-            integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous">
-            </script>
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.6.10/lottie.min.js"></script>
+    <script src=" //cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+        integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous">
+        </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
+        integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous">
+        </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.6.10/lottie.min.js"></script>
 
 
 </body>

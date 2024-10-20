@@ -3,6 +3,7 @@ from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy.exc import IntegrityError
 from funciones import *
+import json
 import uuid
 
 
@@ -11,6 +12,7 @@ from model.UsuarioModel import UsuarioModel
 from model.ProductoModel import ProductoModel
 from model.ClienteModel import ClienteModel
 from model.VentaModel import VentaModel
+from model.DeudaModel import DeudaModel
 
 #entities
 from model.entities.Producto import Producto
@@ -317,13 +319,14 @@ def deleteClient(id):
 @app.route("/GestionDeudas")
 def GestionDeudas():
     clientes = ClienteModel.get_clients()
-    ventas = VentaModel.get_sales()
-    return render_template("GestionDeudas.html", username=session["username"], clientes=clientes, ventas=ventas, nameuser=session["nameUser"])
+    deudas = DeudaModel.get_sales()
+    print(deudas)
+    return render_template("GestionDeudas.html", username=session["username"], clientes=clientes, deudas_json = json.dumps(deudas), nameuser=session["nameUser"])
 
 @app.route("/detallesVentas/<int:ventaid>", methods=["GET"])
 def get_products_by_sale(ventaid):
     try:
-        productos = VentaModel.get_productos_by_sales(ventaid)
+        productos = DeudaModel.get_productos_by_sales(ventaid)
         return jsonify({'success': True, 'productos': productos})
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
