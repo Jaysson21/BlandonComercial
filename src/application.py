@@ -143,9 +143,10 @@ def saveSale():
     usuario_id = session["user_id"]
     tipo_venta = datos.get('tipo_venta')
     productos = datos.get('productos')
+    montoPagoInicial = datos.get('montoPagoInicial')
     observacion = datos.get('observacion')
 
-    res = VentaModel.saveSale(cliente_id, usuario_id, tipo_venta, productos, observacion)
+    res = VentaModel.saveSale(cliente_id, usuario_id, tipo_venta, productos,montoPagoInicial, observacion)
     return res
 
 #***************************************************************************************************** PARA LOS PRODUCTOS

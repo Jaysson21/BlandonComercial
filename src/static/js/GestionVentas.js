@@ -44,13 +44,17 @@ $('#btn-searchClient').on('click', function () {
         });
     } else {
         hideLoadingModal();
-        alert("Por favor, ingrese una cédula.");
+        Swal.fire({
+            title: "No se encontro resultados",
+            text: 'Por favor, ingrese una cédula.',
+            icon: "info",
+        });
     }
 });
 
 $('#btnInitSell').on('click', function () {
     //Deshabilita boton de la venta
-    document.getElementById("btnInitSell").classList.add('disabled');
+    this.classList.add('disabled');
 
     //agregar busqueda de productos
     $('#contetn-gestProduct').append(`
@@ -132,7 +136,7 @@ $('#btnInitSell').on('click', function () {
                                             <input type="text" class="form-control" id="NombreProducto" placeholder="nombre" value="${productName} - ${productDescripcion}" disabled>
                                         </div>
                                         <div class="mb-3">
-                                            <label for="PrecioProducto" class="form-label">Precio:</label>
+                                            <label for="PrecioProducto" class="form-label">Precio C$:</label>
                                             <input type="number" class="form-control" id="PrecioProducto" placeholder="precio" required>
                                         </div>
                                         <div class="mb-3">
@@ -147,7 +151,7 @@ $('#btnInitSell').on('click', function () {
 
                                 //Agregar productos
                                 $('#addProductList').on('click', function () {
-                                    window.location.href = "#tableProducts";
+                                    window.location.href = "#containerProducts";
                                     if (document.getElementById("PrecioProducto").value != '' && document.getElementById("CantidadProducto").value != '') {
 
                                         productPrice = document.getElementById("PrecioProducto").value;
@@ -165,19 +169,25 @@ $('#btnInitSell').on('click', function () {
                                                 <td class="Precio">${productPrice}</td>
                                                 <td class="Cantidad">${productQuantity}</td>
                                                 <td>
-                                                    <button type="button" class="btn-close" aria-label="Close" style="background-color:red;"></button>
+                                                    <button type="button" class="btn-close" aria-label="Close" style="background-color:red;" onClick="dltProduct(this,${productPrice},${productQuantity})"></button>
                                                 </td>
                                             </tr>
                                             `
                                         )
 
-                                        //habilita boton de guardar venta
-                                        document.getElementById("btnGuardarVenta").removeAttribute("disabled");
+                                        //habilita boton de guardar venta 
                                         //muestra monto total
                                         document.getElementById("montoTotal").textContent = montoTotal;
 
+
+                                        removeFormProduct();
+
                                     } else {
-                                        alert("completa los campos");
+                                        Swal.fire({
+                                            title: "No se pudo agregar producto",
+                                            text: 'Porfavor complete los campos',
+                                            icon: "info",
+                                        });
                                     }
 
                                 });
@@ -206,11 +216,45 @@ function removeFormProduct() {
     while (ul.firstChild) {
         ul.removeChild(ul.firstChild);
     }
+
+    const tabla = document.getElementById('tableProducts');
+
+    var filas = tabla.getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+
+    if (filas > 0) {
+
+        document.getElementById("btnGuardarVenta").removeAttribute("disabled");
+    }
+
     document.getElementById("buscador").removeAttribute("disabled");
     document.getElementById("buscador").value = "";
     document.getElementById('btn-close').remove();
 
 
+}
+
+// Función para eliminar una fila
+function dltProduct(btn, price, quantity) {
+    // Obtener la fila en la que se encuentra el botón
+    const fila = btn.parentNode.parentNode;
+
+    // Obtener la tabla
+    const tabla = document.getElementById('tableProducts');
+
+
+    montoTotal = montoTotal - (price * quantity);
+
+    document.getElementById("montoTotal").textContent = montoTotal;
+
+    // Eliminar la fila de la tabla
+    tabla.deleteRow(fila.rowIndex);
+
+
+    var filas = tabla.getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+
+    if (filas == 0) {
+        document.getElementById("btnGuardarVenta").setAttribute("disabled", true);
+    }
 }
 
 // Función para mostrar el modal de carga
@@ -232,14 +276,63 @@ function hideLoadingModal() {
     }
 }
 
+function showModalPagoInicial() {
+    let modalPagoInicial = new bootstrap.Modal(document.getElementById("modalPagoInicial"));
+    modalPagoInicial.show();
+}
+
+function hideModalPagoInicial() {
+    let modalPagoInicial = bootstrap.Modal.getInstance(document.getElementById("modalPagoInicial"));
+
+    if (modalPagoInicial) {
+        modalPagoInicial.hide();
+    }
+
+}
 //Guardar ventas
 $('#btnGuardarVenta').on('click', function () {
     // Recoger los datos del formulario
     const cliente_id = ClienteID;
     const usuario_id = 0;
     const tipo_venta = $('input[name="tipo_venta"]:checked').val(); // Radio button
+    const pagoInicial = 0;
     const observacion = $('#observacion').val();
 
+    if (tipo_venta == "Credito") {
+        showModalPagoInicial();
+    } else {
+        succesSale(cliente_id,
+            usuario_id,
+            tipo_venta,
+            pagoInicial,
+            observacion);
+    }
+
+    $('#guardarVenta').on('click', function () {
+
+        hideModalPagoInicial();
+        // Recoger los datos del formulario
+        const cliente_id = ClienteID;
+        const usuario_id = 0;
+        const tipo_venta = $('input[name="tipo_venta"]:checked').val(); // Radio button
+        const pagoInicial = $('#pagoInicial').val();
+        const observacion = $('#observacion').val();
+
+        succesSale(cliente_id,
+            usuario_id,
+            tipo_venta,
+            pagoInicial,
+            observacion);
+    });
+
+});
+
+function succesSale(cliente_id,
+    usuario_id,
+    tipo_venta,
+    pagoInicial,
+    observacion) {
+    //showLoadingModal();
     // Recoger los productos de la tabla de productos
     let productos = [];
     $('#tableProducts tbody tr').each(function () {
@@ -259,7 +352,12 @@ $('#btnGuardarVenta').on('click', function () {
 
     // Validar que al menos haya un producto
     if (productos.length === 0) {
-        alert("Debe agregar al menos un producto a la venta.");
+        //hideLoadingModal();
+        Swal.fire({
+            title: "Error en venta",
+            text: 'Debe agregar al menos un producto a la venta',
+            icon: "info",
+        });
         return;
     }
 
@@ -269,10 +367,10 @@ $('#btnGuardarVenta').on('click', function () {
         usuario_id: usuario_id,
         tipo_venta: tipo_venta,
         productos: productos,
+        montoPagoInicial: pagoInicial,
         observacion: observacion
     };
 
-    console.log(datosVenta);
     // Enviar la solicitud AJAX al servidor
     $.ajax({
         url: '/saveSale', // URL donde está tu ruta para guardar la venta
@@ -281,6 +379,7 @@ $('#btnGuardarVenta').on('click', function () {
         data: JSON.stringify(datosVenta),
         success: function (response) {
             if (response.status === 'success') {
+                //hideLoadingModal();
                 // Mostrar SweetAlert de éxito y recargar la página
                 Swal.fire({
                     title: "Venta registrada exitosamente",
@@ -292,6 +391,7 @@ $('#btnGuardarVenta').on('click', function () {
                     window.location.reload();
                 });
             } else {
+                //hideLoadingModal();
                 // Si hubo un error, mostrar el mensaje de error
                 Swal.fire({
                     title: "Error en venta",
@@ -301,7 +401,14 @@ $('#btnGuardarVenta').on('click', function () {
             }
         },
         error: function (xhr, status, error) {
-            alert('Ocurrió un error al registrar la venta. Inténtalo de nuevo.');
+            //hideLoadingModal();
+            Swal.fire({
+                title: "Error en venta",
+                text: 'Ocurrió un error al registrar la venta. Inténtalo de nuevo',
+                icon: "error",
+            });
         }
     });
-});
+
+
+}

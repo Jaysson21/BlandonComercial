@@ -1,16 +1,9 @@
 let navbar = document.querySelector(".navmenu");
 let logout = document.querySelector("#logout");
 let btnToggle = document.querySelector("#btn-menu");
-let search = document.querySelector(".bx-search");
 
 // ABRE MENU AL CLICK Y CAMBIA DE ICONO
 btnToggle.addEventListener("click", () => {
-    navbar.classList.toggle("open");
-    menuBtnChange()
-});
-
-// ABRE MENU AL CLICK EN INPUT Y CAMBIA ICONO
-search.addEventListener("click", () => {
     navbar.classList.toggle("open");
     menuBtnChange()
 });
@@ -75,6 +68,7 @@ function saludoInicial() {
         greeting = "Buenas noches";
     }
 
+    console.log("entro");
     // Actualizar el contenido del label
     document.getElementById("greetingLabel").innerText = greeting;
 }
