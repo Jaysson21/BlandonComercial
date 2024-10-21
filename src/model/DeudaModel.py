@@ -74,3 +74,18 @@ class DeudaModel:
         except Exception as ex:
             db.rollback()
             raise Exception(f"Error obteniendo los productos de la venta: {ex}")
+        
+    @classmethod
+    def registrar_pago(cls, clienteid, montoabono):
+        try:
+            # Ejecutar el procedimiento almacenado con los parámetros
+            db.execute(
+                text("CALL dbo.registrar_pago(:clienteid, :montoabono)"),
+                {"clienteid": clienteid, "montoabono": montoabono}
+            )
+            db.commit()
+
+            return 1  # Éxito
+        except Exception as ex:
+            db.rollback()
+            raise Exception(f"Error al registrar el pago: {ex}")

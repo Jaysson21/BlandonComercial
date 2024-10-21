@@ -14,7 +14,6 @@ document.getElementById('buscarVentasBtn').addEventListener('click', function (e
     const clienteId = document.getElementById('customerSelect').value;
 
     if (clienteId) {
-        
         const ventasFiltradas = filtrarVentasPorCliente(clienteId);
         actualizarTablaVentas(ventasFiltradas);
         updateTotal();
@@ -33,6 +32,7 @@ function actualizarTablaVentas(ventasFiltradas) {
             const row = document.createElement('tr');
             row.setAttribute('data-id', deuda.ventaid);
             row.innerHTML = `
+                <td>${deuda.deudaid}</td>
                 <td>${deuda.ventaid}</td>
                 <td>${deuda.nombres} ${deuda.apellidos}</td>
                 <td>C$ ${(deuda.montodeuda) ? Number(deuda.montodeuda).toFixed(2) : '0.00'}</td>
@@ -49,14 +49,13 @@ function actualizarTablaVentas(ventasFiltradas) {
     }
 }
 
-
 // Actualizar el total basado en los valores de la columna 'Monto'
 function updateTotal() {
     const rows = document.querySelectorAll('#paymentHistory tbody tr');
     let total = 0;
 
     rows.forEach(row => {
-        const montoCell = row.querySelector('td:nth-child(3)');
+        const montoCell = row.querySelector('td:nth-child(4)');
         if (montoCell) {
             const monto = parseFloat(montoCell.textContent.replace('C$', '').trim());
             if (!isNaN(monto)) {
@@ -88,11 +87,8 @@ document.addEventListener('click', function (event) {
         const ventaId = event.target.getAttribute('data-id');  // Obtener el ID directamente del botón
 
         if (ventaId) {
-            // Buscar los detalles de la venta en 'sales_data' usando el 'ventaId'
             const venta = sales_data.find(v => v.ventaid == ventaId);
-
             if (venta) {
-                // Llenar el modal con la información de la venta
                 const clienteNombre = `${venta.nombres} ${venta.apellidos}`;
                 const montoVenta = venta.montoventa ? Number(venta.montoventa).toFixed(2) : '0.00';
                 const fechaVenta = venta.fechaventa;
@@ -102,7 +98,6 @@ document.addEventListener('click', function (event) {
                 document.getElementById('ventaTotal').textContent = `C$ ${montoVenta}`;
 
                 document.getElementById('detallesVentaModalLabel').textContent = `Detalles de la Venta (${ventaId})`;
-                // Obtener y mostrar los productos
                 mostrarDetallesVenta(ventaId);
             } else {
                 console.error(`No se encontró la venta con ID ${ventaId}`);
@@ -112,8 +107,6 @@ document.addEventListener('click', function (event) {
         }
     }
 });
-
-
 
 // Función para obtener y mostrar los productos en el modal de detalles
 function mostrarDetallesVenta(ventaId) {
@@ -139,14 +132,11 @@ function mostrarDetallesVenta(ventaId) {
                     `;
                     productosTableBody.appendChild(row);
                 });
-                // Actualizar el total en el modal
                 document.getElementById('ventaTotal').textContent = totalVenta.toFixed(2);
             } else {
-                // Si no se encuentran productos, mostrar un mensaje
                 productosTableBody.innerHTML = '<tr><td colspan="4" class="text-center">No se encontraron productos para esta venta.</td></tr>';
             }
 
-            // Mostrar el modal
             let detallesModal = new bootstrap.Modal(document.getElementById('detallesVentaModal'));
             detallesModal.show();
         })
@@ -154,6 +144,7 @@ function mostrarDetallesVenta(ventaId) {
             console.error('Error al obtener los productos:', error);
         });
 }
+
 // Obtener todos los ventaid de las ventas mostradas en la tabla
 function obtenerVentaIds() {
     const ventaIds = [];
@@ -169,23 +160,67 @@ function obtenerVentaIds() {
 
 // Función para mostrar el modal de pago con la información de la deuda
 function mostrarPagoModal(clienteNombre, ventaIds, totalDeuda) {
-    // Asignar los datos al modal
     document.getElementById('nombreClientePago').textContent = clienteNombre;
     document.getElementById('ventaIdsPago').textContent = ventaIds.join(', ');
 
-    // Inicializar el monto total en el campo de pago
     const montoInput = document.getElementById('montoParcialInput');
-    montoInput.value = totalDeuda.toFixed(2);  // Mostrar el monto total de la venta
-    montoInput.disabled = true;  // Deshabilitado al iniciar
+    montoInput.value = totalDeuda.toFixed(2);  
+    montoInput.disabled = true;  
 
-    // Mostrar el modal de pago
     let pagoModal = new bootstrap.Modal(document.getElementById('pagoModal'));
     pagoModal.show();
+
+    // Eliminar event listeners anteriores si existen
+    const botonPago = document.getElementById('confirmarPagoBtn');
+    const botonPagoClon = botonPago.cloneNode(true);
+    botonPago.parentNode.replaceChild(botonPagoClon, botonPago);
+
+    botonPagoClon.addEventListener('click', function () {
+        const clienteId = document.getElementById('customerSelect').value;
+        const montoAbono = document.getElementById('montoParcialInput').value;
+
+        if (clienteId && montoAbono) {
+            fetch('/registrarPago', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    clienteid: clienteId,
+                    montoabono: montoAbono
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Pago registrado exitosamente");
+
+                    // Cerrar el modal
+                    pagoModal.hide();
+
+                    // Recargar la página
+                    window.location.reload();
+                } else {
+                    alert("Error al registrar el pago: " + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        } else {
+            alert('Por favor complete los campos de cliente y monto.');
+        }
+    });
 
     // Habilitar/deshabilitar el campo de pago parcial según la opción seleccionada
     document.getElementById('pagoModal').addEventListener('shown.bs.modal', function () {
         document.getElementById('pagoParcial').addEventListener('change', function () {
             montoInput.disabled = false;  // Habilitar el campo de pago parcial
+
+            // Limpiar el campo solo cuando el usuario haga clic (focus) en él
+            montoInput.addEventListener('focus', function () {
+                montoInput.value = '';  // Limpiar el campo al hacer clic (focus)
+            });
         });
 
         document.getElementById('pagoTotal').addEventListener('change', function () {
@@ -195,30 +230,26 @@ function mostrarPagoModal(clienteNombre, ventaIds, totalDeuda) {
     });
 }
 
+
 // Manejar el clic en el botón "Realizar Pago" para abrir el modal de pago
 document.getElementById('realizarPagoBtn').addEventListener('click', function () {
-    // Obtener todos los ventaids de la tabla
     const ventaIds = obtenerVentaIds();
     let totalDeuda = 0;
 
     if (ventaIds.length > 0) {
-        // Obtener el nombre del cliente seleccionado
         const clienteNombre = document.getElementById('customerSelect').selectedOptions[0].textContent;
 
-        // Sumar el total de las ventas
         const rows = document.querySelectorAll('#paymentHistory tbody tr');
         rows.forEach(row => {
-            const montoCell = row.querySelector('td:nth-child(3)');
+            const montoCell = row.querySelector('td:nth-child(4)');
             const monto = parseFloat(montoCell.textContent.replace('C$', '').trim());
             if (!isNaN(monto)) {
                 totalDeuda += monto;
             }
         });
 
-        // Llamar al modal de pago con la información de las ventas
         mostrarPagoModal(clienteNombre, ventaIds, totalDeuda);
     } else {
         alert('No hay ventas disponibles para realizar el pago.');
     }
 });
-
