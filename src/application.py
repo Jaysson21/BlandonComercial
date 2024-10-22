@@ -319,7 +319,6 @@ def deleteClient(id):
 def GestionDeudas():
     clientes = ClienteModel.get_clients()
     deudas = DeudaModel.get_sales()
-    print(deudas)
     return render_template("GestionDeudas.html", username=session["username"], clientes=clientes, deudas_json = json.dumps(deudas), nameuser=session["nameUser"])
 
 @app.route("/detallesVentas/<int:ventaid>", methods=["GET"])
@@ -345,6 +344,14 @@ def registrar_pago():
         return jsonify({"success": False, "message": str(e)})
 
     
+#*******************************************************************************************************PARA LOS REPORTES
+@app.route("/GestionReportes")
+def GestionReportes():
+    clientes = ClienteModel.get_clients()
+    deudas = DeudaModel.get_sales()
+    return render_template("Reportes.html", username=session["username"], clientes=clientes, deudas_json = json.dumps(deudas), nameuser=session["nameUser"])
+
+
 #*******************************************************************************************************
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
