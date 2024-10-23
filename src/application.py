@@ -320,7 +320,6 @@ def deleteClient(id):
 def GestionDeudas():
     clientes = ClienteModel.get_clients()
     deudas = DeudaModel.get_sales()
-    print(deudas)
     return render_template("GestionDeudas.html", username=session["username"], clientes=clientes, deudas_json = json.dumps(deudas), nameuser=session["nameUser"])
 
 @app.route("/detallesVentas/<int:ventaid>", methods=["GET"])
@@ -331,6 +330,29 @@ def get_products_by_sale(ventaid):
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
     
+@app.route("/registrarPago", methods=["POST"])
+def registrar_pago():
+    # Obtener los datos de la solicitud
+    datos = request.json
+    clienteid = datos.get("clienteid")
+    montoabono = datos.get("montoabono")
+
+    try:
+        # Llamar a la función registrar_pago del modelo
+        DeudaModel.registrar_pago(clienteid, montoabono)
+        return jsonify({"success": True, "message": "Pago registrado exitosamente"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})
+
+    
+#*******************************************************************************************************PARA LOS REPORTES
+@app.route("/GestionReportes")
+def GestionReportes():
+    clientes = ClienteModel.get_clients()
+    deudas = DeudaModel.get_sales()
+    return render_template("Reportes.html", username=session["username"], clientes=clientes, deudas_json = json.dumps(deudas), nameuser=session["nameUser"])
+
+
 #*******************************************************************************************************
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)

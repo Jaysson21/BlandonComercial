@@ -143,6 +143,10 @@ $('#btnInitSell').on('click', function () {
                                             <label for="CantidadProducto" class="form-label">Cantidad</label>
                                             <input type="number" class="form-control" id="CantidadProducto" placeholder="Ingrese la cantidad" required>
                                         </div>
+                                        <div class="mb-3">
+                                            <label for="PrecioProducto" class="form-label">Precio:</label>
+                                            <input type="number" class="form-control" id="PrecioProducto" placeholder="Precio" required>
+                                        </div>
                                         <button id="addProductList" type="button" class="btn btn-success">Agregar</button>
                                         `
                                 );
