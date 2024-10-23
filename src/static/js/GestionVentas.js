@@ -53,165 +53,167 @@ $('#btn-searchClient').on('click', function () {
 });
 
 $('#btnInitSell').on('click', function () {
-    //Deshabilita boton de la venta
-    this.classList.add('disabled');
+    showModaTipoVenta();
 
-    //agregar busqueda de productos
-    $('#contetn-gestProduct').append(`
-        <div class="card-header">Buscar Producto</div>
-        <div class="card-body">
-            <form id="productoForm">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label for="codigoProducto" class="form-label">Código del Producto</label>
-                        <div class="mb-4">
-                            <div id="btn_code">
-                                <input style="width: auto; display: inline;" type="text" id="buscador"
-                                class="form-control" placeholder="Buscar productos...">
+    $('#btnGuardarTipoVenta').on('click', function () {
+        //Deshabilita boton de la venta
+        document.getElementById('btnInitSell').classList.add('disabled');
+        hideModalTipoVenta();
+
+        //agregar busqueda de productos
+        $('#contetn-gestProduct').append(`
+            <div class="card-header">Buscar Producto</div>
+            <div class="card-body">
+                <form id="productoForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="codigoProducto" class="form-label">Código del Producto</label>
+                            <div class="mb-4">
+                                <div id="btn_code">
+                                    <input style="width: auto; display: inline;" type="text" id="buscador"
+                                    class="form-control" placeholder="Buscar productos...">
+                                </div>
+                                
+                                <!-- Lista de resultados -->
+                                <ul style="position: relative;" id="listaResultados" class="list-group mt-2">
+                                    <!-- Los resultados de la búsqueda se llenarán aquí dinámicamente -->
+                                </ul>
                             </div>
-                            
-                            <!-- Lista de resultados -->
-                            <ul style="position: relative;" id="listaResultados" class="list-group mt-2">
-                                <!-- Los resultados de la búsqueda se llenarán aquí dinámicamente -->
-                            </ul>
+    
                         </div>
-
-                    </div>
-                    <div class="col-md-6">
-                        <div id="formProduct" class="formProduct">
-
+                        <div class="col-md-6">
+                            <div id="formProduct" class="formProduct">
+    
+                            </div>
                         </div>
                     </div>
-                </div>
-            </form>
-        </div>
-        
-        `);
+                </form>
+            </div>
+            
+            `);
 
 
-    $('#buscador').on('keyup', function () {
-        const query = $(this).val();
+        $('#buscador').on('keyup', function () {
+            const query = $(this).val();
 
-        // Verificar si el usuario ha escrito algo
-        if (query.length > 0) {
-            // Realizar la solicitud AJAX
-            $.ajax({
-                url: '/buscar_producto', // Ruta a tu API o servidor
-                method: 'GET',
-                data: { query: query },
-                success: function (response) {
-                    // Limpiar resultados anteriores
-                    $('#listaResultados').empty();
+            // Verificar si el usuario ha escrito algo
+            if (query.length > 0) {
+                // Realizar la solicitud AJAX
+                $.ajax({
+                    url: '/buscar_producto', // Ruta a tu API o servidor
+                    method: 'GET',
+                    data: { query: query },
+                    success: function (response) {
+                        // Limpiar resultados anteriores
+                        $('#listaResultados').empty();
 
-                    // Verificar si se encontraron resultados
-                    if (response.length > 0) {
-                        // Agregar cada resultado como un <li> en la lista
-                        response.forEach(function (producto) {
-                            $('#listaResultados').append(
-                                `<li class="list-group-item item" data-id="${producto.productoid}" data-name="${producto.nombre}" data-description="${producto.descripcion}">${producto.nombre} - ${producto.descripcion} - Código: ${producto.productoid}</li>`
-                            );
-                        });
-
-                        document.querySelectorAll(".item").forEach(function (li) {
-                            li.addEventListener("click", function () {
-
-                                // Obtener el ID del cliente del botón
-                                let productoID = this.getAttribute("data-id");
-                                let productName = this.getAttribute("data-name");
-                                let productDescripcion = this.getAttribute("data-description");
-                                let productQuantity = "";
-                                let productPrice = "";
-
-
-                                $('#listaResultados').empty();
-
-                                $('#btn_code').append(`<button id="btn-close" type="button" class="btn-close ms-2" aria-label="Close" style="background-color:red;" onClick="removeFormProduct()"></button>`);
-
-                                document.getElementById("buscador").setAttribute("disabled", true);
-                                // Rellenar el formulario del modal con los datos del cliente
-                                $('#formProduct').append(
-                                    `
-                                        <div class="mb-3">
-                                            <label for="NombreProducto" class="form-label">Nombre | Descripcion:</label>
-                                            <input type="text" class="form-control" id="NombreProducto" placeholder="nombre" value="${productName} - ${productDescripcion}" disabled>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="PrecioProducto" class="form-label">Precio C$:</label>
-                                            <input type="number" class="form-control" id="PrecioProducto" placeholder="precio" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="CantidadProducto" class="form-label">Cantidad</label>
-                                            <input type="number" class="form-control" id="CantidadProducto" placeholder="Ingrese la cantidad" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="PrecioProducto" class="form-label">Precio:</label>
-                                            <input type="number" class="form-control" id="PrecioProducto" placeholder="Precio" required>
-                                        </div>
-                                        <button id="addProductList" type="button" class="btn btn-success">Agregar</button>
-                                        `
+                        // Verificar si se encontraron resultados
+                        if (response.length > 0) {
+                            // Agregar cada resultado como un <li> en la lista
+                            response.forEach(function (producto) {
+                                $('#listaResultados').append(
+                                    `<li class="list-group-item item" data-id="${producto.productoid}" data-name="${producto.nombre}" data-description="${producto.descripcion}">${producto.nombre} - ${producto.descripcion} - Código: ${producto.productoid}</li>`
                                 );
+                            });
 
-                                document.getElementById("buscador").value = productoID;
+                            document.querySelectorAll(".item").forEach(function (li) {
+                                li.addEventListener("click", function () {
 
-                                //Agregar productos
-                                $('#addProductList').on('click', function () {
-                                    window.location.href = "#containerProducts";
-                                    if (document.getElementById("PrecioProducto").value != '' && document.getElementById("CantidadProducto").value != '') {
+                                    // Obtener el ID del cliente del botón
+                                    let productoID = this.getAttribute("data-id");
+                                    let productName = this.getAttribute("data-name");
+                                    let productDescripcion = this.getAttribute("data-description");
+                                    let productQuantity = "";
+                                    let productPrice = "";
 
-                                        productPrice = document.getElementById("PrecioProducto").value;
-                                        productQuantity = document.getElementById("CantidadProducto").value;
 
-                                        //Suma al monto total
-                                        montoTotal = montoTotal + (productPrice * productQuantity);
+                                    $('#listaResultados').empty();
 
-                                        //Agrega productos a la tabla
-                                        $('#tablaProductos').append(
+                                    $('#btn_code').append(`<button id="btn-close" type="button" class="btn-close ms-2" aria-label="Close" style="background-color:red;" onClick="removeFormProduct()"></button>`);
+
+                                    document.getElementById("buscador").setAttribute("disabled", true);
+                                    // Rellenar el formulario del modal con los datos del cliente
+                                    $('#formProduct').append(
+                                        `
+                                            <div class="mb-3">
+                                                <label for="NombreProducto" class="form-label">Nombre | Descripcion:</label>
+                                                <input type="text" class="form-control" id="NombreProducto" placeholder="nombre" value="${productName} - ${productDescripcion}" disabled>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="PrecioProducto" class="form-label">Precio C$:</label>
+                                                <input type="number" class="form-control" id="PrecioProducto" placeholder="precio" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="CantidadProducto" class="form-label">Cantidad</label>
+                                                <input type="number" class="form-control" id="CantidadProducto" placeholder="Ingrese la cantidad" required>
+                                            </div>
+                                            <button id="addProductList" type="button" class="btn btn-success">Agregar</button>
                                             `
-                                            <tr data-id="${productoID}">
-                                                <td class="Codigo">${productoID}</td>
-                                                <td>${productName} - ${productDescripcion}</td>
-                                                <td class="Precio">${productPrice}</td>
-                                                <td class="Cantidad">${productQuantity}</td>
-                                                <td>
-                                                    <button type="button" class="btn-close" aria-label="Close" style="background-color:red;" onClick="dltProduct(this,${productPrice},${productQuantity})"></button>
-                                                </td>
-                                            </tr>
-                                            `
-                                        )
+                                    );
 
-                                        //habilita boton de guardar venta 
-                                        //muestra monto total
-                                        document.getElementById("montoTotal").textContent = montoTotal;
+                                    document.getElementById("buscador").value = productoID;
+
+                                    //Agregar productos
+                                    $('#addProductList').on('click', function () {
+                                        window.location.href = "#containerProducts";
+                                        if (document.getElementById("PrecioProducto").value != '' && document.getElementById("CantidadProducto").value != '') {
+
+                                            productPrice = document.getElementById("PrecioProducto").value;
+                                            productQuantity = document.getElementById("CantidadProducto").value;
+
+                                            //Suma al monto total
+                                            montoTotal = montoTotal + (productPrice * productQuantity);
+
+                                            //Agrega productos a la tabla
+                                            $('#tablaProductos').append(
+                                                `
+                                                <tr data-id="${productoID}">
+                                                    <td class="Codigo">${productoID}</td>
+                                                    <td>${productName} - ${productDescripcion}</td>
+                                                    <td class="Precio">${productPrice}</td>
+                                                    <td class="Cantidad">${productQuantity}</td>
+                                                    <td>
+                                                        <button type="button" class="btn-close" aria-label="Close" style="background-color:red;" onClick="dltProduct(this,${productPrice},${productQuantity})"></button>
+                                                    </td>
+                                                </tr>
+                                                `
+                                            )
+
+                                            //habilita boton de guardar venta 
+                                            //muestra monto total
+                                            document.getElementById("montoTotal").textContent = montoTotal;
 
 
-                                        removeFormProduct();
+                                            removeFormProduct();
 
-                                    } else {
-                                        Swal.fire({
-                                            title: "No se pudo agregar producto",
-                                            text: 'Porfavor complete los campos',
-                                            icon: "info",
-                                        });
-                                    }
+                                        } else {
+                                            Swal.fire({
+                                                title: "No se pudo agregar producto",
+                                                text: 'Porfavor complete los campos',
+                                                icon: "info",
+                                            });
+                                        }
+
+                                    });
 
                                 });
 
+
                             });
-
-
-                        });
-                    } else {
-                        // Si no hay resultados
-                        $('#listaResultados').append('<li class="list-group-item">No se encontraron productos.</li>');
+                        } else {
+                            // Si no hay resultados
+                            $('#listaResultados').append('<li class="list-group-item">No se encontraron productos.</li>');
+                        }
                     }
-                }
-            });
-        } else {
-            // Limpiar resultados si la búsqueda es muy corta
-            $('#listaResultados').empty();
-        }
+                });
+            } else {
+                // Limpiar resultados si la búsqueda es muy corta
+                $('#listaResultados').empty();
+            }
+        });
     });
 });
+
 
 
 function removeFormProduct() {
@@ -293,14 +295,30 @@ function hideModalPagoInicial() {
     }
 
 }
+
+function showModaTipoVenta() {
+    let modalTipoVenta = new bootstrap.Modal(document.getElementById("modalTipoVenta"));
+    modalTipoVenta.show();
+}
+
+function hideModalTipoVenta() {
+    let modalTipoVenta = bootstrap.Modal.getInstance(document.getElementById("modalTipoVenta"));
+
+    if (modalTipoVenta) {
+        modalTipoVenta.hide();
+    }
+
+}
 //Guardar ventas
 $('#btnGuardarVenta').on('click', function () {
     // Recoger los datos del formulario
     const cliente_id = ClienteID;
     const usuario_id = 0;
-    const tipo_venta = $('input[name="tipo_venta"]:checked').val(); // Radio button
+    const tipo_venta = $('#selectTipoVenta').val(); // Radio button
     const pagoInicial = 0;
     const observacion = $('#observacion').val();
+
+    console.log(tipo_venta);
 
     if (tipo_venta == "Credito") {
         showModalPagoInicial();
@@ -318,7 +336,7 @@ $('#btnGuardarVenta').on('click', function () {
         // Recoger los datos del formulario
         const cliente_id = ClienteID;
         const usuario_id = 0;
-        const tipo_venta = $('input[name="tipo_venta"]:checked').val(); // Radio button
+        const tipo_venta = $('#selectTipoVenta').val(); // Radio button
         const pagoInicial = $('#pagoInicial').val();
         const observacion = $('#observacion').val();
 

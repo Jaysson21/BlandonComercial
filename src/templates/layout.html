@@ -28,11 +28,6 @@
 
 
         <ul class="nav-container">
-            <li class="search">
-                <i class='bx bx-search'></i>
-                <input type="text" placeholder="Search">
-                <span class="tooltip">Search</span>
-            </li>
             <li>
                 <a href="/GestionVentas">
                     <i class='bx bx-money-withdraw'></i>
@@ -305,6 +300,55 @@
         </div>
     </div>
 
+    <!-- Modal para el Pago Inicial | Venta al credito -->
+    <div class="modal fade" id="modalPagoInicial" tabindex="-1" aria-labelledby="modalPagoLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalPagoLabel">Pago Inicial | Venta Credito</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formVenta">
+                        <div class="mb-3" id="pagoInicialContainer">
+                            <label for="pagoInicial" class="form-label">Monto de Pago Inicial</label>
+                            <input type="number" class="form-control" id="pagoInicial" min="0" step="0.01">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" id="guardarVenta">Guardar Venta</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal para seleccionar tipo de venta | Ventas -->
+    <div class="modal fade" id="modalTipoVenta" tabindex="-1" aria-labelledby="modalTipoVentaLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalPagoLabel">Tipo de venta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formVenta">
+                        <div class="mb-3" id="pagoInicialContainer">
+                            <label for="pagoInicial" class="form-label">Tipo de venta: </label>
+                            <Select name="selectTipoVenta" id="selectTipoVenta">
+                                <option value="Credito">Credito</option>
+                                <option value="Contado">Contado</option>
+                            </Select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnGuardarTipoVenta">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="{{url_for('static', filename='js/layout.js')}}"></script>
     <script src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
