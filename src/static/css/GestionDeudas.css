@@ -28,6 +28,61 @@ body {
     margin-bottom: 1rem;
 }
 
+/* Alertas con posición fija y centrada horizontalmente en la parte superior */
+#alertPlaceholder {
+    position: fixed;
+    top: 10px;  /* Inicia en la parte superior */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1200;
+    width: 100%;  /* Asegura que el contenedor abarque todo el ancho */
+    max-width: auto;  /* Limitar el ancho máximo de las alertas */
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+}
+
+/* Ajustar las propiedades de la alerta */
+.alert {
+    opacity: 0.85;
+    pointer-events: auto;  /* Permitir interacción con la alerta */
+}
+
+/* Animación para que la alerta baje desde arriba */
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 0.85;
+    }
+}
+
+/* Animación para que la alerta suba hacia arriba */
+@keyframes slideUp {
+    from {
+        transform: translateY(0);
+        opacity: 0.85;
+    }
+    to {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+}
+
+/* Clase para animación de entrada (baja desde arriba) */
+.alert.showing {
+    animation: slideDown 0.5s forwards;
+}
+
+/* Clase para animación de salida (sube hacia arriba) */
+.alert.hiding {
+    animation: slideUp 0.5s forwards;
+}
+
+
 /* Estilos para dispositivos móviles */
 @media (max-width: 767px) {
     .container-fluid {

@@ -7,6 +7,38 @@ function filtrarVentasPorCliente(clienteId) {
     return sales_data.filter(deuda => deuda.clienteid == clienteId);
 }
 
+// Función para mostrar alertas con la nueva animación desde arriba
+function mostrarAlertaBootstrap(mensaje, tipo) {
+    const alertPlaceholder = document.getElementById('alertPlaceholder');
+
+    // Limpiar alertas previas antes de mostrar una nueva
+    alertPlaceholder.innerHTML = '';
+
+    // Crear nueva alerta
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${tipo} alert-dismissible fade show showing`;  // Añadimos clase 'showing' para animación
+    alert.role = 'alert';
+    alert.innerHTML = `
+        ${mensaje}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    alertPlaceholder.appendChild(alert);
+
+    
+    setTimeout(() => {
+        alert.classList.remove('showing');
+        alert.classList.add('hiding');
+
+        
+        setTimeout(() => {
+            alert.remove();
+        }, 500);
+    }, 2000);
+}
+
+
+
+
 // Evento para manejar el clic en "Buscar Ventas"
 document.getElementById('buscarVentasBtn').addEventListener('click', function (e) {
     e.preventDefault();
@@ -18,7 +50,7 @@ document.getElementById('buscarVentasBtn').addEventListener('click', function (e
         actualizarTablaVentas(ventasFiltradas);
         updateTotal();
     } else {
-        alert('Por favor, seleccione un cliente antes de buscar las ventas.');
+        mostrarAlertaBootstrap("Por favor, seleccione un cliente antes de buscar las ventas.", "warning");
     }
 });
 
@@ -35,7 +67,7 @@ function actualizarTablaVentas(ventasFiltradas) {
                 <td>${deuda.deudaid}</td>
                 <td>${deuda.ventaid}</td>
                 <td>${deuda.nombres} ${deuda.apellidos}</td>
-                <td>C$ ${(deuda.montodeuda) ? Number(deuda.montodeuda).toFixed(2) : '0.00'}</td>
+                <td>C$ ${Number(deuda.montodeuda).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                 <td>${deuda.fechaventa}</td>
                 <td>
                     <button class="btn btn-sm btn-primary" data-id="${deuda.ventaid}">Ver detalles</button>
@@ -45,7 +77,7 @@ function actualizarTablaVentas(ventasFiltradas) {
             tbody.appendChild(row);
         });
     } else {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center">No se encontraron ventas para este cliente.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center">No se encontraron deudas para este cliente.</td></tr>';
     }
 }
 
@@ -57,7 +89,7 @@ function updateTotal() {
     rows.forEach(row => {
         const montoCell = row.querySelector('td:nth-child(4)');
         if (montoCell) {
-            const monto = parseFloat(montoCell.textContent.replace('C$', '').trim());
+            const monto = parseFloat(montoCell.textContent.replace('C$', '').replace(/,/g, '').trim());
             if (!isNaN(monto)) {
                 total += monto;
             }
@@ -65,8 +97,9 @@ function updateTotal() {
     });
 
     const totalElement = document.getElementById('total');
-    totalElement.innerHTML = `<strong>Total: C$${total.toFixed(2)}</strong>`;
+    totalElement.innerHTML = `<strong>Total: C$ ${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>`;
 }
+
 
 // Asignar la cédula del cliente seleccionado
 $(document).ready(function() {
@@ -193,7 +226,7 @@ function mostrarPagoModal(clienteNombre, ventaIds, totalDeuda) {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert("Pago registrado exitosamente");
+                    mostrarAlertaBootstrap("Pago registrado exitosamente", "success");
 
                     // Cerrar el modal
                     pagoModal.hide();
@@ -201,14 +234,14 @@ function mostrarPagoModal(clienteNombre, ventaIds, totalDeuda) {
                     // Recargar la página
                     window.location.reload();
                 } else {
-                    alert("Error al registrar el pago: " + data.message);
+                    mostrarAlertaBootstrap("Error al registrar el pago: " + data.message , "error");
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
             });
         } else {
-            alert('Por favor complete los campos de cliente y monto.');
+            mostrarAlertaBootstrap("Por favor complete los campos de cliente y monto", "warning");
         }
     });
 
@@ -250,6 +283,6 @@ document.getElementById('realizarPagoBtn').addEventListener('click', function ()
 
         mostrarPagoModal(clienteNombre, ventaIds, totalDeuda);
     } else {
-        alert('No hay ventas disponibles para realizar el pago.');
+        mostrarAlertaBootstrap("No hay ventas disponibles para realizar el pago.", "warning");
     }
 });

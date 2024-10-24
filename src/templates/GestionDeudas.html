@@ -1,9 +1,9 @@
 {% extends 'layout.html'%}
 {% block body %}
 <link rel="stylesheet" href="{{url_for('static', filename='css/GestionDeudas.css')}}">
-
+<div id="alertPlaceholder"></div>
 <div class="container">
-
+    
     <h1 class="text-center mb-4">Administrar Deudas</h1>
 
     <div class="row g-3">
@@ -40,7 +40,7 @@
         <div class="col-12 col-lg-8">
             <div class="card">
                 <div class="card-header">
-                    <h2 class="h5 mb-0">Lista de Ventas</h2>
+                    <h2 class="h5 mb-0">Lista de las Deudas</h2>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -56,7 +56,7 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="5" class="text-center">Seleccione un cliente para ver las ventas.</td>
+                                    <td colspan="5" class="text-center">Seleccione un cliente para ver las deudas.</td>
                                 </tr>
                             </tbody>
                         </table>
