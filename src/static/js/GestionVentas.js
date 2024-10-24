@@ -311,41 +311,91 @@ function hideModalTipoVenta() {
 }
 //Guardar ventas
 $('#btnGuardarVenta').on('click', function () {
-    // Recoger los datos del formulario
-    const cliente_id = ClienteID;
-    const usuario_id = 0;
-    const tipo_venta = $('#selectTipoVenta').val(); // Radio button
-    const pagoInicial = 0;
-    const observacion = $('#observacion').val();
 
-    console.log(tipo_venta);
+    Swal.fire({
+        title: '¿Desea realizar un pago inicial?',
+        showDenyButton: false,
+        showCancelButton: true,
+        confirmButtonText: 'Si'
+    }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+            // Recoger los datos del formulario
+            const cliente_id = ClienteID;
+            const usuario_id = 0;
+            const tipo_venta = $('#selectTipoVenta').val(); // Radio button
+            const pagoInicial = 0;
+            const observacion = $('#observacion').val();
 
-    if (tipo_venta == "Credito") {
-        showModalPagoInicial();
-    } else {
-        succesSale(cliente_id,
-            usuario_id,
-            tipo_venta,
-            pagoInicial,
-            observacion);
-    }
+            console.log(tipo_venta);
 
-    $('#guardarVenta').on('click', function () {
+            if (tipo_venta == "Credito") {
+                showModalPagoInicial();
+            } else {
+                succesSale(cliente_id,
+                    usuario_id,
+                    tipo_venta,
+                    pagoInicial,
+                    observacion);
+            }
 
-        hideModalPagoInicial();
-        // Recoger los datos del formulario
-        const cliente_id = ClienteID;
-        const usuario_id = 0;
-        const tipo_venta = $('#selectTipoVenta').val(); // Radio button
-        const pagoInicial = $('#pagoInicial').val();
-        const observacion = $('#observacion').val();
+            $('#guardarVenta').on('click', function () {
 
-        succesSale(cliente_id,
-            usuario_id,
-            tipo_venta,
-            pagoInicial,
-            observacion);
-    });
+                hideModalPagoInicial();
+                // Recoger los datos del formulario
+                const cliente_id = ClienteID;
+                const usuario_id = 0;
+                const tipo_venta = $('#selectTipoVenta').val(); // Radio button
+                const pagoInicial = $('#pagoInicial').val();
+                const observacion = $('#observacion').val();
+
+                succesSale(cliente_id,
+                    usuario_id,
+                    tipo_venta,
+                    pagoInicial,
+                    observacion);
+            });
+        } else if (result.isDenied) {
+            // Recoger los datos del formulario
+            const cliente_id = ClienteID;
+            const usuario_id = 0;
+            const tipo_venta = $('#selectTipoVenta').val(); // Radio button
+            const pagoInicial = 0;
+            const observacion = $('#observacion').val();
+
+            console.log(tipo_venta);
+
+            if (tipo_venta == "Credito") {
+                showModalPagoInicial();
+            } else {
+                succesSale(cliente_id,
+                    usuario_id,
+                    tipo_venta,
+                    pagoInicial,
+                    observacion);
+            }
+
+            $('#guardarVenta').on('click', function () {
+
+                hideModalPagoInicial();
+                // Recoger los datos del formulario
+                const cliente_id = ClienteID;
+                const usuario_id = 0;
+                const tipo_venta = $('#selectTipoVenta').val(); // Radio button
+                const pagoInicial = '0.00';
+                const observacion = $('#observacion').val();
+
+                succesSale(cliente_id,
+                    usuario_id,
+                    tipo_venta,
+                    pagoInicial,
+                    observacion);
+            });
+        }
+    })
+
+
+
 
 });
 

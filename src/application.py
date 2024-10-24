@@ -3,6 +3,7 @@ from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy.exc import IntegrityError
 from funciones import *
+from datetime import datetime
 import json
 import uuid
 
@@ -71,6 +72,8 @@ def login():
             session["nameUser"] = usuario[0][1]
             session["username"] = username
             session["user_id"] = usuario[0][0]
+
+            print(session["user_id"])
 
             #session["role_user"] = user[0]['role']
 
@@ -145,10 +148,12 @@ def saveSale():
     usuario_id = session["user_id"]
     tipo_venta = datos.get('tipo_venta')
     productos = datos.get('productos')
+    fechaVenta = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
     montoPagoInicial = datos.get('montoPagoInicial')
     observacion = datos.get('observacion')
 
-    res = VentaModel.saveSale(cliente_id, usuario_id, tipo_venta, productos,montoPagoInicial, observacion)
+    print(fechaVenta)
+    res = VentaModel.saveSale(cliente_id, usuario_id, tipo_venta, productos,montoPagoInicial, observacion,fechaVenta)
     return res
 
 #***************************************************************************************************** PARA LOS PRODUCTOS

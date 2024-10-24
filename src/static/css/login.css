@@ -8,6 +8,13 @@
     font-family: 'Montserrat', sans-serif;
 }
 
+.logo-name{
+  color: #FF6500;
+  font-weight: 500;
+
+}
+
+
 body{
     background-color: #c9d6ff;
     background: linear-gradient(to right, #e2e2e2, #c9d6ff);

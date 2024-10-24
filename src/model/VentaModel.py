@@ -109,19 +109,20 @@ class VentaModel:
 
 
     @staticmethod
-    def saveSale(cliente_id, usuario_id, tipo_venta, productos,montoPagoInicial, observacion):
+    def saveSale(cliente_id, usuario_id, tipo_venta, productos,montoPagoInicial, observacion, fechaVenta):
         try:
             # Convertir los productos a formato JSON para pasarlos al procedimiento almacenado
             productos_json = json.dumps(productos)  # Serializar la lista de productos como JSON
             
             # Ejecutar el procedimiento almacenado
-            result = db.execute(text("CALL dbo.registrar_venta(:p_cliente_id, :p_usuario_id, :p_tipo_venta, :p_productos,:p_montoabonado, :p_observacion)"), {
+            result = db.execute(text("CALL dbo.registrar_venta(:p_cliente_id, :p_usuario_id, :p_tipo_venta, :p_productos,:p_montoabonado,:p_fechaVenta, :p_observacion)"), {
                 'p_cliente_id': cliente_id,
                 'p_usuario_id': usuario_id,
                 'p_tipo_venta': tipo_venta,
                 'p_productos': productos_json,
                 'p_montoabonado':montoPagoInicial,
-                'p_observacion': observacion
+                'p_observacion': observacion,
+                'p_fechaVenta':fechaVenta
             })
 
             db.commit()  # Confirmar la transacción
