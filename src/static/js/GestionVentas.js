@@ -488,11 +488,22 @@ function succesSale(cliente_id,
 
 function abrirFacturaParaImprimir(ventaId) {
     // Abrir la factura en una nueva ventana del navegador
-    const url = `/ver_factura/${ventaId}`;
-    const nuevaVentana = window.open(url, '_blank');
+    const modal = document.getElementById("modalFactura");
+    const iframe = document.getElementById("iframeFactura");
+    iframe.src = `/ver_factura/${ventaId}`;
+    modal.style.display = "flex";
 
     // Esperar hasta que la ventana esté completamente cargada y luego activar la vista de impresión
     nuevaVentana.onload = function () {
         nuevaVentana.print();
     };
+}
+
+function cerrarFacturaModal() {
+    const modal = document.getElementById("modalFactura");
+    const iframe = document.getElementById("iframeFactura");
+    iframe.src = "";                         // Limpiar el src del iframe
+    modal.style.display = "none";  // Ocultar el modal   
+    window.location.reload();
+
 }

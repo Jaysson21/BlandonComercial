@@ -100,7 +100,13 @@
     </div>
 
 </div>
-
+<!-- Modal para mostrar el PDF -->
+<div class="modal-factura" id="modalFactura">
+    <div class="modal-content-factura">
+        <button class="modal-close-factura" onclick="cerrarFacturaModal()">×</button>
+        <iframe id="iframeFactura" src=""></iframe>
+    </div>
+</div>
 
 <script src="{{url_for('static', filename='js/GestionVentas.js')}}"></script>
 {% endblock %}
