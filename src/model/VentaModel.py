@@ -40,7 +40,7 @@ class VentaModel:
                     'clienteid': venta[1],
                     'nombres' : venta[2],
                     'apellidos' : venta[3],
-                    'fechaventa': venta[4],
+                    'fechaventa': venta[4].strftime('%d-%m-%Y %H:%M'),
                     'tipoventa': venta[5],
                     'observacion': venta[6],
                     'estadoventa': venta[7],

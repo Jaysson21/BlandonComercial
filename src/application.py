@@ -390,7 +390,8 @@ def registrar_pago():
 def GestionReportes():
     clientes = ClienteModel.get_clients()
     deudas = DeudaModel.get_sales()
-    return render_template("ReporteVenta.html", username=session["username"], clientes=clientes, deudas_json = json.dumps(deudas), nameuser=session["nameUser"])
+    ventas = VentaModel.get_sales()
+    return render_template("ReporteVenta.html", username=session["username"], clientes=clientes, ventas=ventas, deudas_json = json.dumps(deudas), nameuser=session["nameUser"])
 
 
 #*******************************************************************************************************
