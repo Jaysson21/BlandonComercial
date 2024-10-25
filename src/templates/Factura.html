@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factura</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            width: 80mm;
+            margin: 0;
+            padding: 0;
+        }
+
+        .invoice-header,
+        .total {
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .invoice-header h1 {
+            font-size: 18px;
+            margin: 5px 0;
+        }
+
+        .invoice-header p,
+        .client-details p {
+            font-size: 12px;
+            margin: 2px 0;
+        }
+
+        .invoice-details {
+            width: 100%;
+            font-size: 12px;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .invoice-details th,
+        .invoice-details td {
+            padding: 5px 0;
+            text-align: left;
+            border-bottom: 1px dashed #000;
+        }
+
+        .invoice-details th {
+            font-weight: bold;
+        }
+
+        .table-header th {
+            text-align: left;
+        }
+
+        .total h3 {
+            font-size: 14px;
+            margin: 10px 0;
+            border-top: 1px dashed #000;
+            padding-top: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="invoice-header">
+        <h1>Factura</h1>
+        <p><strong>No.:</strong> {{ venta.ventaid }}</p>
+        <p><strong>Fecha:</strong> {{ venta.fechaventa }}</p>
+    </div>
+
+    <div class="client-details">
+        <p><strong>Cliente:</strong> {{ venta.cliente }}</p>
+        <p><strong>Tipo de venta:</strong> {{ venta.tipoventa }}</p>
+        <p><strong>Observación:</strong> {{ venta.observacion }}</p>
+    </div>
+
+    <table class="invoice-details">
+        <thead class="table-header">
+            <tr>
+                <th>Producto</th>
+                <th>Cant</th>
+                <th>Precio</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for detalle in detalles %}
+            <tr>
+                <td>{{ detalle.producto }}</td>
+                <td>{{ detalle.cantidad }}</td>
+                <td>{{ detalle.preciounitario }}</td>
+                <td>{{ detalle.cantidad * detalle.preciounitario }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="total">
+        <h3>Total: {{ total_venta }}</h3>
+    </div>
+</body>
+
+</html>

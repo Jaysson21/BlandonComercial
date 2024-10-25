@@ -309,9 +309,9 @@ function hideModalTipoVenta() {
     }
 
 }
+
 //Guardar ventas
 $('#btnGuardarVenta').on('click', function () {
-
     Swal.fire({
         title: '¿Desea realizar un pago inicial?',
         showDenyButton: false,
@@ -460,7 +460,8 @@ function succesSale(cliente_id,
                     timer: 1000,
                 }).then(() => {
                     // Recargar la página después de eliminar
-                    window.location.reload();
+                    //window.location.reload();
+                    abrirFacturaParaImprimir(response.NumFact);
                 });
             } else {
                 //hideLoadingModal();
@@ -483,4 +484,15 @@ function succesSale(cliente_id,
     });
 
 
+}
+
+function abrirFacturaParaImprimir(ventaId) {
+    // Abrir la factura en una nueva ventana del navegador
+    const url = `/ver_factura/${ventaId}`;
+    const nuevaVentana = window.open(url, '_blank');
+
+    // Esperar hasta que la ventana esté completamente cargada y luego activar la vista de impresión
+    nuevaVentana.onload = function () {
+        nuevaVentana.print();
+    };
 }

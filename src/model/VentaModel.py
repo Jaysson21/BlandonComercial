@@ -4,7 +4,9 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from funciones import *
 from sqlalchemy.sql import text
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from fpdf import FPDF
 import json
+
 
 #objeto
 from .entities.Venta import Venta
@@ -115,7 +117,7 @@ class VentaModel:
             productos_json = json.dumps(productos)  # Serializar la lista de productos como JSON
             
             # Ejecutar el procedimiento almacenado
-            result = db.execute(text("CALL dbo.registrar_venta(:p_cliente_id, :p_usuario_id, :p_tipo_venta, :p_productos,:p_montoabonado,:p_fechaVenta, :p_observacion)"), {
+            result = db.execute(text("SELECT dbo.registrar_venta(:p_cliente_id, :p_usuario_id, :p_tipo_venta, :p_productos,:p_montoabonado,:p_fechaVenta, :p_observacion)"), {
                 'p_cliente_id': cliente_id,
                 'p_usuario_id': usuario_id,
                 'p_tipo_venta': tipo_venta,
@@ -125,10 +127,13 @@ class VentaModel:
                 'p_fechaVenta':fechaVenta
             })
 
+            venta_id = result.fetchone()[0]
+
             db.commit()  # Confirmar la transacción
 
-            return jsonify({"status": "success", "mensaje": "Venta registrada correctamente."}), 201
-
+        
+            return venta_id
+        
         except SQLAlchemyError as e:
             db.rollback()  # Revertir la transacción si hay errores
             print("Error de SQLAlchemy:", str(e))  # Imprimir el error en la consola
@@ -157,3 +162,4 @@ def validar_datos_venta(cliente_id, usuario_id, tipo_venta, productos):
             return False, "La cantidad y el precio unitario deben ser mayores que cero."
     
     return True, ""
+
