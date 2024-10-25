@@ -36,9 +36,6 @@ function mostrarAlertaBootstrap(mensaje, tipo) {
     }, 2000);
 }
 
-
-
-
 // Evento para manejar el clic en "Buscar Ventas"
 document.getElementById('buscarVentasBtn').addEventListener('click', function (e) {
     e.preventDefault();
@@ -97,7 +94,7 @@ function updateTotal() {
     });
 
     const totalElement = document.getElementById('total');
-    totalElement.innerHTML = `<strong>Total: C$ ${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>`;
+    totalElement.innerHTML = `<strong>Total Deuda: C$ ${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>`;
 }
 
 
@@ -123,7 +120,8 @@ document.addEventListener('click', function (event) {
             const venta = sales_data.find(v => v.ventaid == ventaId);
             if (venta) {
                 const clienteNombre = `${venta.nombres} ${venta.apellidos}`;
-                const montoVenta = venta.montoventa ? Number(venta.montoventa).toFixed(2) : '0.00';
+                
+                const montoVenta = venta.montoventa ? Number(venta.montoventa).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00';
                 const fechaVenta = venta.fechaventa;
 
                 document.getElementById('clienteNombre').textContent = clienteNombre || 'N/A';
@@ -160,12 +158,13 @@ function mostrarDetallesVenta(ventaId) {
                     row.innerHTML = `
                         <td>${producto.nombre}</td>
                         <td>${producto.cantidad}</td>
-                        <td>C$${producto.preciounitario.toFixed(2)}</td>
-                        <td>C$${subtotal.toFixed(2)}</td>
+                        <td>C$${producto.preciounitario.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                        <td>C$${subtotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     `;
                     productosTableBody.appendChild(row);
                 });
-                document.getElementById('ventaTotal').textContent = totalVenta.toFixed(2);
+                
+                document.getElementById('ventaTotal').textContent = totalVenta.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             } else {
                 productosTableBody.innerHTML = '<tr><td colspan="4" class="text-center">No se encontraron productos para esta venta.</td></tr>';
             }
@@ -275,7 +274,7 @@ document.getElementById('realizarPagoBtn').addEventListener('click', function ()
         const rows = document.querySelectorAll('#paymentHistory tbody tr');
         rows.forEach(row => {
             const montoCell = row.querySelector('td:nth-child(4)');
-            const monto = parseFloat(montoCell.textContent.replace('C$', '').trim());
+            const monto = parseFloat(montoCell.textContent.replace('C$', '').replace(/,/g, '').trim());
             if (!isNaN(monto)) {
                 totalDeuda += monto;
             }
