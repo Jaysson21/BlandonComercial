@@ -4,7 +4,6 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from funciones import *
 from sqlalchemy.sql import text
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from fpdf import FPDF
 import json
 
 
