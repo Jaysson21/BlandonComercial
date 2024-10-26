@@ -462,6 +462,7 @@ function succesSale(cliente_id,
                     // Recargar la página después de eliminar
                     //window.location.reload();
                     abrirFacturaParaImprimir(response.NumFact);
+                    window.location.reload();
                 });
             } else {
                 //hideLoadingModal();
@@ -486,24 +487,29 @@ function succesSale(cliente_id,
 
 }
 
-function abrirFacturaParaImprimir(ventaId) {
-    // Abrir la factura en una nueva ventana del navegador
-    const modal = document.getElementById("modalFactura");
-    const iframe = document.getElementById("iframeFactura");
-    iframe.src = `/ver_factura/${ventaId}`;
-    modal.style.display = "flex";
+async function abrirFacturaParaImprimir(ventaId) {
+    try {
+        const response = await fetch(`/ver_factura/${ventaId}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/pdf',
+            },
+        });
 
-    // Esperar hasta que la ventana esté completamente cargada y luego activar la vista de impresión
-    nuevaVentana.onload = function () {
-        nuevaVentana.print();
-    };
+        if (!response.ok) {
+            throw new Error(`Error al descargar el PDF: ${response.statusText}`);
+        }
+
+        // Convertir la respuesta en un blob
+        const blob = await response.blob();
+
+        // Usar FileSaver para forzar la descarga
+        saveAs(blob, `factura_${ventaId}.pdf`);
+
+
+    } catch (error) {
+        console.error('Error al descargar el PDF:', error);
+    }
 }
 
-function cerrarFacturaModal() {
-    const modal = document.getElementById("modalFactura");
-    const iframe = document.getElementById("iframeFactura");
-    iframe.src = "";                         // Limpiar el src del iframe
-    modal.style.display = "none";  // Ocultar el modal   
-    window.location.reload();
 
-}

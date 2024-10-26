@@ -21,5 +21,8 @@ RUN apk update \
 # Instala dependencias de Python
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Instala las fuentes necesarias en Alpine
+RUN apk add --no-cache font-noto
+
 # Ejecuta la aplicación
 CMD ["python3", "src/application.py"]

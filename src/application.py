@@ -183,14 +183,14 @@ def ver_factura(venta_id):
 
     # Crear la respuesta con el PDF en línea
     response = make_response(pdf)
+    
+    #response.headers['Content-Disposition'] = 'inline; filename=Factura_'+str(venta_id)+'.pdf'
+    response.headers['Content-Disposition'] = f'attachment; filename=Factura_{venta_id}.pdf'
+
     response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = 'inline; filename=factura_{venta_id}.pdf'
 
     return response
 
-def setResFact(res):
-    global NumFactura
-    NumFactura=res
 
 #***************************************************************************************************** PARA LOS PRODUCTOS
 @app.route("/GestionProductos")
