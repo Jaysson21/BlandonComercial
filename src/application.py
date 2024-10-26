@@ -1,9 +1,10 @@
-from flask import Flask, render_template, jsonify, request, flash, redirect, redirect, url_for, session
+from flask import Flask, render_template, jsonify, request, flash, redirect, redirect, url_for, session, make_response
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy.exc import IntegrityError
 from funciones import *
 from datetime import datetime
+from weasyprint import HTML
 import json
 import uuid
 
@@ -152,9 +153,44 @@ def saveSale():
     montoPagoInicial = datos.get('montoPagoInicial')
     observacion = datos.get('observacion')
 
-    print(fechaVenta)
+
     res = VentaModel.saveSale(cliente_id, usuario_id, tipo_venta, productos,montoPagoInicial, observacion,fechaVenta)
-    return res
+
+    return jsonify({"status": "success", "mensaje": "Venta registrada correctamente.", "NumFact":res}), 201
+
+@app.route('/ver_factura/<int:venta_id>')
+def ver_factura(venta_id):
+    # Obtener la información de la venta y detalles
+    venta = {
+        'ventaid': venta_id,
+        'fechaventa': '2024-10-19',
+        'cliente': 'John Doe',
+        'tipoventa': 'Contado',
+        'observacion': 'Gracias por su compra'
+    }
+    detalles = [
+        {'producto': 'Producto A', 'cantidad': 2, 'preciounitario': 50.0},
+        {'producto': 'Producto B', 'cantidad': 1, 'preciounitario': 100.0},
+    ]
+    total_venta = sum(d['cantidad'] * d['preciounitario'] for d in detalles)
+    #detalles = VentaModel.get_productos_by_sales(venta_id)  # Función personalizada para obtener detalles de la venta
+    #total_venta = 100  # Función para calcular el total de la venta
+    # Renderizamos el template HTML
+    html_string = render_template('Factura.html', venta=venta, detalles=detalles, total_venta=total_venta)
+
+    # Convertir el HTML a PDF
+    pdf = HTML(string=html_string).write_pdf()
+
+    # Crear la respuesta con el PDF en línea
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'inline; filename=factura_{venta_id}.pdf'
+
+    return response
+
+def setResFact(res):
+    global NumFactura
+    NumFactura=res
 
 #***************************************************************************************************** PARA LOS PRODUCTOS
 @app.route("/GestionProductos")
@@ -283,7 +319,6 @@ def addClient():
 
         return redirect("/GestionCliente")
 
-from flask import jsonify, request
 
 @app.route("/updateClient", methods=["POST"])
 def updateClient():
