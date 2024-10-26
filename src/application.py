@@ -354,9 +354,15 @@ def registrar_pago():
 @app.route("/GestionReportes")
 def GestionReportes():
     clientes = ClienteModel.get_clients()
+    ventas = VentaModel.get_sales()
+    return render_template("Reportes.html", username=session["username"], clientes=clientes, ventas=ventas, nameuser=session["nameUser"])
+
+@app.route("/GestionReportes/Ventas")
+def GestionReporteVenta():
+    clientes = ClienteModel.get_clients()
     deudas = DeudaModel.get_sales()
     ventas = VentaModel.get_sales()
-    return render_template("ReporteVenta.html", username=session["username"], clientes=clientes, ventas=ventas, deudas_json = json.dumps(deudas), nameuser=session["nameUser"])
+    return render_template("ReporteVenta.html", username=session["username"], nameuser=session["nameUser"], clientes=clientes, ventas=ventas)
 
 
 #*******************************************************************************************************
