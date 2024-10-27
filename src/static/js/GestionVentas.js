@@ -460,9 +460,7 @@ function succesSale(cliente_id,
                     timer: 1000,
                 }).then(() => {
                     // Recargar la página después de eliminar
-                    //window.location.reload();
                     abrirFacturaParaImprimir(response.NumFact);
-                    window.location.reload();
                 });
             } else {
                 //hideLoadingModal();

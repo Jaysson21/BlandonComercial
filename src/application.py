@@ -4,7 +4,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy.exc import IntegrityError
 from funciones import *
 from datetime import datetime
-from weasyprint import HTML
+from weasyprint import HTML, CSS
 import json
 import uuid
 
@@ -179,7 +179,8 @@ def ver_factura(venta_id):
     html_string = render_template('Factura.html', venta=venta, detalles=detalles, total_venta=total_venta)
 
     # Convertir el HTML a PDF
-    pdf = HTML(string=html_string).write_pdf()
+    css = CSS(string="@page { size: 80mm auto; margin: 0; }")  # Ancho de 80mm
+    pdf = HTML(string=html_string).write_pdf(stylesheets=[css])
 
     # Crear la respuesta con el PDF en línea
     response = make_response(pdf)
