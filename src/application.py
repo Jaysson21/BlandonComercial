@@ -270,14 +270,38 @@ def GestionClientes():
 
 @app.route('/buscar_cliente', methods=["GET"])
 def buscar_cliente():
-    query = request.args.get('query', '').upper()
-    resultados = ClienteModel.get_clientById(query)
-    
-    if resultados:
-        return jsonify(resultados)
+
+    print(request.args.get('filtroBusClient'))
+
+    if request.args.get('filtroBusClient') == '1':
+        query = request.args.get('query', '').upper()
+        resultados = ClienteModel.get_clientById(query)
+        
+        if resultados:
+            return jsonify(resultados)
+        else:
+            flash('No se encontro registro del cliente')
+            return jsonify({'success': False, 'message': 'No se encontro registro del cliente'}), 400
+    elif  request.args.get('filtroBusClient') == '2':
+        query = request.args.get('query', '').upper()
+        resultados = ClienteModel.get_clientByName(query)
+        
+        if resultados:
+            return jsonify(resultados)
+        else:
+            flash('No se encontro registro del cliente')
+            return jsonify({'success': False, 'message': 'No se encontro registro del cliente'}), 400
     else:
-        flash('No se encontro registro del cliente')
-        return jsonify({'success': False, 'message': 'No se encontro registro del cliente'}), 400
+        query = request.args.get('query', '').upper()
+        resultados = ClienteModel.get_clientByTelf(query)
+
+        if resultados:
+            return jsonify(resultados)
+        else:
+            flash('No se encontro registro del cliente')
+            return jsonify({'success': False, 'message': 'No se encontro registro del cliente'}), 400
+
+    
 
     
 
@@ -391,8 +415,7 @@ def GestionReporteVenta():
     clientes = ClienteModel.get_clients()
     deudas = DeudaModel.get_sales()
     ventas = VentaModel.get_sales()
-    return render_template("ReporteVenta.html", username=session["username"], nameuser=session["nameUser"], clientes=clientes, ventas=ventas)
-
+    return render_template("ReporteProductos.html", username=session["username"], nameuser=session["nameUser"], clientes=clientes, ventas=ventas)
 
 #*******************************************************************************************************
 if __name__ == "__main__":

@@ -61,6 +61,63 @@ class ClienteModel:
             return cliente
         except Exception as ex:
             raise Exception(ex)
+        
+
+    @classmethod
+    def get_clientByTelf(self, telefono):
+        """Obtener un cliente por su Numero de telefono."""
+        try:
+            cliente = db.execute(text("SELECT * FROM dbo.clientes WHERE telefono = :telefono"),
+                                 {'telefono': telefono}).fetchone()
+            db.commit()
+                  
+            if cliente:
+                return {
+                    'clienteid': cliente[0],
+                    'nombres': cliente[1],
+                    'apellidos': cliente[2],
+                    'telefono': cliente[3],
+                    'cedula': cliente[4],
+                    'direccion': cliente[5],
+                    'fecharegistro': cliente[6]
+                }
+            return cliente
+        except Exception as ex:
+            raise Exception(ex)
+        
+    @classmethod 
+    def get_clientByName(cls, nombre):
+            """Obtener un cliente por su nombre o apellido."""
+            try:
+                ListaClientes = []
+
+                # Usa `fetchall()` para obtener múltiples resultados
+                clientes = db.execute(
+            text("SELECT * FROM dbo.clientes WHERE nombres ILIKE :nombre OR apellidos ILIKE :nombre ORDER BY nombres"),
+            {'nombre': f"%{nombre}%"}
+
+        ).fetchall()
+
+                db.commit()
+                
+                # Recorre los resultados solo si `clientes` tiene datos
+                for cliente in clientes:
+                    ListaClientes.append({
+                        'clienteid': cliente[0],
+                        'nombres': cliente[1],
+                        'apellidos': cliente[2],
+                        'telefono': cliente[3],
+                        'cedula': cliente[4],
+                        'direccion': cliente[5],
+                        'fecharegistro': cliente[6].strftime('%d/%m/%Y') if cliente[6] else None
+                    })
+
+                print(ListaClientes)    
+
+                return ListaClientes
+            except Exception as ex:
+                raise Exception(f"Error al obtener clientes por nombre: {ex}")
+
 
     @classmethod
     def add_client(self, cliente):

@@ -15,22 +15,70 @@ $('#btn-searchClient').on('click', function () {
         $.ajax({
             url: '/buscar_cliente', // Ruta a tu API o servidor
             method: 'GET',
-            data: { query: query },
+            data: { 
+                query: query,           // Parámetro original
+                filtroBusClient: $('#filtroBusClient').val()    // Nuevo parámetro
+            },
             success: function (response) {
 
-                // Verificar si se encontraron resultados
-                if (response && response.nombres && response.apellidos) {
-                    // Si hay datos de cliente
-                    document.getElementById("btnInitSell").removeAttribute("aria-disabled");
-                    document.getElementById("NombreCliente").value = response.nombres + " " + response.apellidos;
-                    document.getElementById("direccionCliente").value = response.direccion;
-                    document.getElementById("telefonoCliente").value = response.telefono;
-                    ClienteID = response.clienteid;
+                // Verificar si la respuesta es una lista y contiene al menos un cliente
+                if (Array.isArray(response) && response.length > 1) {
+                    const listaClientes = document.getElementById("listaClientes");
+                    listaClientes.innerHTML = ''; // Limpiar lista
+
+                    // Añadir cada cliente a la lista en el modal
+                    response.forEach(cliente => {
+                        const listItem = document.createElement("li");
+                        listItem.textContent = `${cliente.nombres} ${cliente.apellidos} - ${cliente.telefono}`;
+                        
+                        // Agregar evento de selección para cada cliente
+                        listItem.addEventListener("click", function() {
+                            document.getElementById("NombreCliente").value = cliente.nombres + " " + cliente.apellidos;
+                            document.getElementById("direccionCliente").value = cliente.direccion;
+                            document.getElementById("telefonoCliente").value = cliente.telefono;
+                            ClienteID = cliente.clienteid;
+
+                            // Habilita botón para ventas
+                            document.getElementById("btnInitSell").classList.remove('disabled');
+                            document.getElementById("btnInitSell").removeAttribute("aria-disabled");
+
+                            // Ocultar modal
+                            $('#clienteModal').modal('hide');
+                        });
+
+                        // Agregar el elemento a la lista
+                        listaClientes.appendChild(listItem);
+                    });
+
+                    // Mostrar el modal
+                    $('#clienteModal').modal('show');
+                    hideLoadingModal();
+        
+                }else if (response){
+
+                    if(response.length == 1){
+                        // Si hay datos de cliente
+                        response.forEach(cliente => {
+                            document.getElementById("btnInitSell").removeAttribute("aria-disabled");
+                            document.getElementById("NombreCliente").value = cliente.nombres + " " + cliente.apellidos;
+                            document.getElementById("direccionCliente").value = cliente.direccion;
+                            document.getElementById("telefonoCliente").value = cliente.telefono;
+                            ClienteID = cliente.clienteid;
+
+                        });
+                    }else{
+                        // Si hay datos de cliente
+                        document.getElementById("btnInitSell").removeAttribute("aria-disabled");
+                        document.getElementById("NombreCliente").value = response.nombres + " " + response.apellidos;
+                        document.getElementById("direccionCliente").value = response.direccion;
+                        document.getElementById("telefonoCliente").value = response.telefono;
+                        ClienteID = response.clienteid;
+                    }
+                    
                     // Habilita botón para ventas
                     document.getElementById("btnInitSell").classList.remove('disabled');
                     hideLoadingModal();
-
-                } else {
+                }else {
                     hideLoadingModal();
                     // Si no se encontraron resultados
                     showErrorgModal();
