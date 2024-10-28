@@ -89,7 +89,7 @@ document.querySelectorAll("table tr").forEach(function (row) {
     });
 });
 
-// Función para eliminar un Producto
+// Función para eliminar un Cliente
 function deleteClient(id, nombre) {
     Swal.fire({
         title: "¿Deseas eliminar el Cliente " + nombre + "?",

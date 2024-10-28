@@ -227,7 +227,7 @@ def addProduct():
             return jsonify({'success': False, 'message': str(e)}), 500
 
     
-@app.route("/updateProduct/", methods=["POST"])
+@app.route("/updateProduct", methods=["POST"])
 def updateProduct():
     if request.method == "POST":
         
