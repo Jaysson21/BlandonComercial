@@ -48,6 +48,38 @@ class VentaModel:
             return ListaVentas
         except Exception as ex:
             raise Exception(ex)
+        
+    @classmethod
+    def get_salesById(self, sale_id):
+        "Obtener ventas por id"
+        try:
+            VentaQuery = db.execute(text("SELECT * FROM dbo.ventas WHERE ventaid=:ventaid"), {"ventaid": sale_id}).fetchall()
+            
+            db.commit()
+
+            cliente = db.execute(text("SELECT * FROM dbo.clientes WHERE clienteid=:clienteid"), {"clienteid": VentaQuery[0][1]}).fetchall()
+
+            tipo_venta=""
+
+            if VentaQuery[0][4] == 1:
+                tipo_venta='Contado'
+            else:
+                tipo_venta='Crédito'
+
+            # Formatear los resultados en una lista
+            venta = {
+                    'ventaid': VentaQuery[0][0],
+                    'cedula': cliente[0][4],
+                    'nombres' : cliente[0][1],
+                    'apellidos' : cliente[0][2],
+                    'fechaventa': VentaQuery[0][3].strftime('%d-%m-%Y %H:%M'),
+                    'tipoventa': tipo_venta,
+                    'observacion': VentaQuery[0][5]
+                }
+            return venta
+        except Exception as ex:
+            raise Exception(ex)
+        
     #Obtener los detalles de las ventas
     @classmethod
     def get_productos_by_sales(cls, ventaid):

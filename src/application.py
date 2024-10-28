@@ -160,21 +160,14 @@ def saveSale():
 
 @app.route('/ver_factura/<int:venta_id>')
 def ver_factura(venta_id):
+
+
     # Obtener la información de la venta y detalles
-    venta = {
-        'ventaid': venta_id,
-        'fechaventa': '2024-10-19',
-        'cliente': 'John Doe',
-        'tipoventa': 'Contado',
-        'observacion': 'Gracias por su compra'
-    }
-    detalles = [
-        {'producto': 'Producto A', 'cantidad': 2, 'preciounitario': 50.0},
-        {'producto': 'Producto B', 'cantidad': 1, 'preciounitario': 100.0},
-    ]
+    venta = VentaModel.get_salesById(venta_id)
+    detalles = VentaModel.get_productos_by_sales(venta_id)
+
     total_venta = sum(d['cantidad'] * d['preciounitario'] for d in detalles)
-    #detalles = VentaModel.get_productos_by_sales(venta_id)  # Función personalizada para obtener detalles de la venta
-    #total_venta = 100  # Función para calcular el total de la venta
+   
     # Renderizamos el template HTML
     html_string = render_template('Factura.html', venta=venta, detalles=detalles, total_venta=total_venta)
 
