@@ -301,10 +301,6 @@ def buscar_cliente():
             flash('No se encontro registro del cliente')
             return jsonify({'success': False, 'message': 'No se encontro registro del cliente'}), 400
 
-    
-
-    
-
 @app.route("/addClient", methods=["POST"])
 def addClient():
     if request.method == "POST":
@@ -401,6 +397,16 @@ def registrar_pago():
         return jsonify({"success": True, "message": "Pago registrado exitosamente"})
     except Exception as e:
         return jsonify({"success": False, "message": str(e)})
+    
+@app.route("/getHistorialPagos/<int:clienteid>", methods=["GET"])
+def get_historial_pagos(clienteid):
+    try:
+        historialpagos = DeudaModel.get_pagosby_client(clienteid)
+        
+        return jsonify({"success": True, "historial": historialpagos})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})
+
 
     
 #*******************************************************************************************************PARA LOS REPORTES
@@ -417,24 +423,25 @@ def GestionReporteVenta():
     ventas = VentaModel.get_sales()
     return render_template("ReporteProductos.html", username=session["username"], nameuser=session["nameUser"], clientes=clientes, ventas=ventas)
 
+from datetime import datetime
+from flask import request, jsonify, render_template, session
+
 @app.route("/GestionReportes/Carga", methods=["GET"])
 def GestionReporteCarga():
-    # Verificar si se han pasado los parámetros de fecha
     fecha_inicio = request.args.get('fecha_inicio')
     fecha_fin = request.args.get('fecha_fin')
 
-    print("Fecha inicio:", fecha_inicio)  # Confirmar fecha_inicio
-    print("Fecha fin:", fecha_fin)        # Confirmar fecha_fin
-
     if fecha_inicio and fecha_fin:
-        # Si se reciben las fechas, devolver los datos en formato JSON
+        # Caso 1: Ambos parámetros están presentes
         productocarga = ProductoModel.report_carga(fecha_inicio, fecha_fin)
-        print("Producto carga:", productocarga)  # Confirmar contenido de productocarga
         return jsonify(productocarga)
+    
+    elif fecha_inicio and not fecha_fin:
+        productocarga = ProductoModel.report_carga2(fecha_inicio)
+        return jsonify(productocarga)
+    
     else:
-        # Si no hay fechas, renderizar el template de HTML para el reporte de carga
         return render_template("ReporteCarga.html", username=session["username"], nameuser=session["nameUser"])
-
 
 #*******************************************************************************************************
 if __name__ == "__main__":

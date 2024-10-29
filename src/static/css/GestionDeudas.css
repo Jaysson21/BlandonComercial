@@ -16,6 +16,12 @@ body {
     white-space: nowrap; /* Evita que el texto se divida en varias líneas */
 }
 
+.table-responsive {
+    max-height: 60vh;
+    overflow-x: auto;
+    overflow-y: auto; 
+}
+
 #noPaymentsRow {
     display: none;
 }

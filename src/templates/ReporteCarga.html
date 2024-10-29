@@ -3,7 +3,7 @@
 
 <div class="container">
     <h2 class="mb-4">Reporte de Carga</h2>
-    
+
     <!-- Card principal -->
     <div class="card">
         <div class="card-header">
@@ -19,8 +19,12 @@
                     </div>
                     <div class="col-md-6">
                         <label for="endDate" class="form-label">Fecha de fin:</label>
-                        <input type="date" class="form-control" id="endDate" required>
+                        <input type="date" class="form-control" id="endDate" disabled>
                     </div>
+                </div>
+                <div class="form-check mb-4">
+                    <input type="checkbox" class="form-check-input" id="enableEndDate">
+                    <label class="form-check-label" for="enableEndDate">Usar Fecha de Fin</label>
                 </div>
                 <button type="submit" class="btn btn-success mb-3">Generar Reporte</button>
             </form>
@@ -50,11 +54,33 @@
     </div>
 
     <div class="text-end mt-3">
-        <button type="button" class="btn btn-secondary">
-            <a href="/GestionReportes" class="">Cerrar</a>
-        </button>
+        <a href="/GestionReportes" class="btn btn-secondary">
+            <i class='bx bx-arrow-back'></i> Volver
+        </a>
+
         <button type="button" class="btn btn-primary" onclick="printReport()">Imprimir Reporte</button>
     </div>
 </div>
+<script>
+    document.getElementById('enableEndDate').addEventListener('change', function () {
+        const endDate = document.getElementById('endDate');
+        const startDate = document.getElementById('startDate');
+
+        if (this.checked) {
+            endDate.disabled = false; // Activa el campo "Fecha de fin"
+            endDate.min = startDate.value; // Establece la fecha mínima en "Fecha de fin" en base a "Fecha de inicio"
+        } else {
+            endDate.disabled = true; // Desactiva el campo "Fecha de fin"
+            endDate.value = ''; // Limpia el campo "Fecha de fin" si está desactivado
+        }
+    });
+
+    // Si quieres habilitar el campo automáticamente cuando seleccionas una fecha de inicio
+    document.getElementById('startDate').addEventListener('input', function () {
+        if (this.value && document.getElementById('enableEndDate').checked) {
+            document.getElementById('endDate').min = this.value;
+        }
+    });
+</script>
 <script src="{{ url_for('static', filename='js/ReporteCarga.js') }}"></script>
 {% endblock %}
