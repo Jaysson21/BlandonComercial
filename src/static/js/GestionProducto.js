@@ -2,7 +2,6 @@
 const addProductForm = document.getElementById('addProductForm');
 const productList = document.getElementById('productList');
 const noProductsRow = document.getElementById('noProductsRow');
-//const editModal = new bootstrap.Modal(document.getElementById('editModal'));
 const editProductForm = document.getElementById('editProductForm');
 const saveEditButton = document.getElementById('saveEditButton');
 

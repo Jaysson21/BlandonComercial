@@ -35,23 +35,6 @@
                 </a>
                 <span class="tooltip">Facturacion</span>
             </li>
-
-            <li>
-                <a href="/GestionProductos">
-                    <i class='bx bxs-receipt'></i>
-                    <span class="links">Productos</span>
-                </a>
-                <span class="tooltip">Productos</span>
-            </li>
-
-            <li>
-                <a href="/GestionCliente">
-                    <i class='bx bx-user-plus'></i>
-                    <span class="links">Clientes</span>
-                </a>
-                <span class="tooltip">Clientes</span>
-            </li>
-
             <li>
                 <a href="/GestionDeudas">
                     <i class='bx bx-dollar-circle'></i>
@@ -59,7 +42,20 @@
                 </a>
                 <span class="tooltip">Deudas</span>
             </li>
-
+            <li>
+                <a href="/GestionCliente">
+                    <i class='bx bx-user-plus'></i>
+                    <span class="links">Clientes</span>
+                </a>
+                <span class="tooltip">Clientes</span>
+            </li>
+            <li>
+                <a href="/GestionProductos">
+                    <i class='bx bxs-receipt'></i>
+                    <span class="links">Productos</span>
+                </a>
+                <span class="tooltip">Productos</span>
+            </li>
             <li>
                 <a href="/GestionReportes">
                     <i class='bx bxs-report'></i>
@@ -274,15 +270,11 @@
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="tipoPago" id="pagoTotal" value="total"
                             checked>
-                        <label class="form-check-label" for="pagoTotal">
-                            Pagar Total
-                        </label>
+                        <label class="form-check-label" for="pagoTotal">Pagar Total</label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="tipoPago" id="pagoParcial" value="parcial">
-                        <label class="form-check-label" for="pagoParcial">
-                            Pagar Parcial
-                        </label>
+                        <label class="form-check-label" for="pagoParcial">Pagar Parcial</label>
                     </div>
 
                     <!-- Campo para pago parcial -->
@@ -299,7 +291,47 @@
             </div>
         </div>
     </div>
+    <!-- Modal para Historial de Pago -->
+    <div class="modal fade" id="historialPagoModal" tabindex="-1" aria-labelledby="historialPagoModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="historialPagoModalLabel">Historial de Pago</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Información del cliente -->
+                    <p><strong>Cliente:</strong> <span id="nombreClienteHistorial"></span></p>
 
+                    <!-- Tabla de historial de pagos -->
+                    <h5 class="mt-3">Detalles de Pagos</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="historialPagoTable">
+                            <thead>
+                                <tr>
+                                    <th>Deuda</th>
+                                    <th>Monto de Abono</th>cel
+                                    <th>Fecha de Pago</th>
+                                    <th>Tipo de Pago</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Filas generadas dinámicamente para mostrar el historial -->
+                                <tr>
+                                    <td colspan="3" class="text-center">No se han registrado pagos para este cliente.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Modal para el Pago Inicial | Venta al credito -->
     <div class="modal fade" id="modalPagoInicial" tabindex="-1" aria-labelledby="modalPagoLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -365,6 +397,7 @@
                         <input type="text" id="buscarCliente" class="form-control" placeholder="Buscar cliente...">
                     </div>
 
+
                     <!-- Lista de clientes con mejor estructura y estilo -->
                     <ul id="listaClientes" class="list-group">
                         <!-- Los clientes se añadirán dinámicamente aquí -->
@@ -379,6 +412,7 @@
             </div>
         </div>
     </div>
+
 
 
     <script src="{{url_for('static', filename='js/layout.js')}}"></script>
