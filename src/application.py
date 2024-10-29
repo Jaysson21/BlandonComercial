@@ -417,6 +417,25 @@ def GestionReporteVenta():
     ventas = VentaModel.get_sales()
     return render_template("ReporteProductos.html", username=session["username"], nameuser=session["nameUser"], clientes=clientes, ventas=ventas)
 
+@app.route("/GestionReportes/Carga", methods=["GET"])
+def GestionReporteCarga():
+    # Verificar si se han pasado los parámetros de fecha
+    fecha_inicio = request.args.get('fecha_inicio')
+    fecha_fin = request.args.get('fecha_fin')
+
+    print("Fecha inicio:", fecha_inicio)  # Confirmar fecha_inicio
+    print("Fecha fin:", fecha_fin)        # Confirmar fecha_fin
+
+    if fecha_inicio and fecha_fin:
+        # Si se reciben las fechas, devolver los datos en formato JSON
+        productocarga = ProductoModel.report_carga(fecha_inicio, fecha_fin)
+        print("Producto carga:", productocarga)  # Confirmar contenido de productocarga
+        return jsonify(productocarga)
+    else:
+        # Si no hay fechas, renderizar el template de HTML para el reporte de carga
+        return render_template("ReporteCarga.html", username=session["username"], nameuser=session["nameUser"])
+
+
 #*******************************************************************************************************
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)

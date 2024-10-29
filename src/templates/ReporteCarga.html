@@ -1,48 +1,60 @@
 {% extends 'layout.html'%}
 {% block body %}
 
-<!-- Modal -->
-<div  id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="false">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="reportModalLabel">Reporte de Productos</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <!-- Filtro de rango de fechas -->
-                <form id="filterForm">
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <label for="startDate" class="form-label">Fecha de inicio:</label>
-                            <input type="date" class="form-control" id="startDate" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="endDate" class="form-label">Fecha de fin:</label>
-                            <input type="date" class="form-control" id="endDate" required>
-                        </div>
+<div class="container">
+    <h2 class="mb-4">Reporte de Carga</h2>
+    
+    <!-- Card principal -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">Filtros de Fecha</h5>
+        </div>
+        <div class="card-body">
+            <!-- Filtro de rango de fechas -->
+            <form id="filterForm">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label for="startDate" class="form-label">Fecha de inicio:</label>
+                        <input type="date" class="form-control" id="startDate" required>
                     </div>
-                    <button type="submit" class="btn btn-success mb-3">Generar Reporte</button>
-                </form>
-
-                <!-- Tabla de productos -->
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Productos</th>
-                            <th>Cantidad</th>
-                        </tr>
-                    </thead>
-                    <tbody id="productReportTable">
-                        <!-- Filas de productos generadas dinámicamente -->
-                    </tbody>
-                </table>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" onclick="printReport()">Imprimir Reporte</button>
-            </div>
+                    <div class="col-md-6">
+                        <label for="endDate" class="form-label">Fecha de fin:</label>
+                        <input type="date" class="form-control" id="endDate" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success mb-3">Generar Reporte</button>
+            </form>
         </div>
     </div>
+
+    <!-- Card de resultados -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="card-title">Resultados del Reporte</h5>
+        </div>
+        <div class="card-body">
+            <!-- Tabla de productos -->
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad Vendida</th>
+                        <th>Total Ingresos</th>
+                    </tr>
+                </thead>
+                <tbody id="productReportTable">
+                    <!-- Filas de productos generadas dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="text-end mt-3">
+        <button type="button" class="btn btn-secondary">
+            <a href="/GestionReportes" class="">Cerrar</a>
+        </button>
+        <button type="button" class="btn btn-primary" onclick="printReport()">Imprimir Reporte</button>
+    </div>
 </div>
+<script src="{{ url_for('static', filename='js/ReporteCarga.js') }}"></script>
 {% endblock %}

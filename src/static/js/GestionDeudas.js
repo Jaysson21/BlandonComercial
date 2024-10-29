@@ -244,24 +244,23 @@ function mostrarPagoModal(clienteNombre, ventaIds, totalDeuda) {
         }
     });
 
-    // Habilitar/deshabilitar el campo de pago parcial según la opción seleccionada
+    // Habilitar/deshabilitar el campo de pago parcial
     document.getElementById('pagoModal').addEventListener('shown.bs.modal', function () {
         document.getElementById('pagoParcial').addEventListener('change', function () {
-            montoInput.disabled = false;  // Habilitar el campo de pago parcial
+            montoInput.disabled = false; 
 
-            // Limpiar el campo solo cuando el usuario haga clic (focus) en él
+            // Limpiar el campo
             montoInput.addEventListener('focus', function () {
-                montoInput.value = '';  // Limpiar el campo al hacer clic (focus)
+                montoInput.value = '';
             });
         });
 
         document.getElementById('pagoTotal').addEventListener('change', function () {
-            montoInput.value = totalDeuda.toFixed(2);  // Restablecer el monto total
-            montoInput.disabled = true;   // Deshabilitar el campo de pago parcial
+            montoInput.value = totalDeuda.toFixed(2); 
+            montoInput.disabled = true;
         });
     });
 }
-
 
 // Manejar el clic en el botón "Realizar Pago" para abrir el modal de pago
 document.getElementById('realizarPagoBtn').addEventListener('click', function () {
@@ -285,3 +284,56 @@ document.getElementById('realizarPagoBtn').addEventListener('click', function ()
         mostrarAlertaBootstrap("No hay ventas disponibles para realizar el pago.", "warning");
     }
 });
+
+// Función para mostrar el historial de pagos en el modal
+function cargarHistorialPago(historial) {
+    const historialTableBody = document.getElementById("historialPagoTable").querySelector("tbody");
+    historialTableBody.innerHTML = ""; // Limpiar la tabla antes de agregar los datos
+
+    if (historial.length === 0) {
+        // Si no hay historial de pagos, mostrar un mensaje en la tabla
+        const row = document.createElement("tr");
+        row.innerHTML = `<td colspan="3" class="text-center">No se han registrado pagos para este cliente.</td>`;
+        historialTableBody.appendChild(row);
+    } else {
+        // Si hay historial de pagos, agregar filas a la tabla
+        historial.forEach(pago => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${pago.fecha}</td>
+                <td>C$ ${pago.monto.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                <td>${pago.metodoPago}</td>
+            `;
+            historialTableBody.appendChild(row);
+        });
+    }
+}
+
+// Función para abrir el modal de historial de pagos
+function mostrarHistorialPagoModal(clienteNombre, historialPago) {
+    // Establecer el nombre del cliente en el modal
+    document.getElementById('nombreClienteHistorial').textContent = clienteNombre;
+
+    // Cargar el historial de pagos en la tabla
+    cargarHistorialPago(historialPago);
+
+    // Mostrar el modal de historial de pago
+    const historialPagoModal = new bootstrap.Modal(document.getElementById('historialPagoModal'));
+    historialPagoModal.show();
+}
+
+// Ejemplo de cómo llamar a mostrarHistorialPagoModal con datos de prueba
+document.getElementById('historialPagosBtn').addEventListener('click', function () {
+    const clienteNombre = "Cliente Ejemplo";
+    const historialPagoEjemplos = [
+        { fecha: '2024-10-01', monto: 150, metodoPago: 'Efectivo' },
+        { fecha: '2024-10-05', monto: 200, metodoPago: 'Tarjeta de Crédito' },
+        { fecha: '2024-10-10', monto: 300, metodoPago: 'Transferencia Bancaria' },
+        { fecha: '2024-10-12', monto: 250, metodoPago: 'Efectivo' },
+        { fecha: '2024-10-15', monto: 100, metodoPago: 'Tarjeta de Débito' },
+    ];
+
+    mostrarHistorialPagoModal(clienteNombre, historialPagoEjemplos);
+});
+
+

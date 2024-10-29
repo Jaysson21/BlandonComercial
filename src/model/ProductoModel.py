@@ -102,3 +102,20 @@ class ProductoModel():
             return 1
         except Exception as ex:
             raise Exception(ex)
+        
+    @classmethod
+    def report_carga(cls, fecha_inicio, fecha_fin):
+        try:
+            # Ejecutar la función almacenada en PostgreSQL
+            result = db.execute(
+                text("SELECT * FROM dbo.reportecarga(:fecha_inicio, :fecha_fin)"),
+                {'fecha_inicio': fecha_inicio, 'fecha_fin': fecha_fin}
+            )
+            print("Contenido de result:", result)
+            # Convertir el resultado a una lista de diccionarios
+            reporte = [{"producto": row[0], "total_vendido": row[1], "totalingresos": row[2]} for row in result]
+
+            return reporte
+        except Exception as ex:
+            db.rollback()  # Revertir si hay algún error
+            raise Exception(f"Error al ejecutar el reporte de carga: {ex}")

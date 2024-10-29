@@ -89,3 +89,29 @@ class DeudaModel:
         except Exception as ex:
             db.rollback()
             raise Exception(f"Error al registrar el pago: {ex}")
+        
+    @classmethod
+    def get_pagosby_client(cls, client_id):
+        """Obtener todos los pagos de un cliente específico"""
+        try:
+            ListaPagos = []
+            # Ejecutar la función almacenada con el client_id como parámetro
+            pagos = db.session.execute(
+                text("SELECT * FROM dbo.obtenerpagos(:client_id)"),
+                {'client_id': client_id}
+            ).fetchall()
+
+            # Formatear los resultados en una lista de diccionarios
+            for pago in pagos:
+                ListaPagos.append({
+                    'pagoid': pago[0],
+                    'deudaid': pago[1],
+                    'montoabono': float(pago[2]),
+                    'fechapago': pago[3].strftime('%d-%m-%Y %H:%M'),
+                    'tipopago': pago[4]
+                })
+            
+            return ListaPagos
+        except Exception as ex:
+            db.session.rollback()
+            raise Exception(f"Error al obtener los pagos: {ex}")
