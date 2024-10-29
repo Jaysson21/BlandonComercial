@@ -356,19 +356,15 @@
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title">Seleccionar Cliente</h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <button type="button" class="btn-close text-bg-light" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <!-- Campo de búsqueda dentro del modal -->
                     <div class="input-group mb-3">
                         <input type="text" id="buscarCliente" class="form-control" placeholder="Buscar cliente...">
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" type="button" onclick="filtrarClientes()">Buscar</button>
-                        </div>
                     </div>
-    
+
                     <!-- Lista de clientes con mejor estructura y estilo -->
                     <ul id="listaClientes" class="list-group">
                         <!-- Los clientes se añadirán dinámicamente aquí -->
@@ -380,13 +376,10 @@
                         -->
                     </ul>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                </div>
             </div>
         </div>
     </div>
-    
+
 
     <script src="{{url_for('static', filename='js/layout.js')}}"></script>
     <script src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>

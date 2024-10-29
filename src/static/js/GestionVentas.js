@@ -1,107 +1,122 @@
 // Función para realizar la búsqueda con AJAX
-//Monto total de la venta
-var montoTotal = 0.00;
-var ClienteID = 0;
+document.addEventListener("DOMContentLoaded", function () {
 
-$('#btn-searchClient').on('click', function () {
-    const query = $("#cedulaCliente").val();
-    document.getElementById("NombreCliente").value = "";
-    document.getElementById("direccionCliente").value = "";
-    document.getElementById("telefonoCliente").value = "";
-    // Verificar si el usuario ha escrito algo
-    if (query.length > 0) {
-        showLoadingModal();
-        // Realizar la solicitud AJAX
-        $.ajax({
-            url: '/buscar_cliente', // Ruta a tu API o servidor
-            method: 'GET',
-            data: { 
-                query: query,           // Parámetro original
-                filtroBusClient: $('#filtroBusClient').val()    // Nuevo parámetro
-            },
-            success: function (response) {
+    //Monto total de la venta
+    var montoTotal = 0.00;
+    var ClienteID = 0;
 
-                // Verificar si la respuesta es una lista y contiene al menos un cliente
-                if (Array.isArray(response) && response.length > 1) {
-                    const listaClientes = document.getElementById("listaClientes");
-                    listaClientes.innerHTML = ''; // Limpiar lista
+    $('#btn-searchClient').on('click', function () {
+        const query = $("#cedulaCliente").val();
+        document.getElementById("NombreCliente").value = "";
+        document.getElementById("direccionCliente").value = "";
+        document.getElementById("telefonoCliente").value = "";
+        // Verificar si el usuario ha escrito algo
+        if (query.length > 0) {
+            showLoadingModal();
+            // Realizar la solicitud AJAX
+            $.ajax({
+                url: '/buscar_cliente', // Ruta a tu API o servidor
+                method: 'GET',
+                data: {
+                    query: query,           // Parámetro original
+                    filtroBusClient: $('#filtroBusClient').val()    // Nuevo parámetro
+                },
+                success: function (response) {
 
-                    // Añadir cada cliente a la lista en el modal
-                    response.forEach(cliente => {
-                        const listItem = document.createElement("li");
-                        listItem.textContent = `${cliente.nombres} ${cliente.apellidos} - ${cliente.telefono}`;
-                        
-                        // Agregar evento de selección para cada cliente
-                        listItem.addEventListener("click", function() {
-                            document.getElementById("NombreCliente").value = cliente.nombres + " " + cliente.apellidos;
-                            document.getElementById("direccionCliente").value = cliente.direccion;
-                            document.getElementById("telefonoCliente").value = cliente.telefono;
-                            ClienteID = cliente.clienteid;
+                    // Verificar si la respuesta es una lista y contiene al menos un cliente
+                    if (Array.isArray(response) && response.length > 1) {
+                        const listaClientes = document.getElementById("listaClientes");
+                        listaClientes.innerHTML = ''; // Limpiar lista
 
-                            // Habilita botón para ventas
-                            document.getElementById("btnInitSell").classList.remove('disabled');
-                            document.getElementById("btnInitSell").removeAttribute("aria-disabled");
-
-                            // Ocultar modal
-                            $('#clienteModal').modal('hide');
-                        });
-
-                        // Agregar el elemento a la lista
-                        listaClientes.appendChild(listItem);
-                    });
-
-                    // Mostrar el modal
-                    $('#clienteModal').modal('show');
-                    hideLoadingModal();
-        
-                }else if (response){
-
-                    if(response.length == 1){
-                        // Si hay datos de cliente
+                        // Añadir cada cliente a la lista en el modal
                         response.forEach(cliente => {
-                            document.getElementById("btnInitSell").removeAttribute("aria-disabled");
-                            document.getElementById("NombreCliente").value = cliente.nombres + " " + cliente.apellidos;
-                            document.getElementById("direccionCliente").value = cliente.direccion;
-                            document.getElementById("telefonoCliente").value = cliente.telefono;
-                            ClienteID = cliente.clienteid;
+                            const listItem = document.createElement("li");
+                            listItem.textContent = `${cliente.nombres} ${cliente.apellidos} - ${cliente.telefono}`;
+                            // Agregar propiedades CSS
+                            listItem.style.color = "gray";
+                            listItem.style.fontWeight = "lighter";
+                            listItem.style.margin = "5px 0";
+                            listItem.style.borderBottom = "1px solid #ccc";
+                            listItem.style.padding = "10px";
+                            listItem.style.listStyle = "none";
 
+                            // Agregar evento de selección para cada cliente
+                            listItem.addEventListener("click", function () {
+                                document.getElementById("NombreCliente").value = cliente.nombres + " " + cliente.apellidos;
+                                document.getElementById("direccionCliente").value = cliente.direccion;
+                                document.getElementById("telefonoCliente").value = cliente.telefono;
+                                ClienteID = cliente.clienteid;
+
+                                // Habilita botón para ventas
+                                document.getElementById("btnInitSell").classList.remove('disabled');
+                                document.getElementById("btnInitSell").removeAttribute("aria-disabled");
+
+                                // Ocultar modal
+                                $('#clienteModal').modal('hide');
+                            });
+
+                            // Agregar el elemento a la lista
+                            listaClientes.appendChild(listItem);
                         });
-                    }else{
-                        // Si hay datos de cliente
-                        document.getElementById("btnInitSell").removeAttribute("aria-disabled");
-                        document.getElementById("NombreCliente").value = response.nombres + " " + response.apellidos;
-                        document.getElementById("direccionCliente").value = response.direccion;
-                        document.getElementById("telefonoCliente").value = response.telefono;
-                        ClienteID = response.clienteid;
-                    }
-                    
-                    // Habilita botón para ventas
-                    document.getElementById("btnInitSell").classList.remove('disabled');
-                    hideLoadingModal();
-                }else {
-                    hideLoadingModal();
-                    // Si no se encontraron resultados
-                    showErrorgModal();
-                }
-            },
-            error: function () {
-                hideLoadingModal();
-                // Manejo de errores si la solicitud AJAX falla
-                showErrorgModal();
-            }
-        });
-    } else {
-        hideLoadingModal();
-        Swal.fire({
-            title: "No se encontro resultados",
-            text: 'Por favor, ingrese una cédula.',
-            icon: "info",
-        });
-    }
-});
 
-$('#btnInitSell').on('click', function () {
-    showModaTipoVenta();
+                        // Mostrar el modal
+                        $('#clienteModal').modal('show');
+                        hideLoadingModal();
+
+                    } else if (response) {
+
+                        if (response.length == 1) {
+                            // Si hay datos de cliente
+                            response.forEach(cliente => {
+                                document.getElementById("btnInitSell").removeAttribute("aria-disabled");
+                                document.getElementById("NombreCliente").value = cliente.nombres + " " + cliente.apellidos;
+                                document.getElementById("direccionCliente").value = cliente.direccion;
+                                document.getElementById("telefonoCliente").value = cliente.telefono;
+                                ClienteID = cliente.clienteid;
+
+                            });
+                        } else {
+                            hideLoadingModal();
+                            Swal.fire({
+                                title: "No se encontro resultados",
+                                text: 'No se encontro cliente.',
+                                icon: "info",
+                            });
+                        }
+
+                        // Habilita botón para ventas
+                        document.getElementById("btnInitSell").classList.remove('disabled');
+                    } else {
+                        hideLoadingModal();
+                        Swal.fire({
+                            title: "No se encontro resultados",
+                            text: 'No se encontro cliente.',
+                            icon: "info",
+                        });
+                    }
+                },
+                error: function () {
+                    hideLoadingModal();
+                    Swal.fire({
+                        title: "No se encontro resultados",
+                        text: 'No se encontro cliente.',
+                        icon: "info",
+                    });
+                }
+            });
+        } else {
+            hideLoadingModal();
+            Swal.fire({
+                title: "No se encontro resultados",
+                text: 'Por favor, ingrese una cédula.',
+                icon: "info",
+            });
+        }
+    });
+
+    $('#btnInitSell').on('click', function () {
+        showModaTipoVenta();
+    });
 
     $('#btnGuardarTipoVenta').on('click', function () {
         //Deshabilita boton de la venta
@@ -110,35 +125,35 @@ $('#btnInitSell').on('click', function () {
 
         //agregar busqueda de productos
         $('#contetn-gestProduct').append(`
-            <div class="card-header">Buscar Producto</div>
-            <div class="card-body">
-                <form id="productoForm">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="codigoProducto" class="form-label">Código del Producto</label>
-                            <div class="mb-4">
-                                <div id="btn_code">
-                                    <input style="width: auto; display: inline;" type="text" id="buscador"
-                                    class="form-control" placeholder="Buscar productos...">
-                                </div>
-                                
-                                <!-- Lista de resultados -->
-                                <ul style="position: relative;" id="listaResultados" class="list-group mt-2">
-                                    <!-- Los resultados de la búsqueda se llenarán aquí dinámicamente -->
-                                </ul>
+        <div class="card-header">Buscar Producto</div>
+        <div class="card-body">
+            <form id="productoForm">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="codigoProducto" class="form-label">Código del Producto</label>
+                        <div class="mb-4">
+                            <div id="btn_code">
+                                <input style="width: auto; display: inline;" type="text" id="buscador"
+                                class="form-control" placeholder="Buscar productos...">
                             </div>
-    
+                            
+                            <!-- Lista de resultados -->
+                            <ul style="position: relative;" id="listaResultados" class="list-group mt-2">
+                                <!-- Los resultados de la búsqueda se llenarán aquí dinámicamente -->
+                            </ul>
                         </div>
-                        <div class="col-md-6">
-                            <div id="formProduct" class="formProduct">
-    
-                            </div>
+
+                    </div>
+                    <div class="col-md-6">
+                        <div id="formProduct" class="formProduct">
+
                         </div>
                     </div>
-                </form>
-            </div>
-            
-            `);
+                </div>
+            </form>
+        </div>
+        
+        `);
 
 
         $('#buscador').on('keyup', function () {
@@ -183,20 +198,20 @@ $('#btnInitSell').on('click', function () {
                                     // Rellenar el formulario del modal con los datos del cliente
                                     $('#formProduct').append(
                                         `
-                                            <div class="mb-3">
-                                                <label for="NombreProducto" class="form-label">Nombre | Descripcion:</label>
-                                                <input type="text" class="form-control" id="NombreProducto" placeholder="nombre" value="${productName} - ${productDescripcion}" disabled>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="PrecioProducto" class="form-label">Precio C$:</label>
-                                                <input type="number" class="form-control" id="PrecioProducto" placeholder="precio" required>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="CantidadProducto" class="form-label">Cantidad</label>
-                                                <input type="number" class="form-control" id="CantidadProducto" placeholder="Ingrese la cantidad" required>
-                                            </div>
-                                            <button id="addProductList" type="button" class="btn btn-success">Agregar</button>
-                                            `
+                                        <div class="mb-3">
+                                            <label for="NombreProducto" class="form-label">Nombre | Descripcion:</label>
+                                            <input type="text" class="form-control" id="NombreProducto" placeholder="nombre" value="${productName} - ${productDescripcion}" disabled>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="PrecioProducto" class="form-label">Precio C$:</label>
+                                            <input type="number" class="form-control" id="PrecioProducto" placeholder="precio" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="CantidadProducto" class="form-label">Cantidad</label>
+                                            <input type="number" class="form-control" id="CantidadProducto" placeholder="Ingrese la cantidad" required>
+                                        </div>
+                                        <button id="addProductList" type="button" class="btn btn-success">Agregar</button>
+                                        `
                                     );
 
                                     document.getElementById("buscador").value = productoID;
@@ -215,16 +230,16 @@ $('#btnInitSell').on('click', function () {
                                             //Agrega productos a la tabla
                                             $('#tablaProductos').append(
                                                 `
-                                                <tr data-id="${productoID}">
-                                                    <td class="Codigo">${productoID}</td>
-                                                    <td>${productName} - ${productDescripcion}</td>
-                                                    <td class="Precio">${productPrice}</td>
-                                                    <td class="Cantidad">${productQuantity}</td>
-                                                    <td>
-                                                        <button type="button" class="btn-close" aria-label="Close" style="background-color:red;" onClick="dltProduct(this,${productPrice},${productQuantity})"></button>
-                                                    </td>
-                                                </tr>
-                                                `
+                                            <tr data-id="${productoID}">
+                                                <td class="Codigo">${productoID}</td>
+                                                <td>${productName} - ${productDescripcion}</td>
+                                                <td class="Precio">${productPrice}</td>
+                                                <td class="Cantidad">${productQuantity}</td>
+                                                <td>
+                                                    <button type="button" class="btn-close" aria-label="Close" style="background-color:red;" onClick="dltProduct(this,${productPrice},${productQuantity})"></button>
+                                                </td>
+                                            </tr>
+                                            `
                                             )
 
                                             //habilita boton de guardar venta 
@@ -260,302 +275,322 @@ $('#btnInitSell').on('click', function () {
             }
         });
     });
-});
 
 
+    function removeFormProduct() {
+        let ul = document.getElementById("formProduct");
+        // Limpia el <ul> eliminando todos sus elementos hijos
+        while (ul.firstChild) {
+            ul.removeChild(ul.firstChild);
+        }
 
-function removeFormProduct() {
-    let ul = document.getElementById("formProduct");
-    // Limpia el <ul> eliminando todos sus elementos hijos
-    while (ul.firstChild) {
-        ul.removeChild(ul.firstChild);
+        const tabla = document.getElementById('tableProducts');
+
+        var filas = tabla.getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+
+        if (filas > 0) {
+
+            document.getElementById("btnGuardarVenta").removeAttribute("disabled");
+        }
+
+        document.getElementById("buscador").removeAttribute("disabled");
+        document.getElementById("buscador").value = "";
+        document.getElementById('btn-close').remove();
+
+
     }
 
-    const tabla = document.getElementById('tableProducts');
+    // Función para eliminar una fila
+    function dltProduct(btn, price, quantity) {
+        // Obtener la fila en la que se encuentra el botón
+        const fila = btn.parentNode.parentNode;
 
-    var filas = tabla.getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+        // Obtener la tabla
+        const tabla = document.getElementById('tableProducts');
 
-    if (filas > 0) {
 
-        document.getElementById("btnGuardarVenta").removeAttribute("disabled");
+        montoTotal = montoTotal - (price * quantity);
+
+        document.getElementById("montoTotal").textContent = montoTotal;
+
+        // Eliminar la fila de la tabla
+        tabla.deleteRow(fila.rowIndex);
+
+
+        var filas = tabla.getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+
+        if (filas == 0) {
+            document.getElementById("btnGuardarVenta").setAttribute("disabled", true);
+        }
     }
 
-    document.getElementById("buscador").removeAttribute("disabled");
-    document.getElementById("buscador").value = "";
-    document.getElementById('btn-close').remove();
-
-
-}
-
-// Función para eliminar una fila
-function dltProduct(btn, price, quantity) {
-    // Obtener la fila en la que se encuentra el botón
-    const fila = btn.parentNode.parentNode;
-
-    // Obtener la tabla
-    const tabla = document.getElementById('tableProducts');
-
-
-    montoTotal = montoTotal - (price * quantity);
-
-    document.getElementById("montoTotal").textContent = montoTotal;
-
-    // Eliminar la fila de la tabla
-    tabla.deleteRow(fila.rowIndex);
-
-
-    var filas = tabla.getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
-
-    if (filas == 0) {
-        document.getElementById("btnGuardarVenta").setAttribute("disabled", true);
-    }
-}
-
-// Función para mostrar el modal de carga
-function showLoadingModal() {
-    let loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
-    loadingModal.show();
-}
-
-function showErrorgModal() {
-    let loadingModal = new bootstrap.Modal(document.getElementById('errorModal'));
-    loadingModal.show();
-}
-
-// Función para ocultar el modal de carga
-function hideLoadingModal() {
-    let loadingModal = bootstrap.Modal.getInstance(document.getElementById('loadingModal'));
-    if (loadingModal) {
-        loadingModal.hide();
-    }
-}
-
-function showModalPagoInicial() {
-    let modalPagoInicial = new bootstrap.Modal(document.getElementById("modalPagoInicial"));
-    modalPagoInicial.show();
-}
-
-function hideModalPagoInicial() {
-    let modalPagoInicial = bootstrap.Modal.getInstance(document.getElementById("modalPagoInicial"));
-
-    if (modalPagoInicial) {
-        modalPagoInicial.hide();
+    // Función para mostrar el modal de carga
+    function showLoadingModal() {
+        let loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+        loadingModal.show();
     }
 
-}
-
-function showModaTipoVenta() {
-    let modalTipoVenta = new bootstrap.Modal(document.getElementById("modalTipoVenta"));
-    modalTipoVenta.show();
-}
-
-function hideModalTipoVenta() {
-    let modalTipoVenta = bootstrap.Modal.getInstance(document.getElementById("modalTipoVenta"));
-
-    if (modalTipoVenta) {
-        modalTipoVenta.hide();
+    function showErrorgModal() {
+        let loadingModal = new bootstrap.Modal(document.getElementById('errorModal'));
+        loadingModal.show();
     }
 
-}
+    // Función para ocultar el modal de carga
+    function hideLoadingModal() {
+        let loadingModal = bootstrap.Modal.getInstance(document.getElementById('loadingModal'));
+        if (loadingModal) {
+            loadingModal.hide();
+        }
+    }
 
-//Guardar ventas
-$('#btnGuardarVenta').on('click', function () {
-    Swal.fire({
-        title: '¿Desea realizar un pago inicial?',
-        showDenyButton: false,
-        showCancelButton: true,
-        confirmButtonText: 'Si'
-    }).then((result) => {
-        /* Read more about isConfirmed, isDenied below */
-        if (result.isConfirmed) {
-            // Recoger los datos del formulario
-            const cliente_id = ClienteID;
-            const usuario_id = 0;
-            const tipo_venta = $('#selectTipoVenta').val(); // Radio button
-            const pagoInicial = 0;
-            const observacion = $('#observacion').val();
+    function showModalPagoInicial() {
+        let modalPagoInicial = new bootstrap.Modal(document.getElementById("modalPagoInicial"));
+        modalPagoInicial.show();
+    }
 
-            console.log(tipo_venta);
+    function hideModalPagoInicial() {
+        let modalPagoInicial = bootstrap.Modal.getInstance(document.getElementById("modalPagoInicial"));
 
-            if (tipo_venta == "Credito") {
-                showModalPagoInicial();
-            } else {
-                succesSale(cliente_id,
-                    usuario_id,
-                    tipo_venta,
-                    pagoInicial,
-                    observacion);
-            }
+        if (modalPagoInicial) {
+            modalPagoInicial.hide();
+        }
 
-            $('#guardarVenta').on('click', function () {
+    }
 
-                hideModalPagoInicial();
+    function showModaTipoVenta() {
+        let modalTipoVenta = new bootstrap.Modal(document.getElementById("modalTipoVenta"));
+        modalTipoVenta.show();
+    }
+
+    function hideModalTipoVenta() {
+        let modalTipoVenta = bootstrap.Modal.getInstance(document.getElementById("modalTipoVenta"));
+
+        if (modalTipoVenta) {
+            modalTipoVenta.hide();
+        }
+
+    }
+
+    //Guardar ventas
+    $('#btnGuardarVenta').on('click', function () {
+        Swal.fire({
+            title: '¿Desea realizar un pago inicial?',
+            showDenyButton: false,
+            showCancelButton: true,
+            confirmButtonText: 'Si'
+        }).then((result) => {
+            /* Read more about isConfirmed, isDenied below */
+            if (result.isConfirmed) {
                 // Recoger los datos del formulario
                 const cliente_id = ClienteID;
                 const usuario_id = 0;
                 const tipo_venta = $('#selectTipoVenta').val(); // Radio button
-                const pagoInicial = $('#pagoInicial').val();
+                const pagoInicial = 0;
                 const observacion = $('#observacion').val();
 
-                succesSale(cliente_id,
-                    usuario_id,
-                    tipo_venta,
-                    pagoInicial,
-                    observacion);
-            });
-        } else if (result.isDenied) {
-            // Recoger los datos del formulario
-            const cliente_id = ClienteID;
-            const usuario_id = 0;
-            const tipo_venta = $('#selectTipoVenta').val(); // Radio button
-            const pagoInicial = 0;
-            const observacion = $('#observacion').val();
+                console.log(tipo_venta);
 
-            console.log(tipo_venta);
+                if (tipo_venta == "Credito") {
+                    showModalPagoInicial();
+                } else {
+                    succesSale(cliente_id,
+                        usuario_id,
+                        tipo_venta,
+                        pagoInicial,
+                        observacion);
+                }
 
-            if (tipo_venta == "Credito") {
-                showModalPagoInicial();
-            } else {
-                succesSale(cliente_id,
-                    usuario_id,
-                    tipo_venta,
-                    pagoInicial,
-                    observacion);
-            }
+                $('#guardarVenta').on('click', function () {
 
-            $('#guardarVenta').on('click', function () {
+                    hideModalPagoInicial();
+                    // Recoger los datos del formulario
+                    const cliente_id = ClienteID;
+                    const usuario_id = 0;
+                    const tipo_venta = $('#selectTipoVenta').val(); // Radio button
+                    const pagoInicial = $('#pagoInicial').val();
+                    const observacion = $('#observacion').val();
 
-                hideModalPagoInicial();
+                    succesSale(cliente_id,
+                        usuario_id,
+                        tipo_venta,
+                        pagoInicial,
+                        observacion);
+                });
+            } else if (result.isDenied) {
                 // Recoger los datos del formulario
                 const cliente_id = ClienteID;
                 const usuario_id = 0;
                 const tipo_venta = $('#selectTipoVenta').val(); // Radio button
-                const pagoInicial = '0.00';
+                const pagoInicial = 0;
                 const observacion = $('#observacion').val();
 
-                succesSale(cliente_id,
-                    usuario_id,
-                    tipo_venta,
-                    pagoInicial,
-                    observacion);
-            });
-        }
-    })
+                if (tipo_venta == "Credito") {
+                    showModalPagoInicial();
+                } else {
+                    succesSale(cliente_id,
+                        usuario_id,
+                        tipo_venta,
+                        pagoInicial,
+                        observacion);
+                }
+
+            }
+        })
 
 
 
 
-});
-
-function succesSale(cliente_id,
-    usuario_id,
-    tipo_venta,
-    pagoInicial,
-    observacion) {
-    //showLoadingModal();
-    // Recoger los productos de la tabla de productos
-    let productos = [];
-    $('#tableProducts tbody tr').each(function () {
-        const productoid = $(this).find('.Codigo').text();
-        const cantidad = parseFloat($(this).find('.Cantidad').text());
-        const preciounitario = parseFloat($(this).find('.Precio').text());
-
-
-        if (cantidad > 0 && preciounitario > 0) {
-            productos.push({
-                productoid: productoid,
-                cantidad: cantidad,
-                preciounitario: preciounitario
-            });
-        }
     });
 
-    // Validar que al menos haya un producto
-    if (productos.length === 0) {
-        //hideLoadingModal();
-        Swal.fire({
-            title: "Error en venta",
-            text: 'Debe agregar al menos un producto a la venta',
-            icon: "info",
-        });
-        return;
-    }
+    function succesSale(cliente_id,
+        usuario_id,
+        tipo_venta,
+        pagoInicial,
+        observacion) {
+        //showLoadingModal();
+        // Recoger los productos de la tabla de productos
+        let productos = [];
+        $('#tableProducts tbody tr').each(function () {
+            const productoid = $(this).find('.Codigo').text();
+            const cantidad = parseFloat($(this).find('.Cantidad').text());
+            const preciounitario = parseFloat($(this).find('.Precio').text());
 
-    // Crear el objeto de datos para enviar al servidor
-    const datosVenta = {
-        cliente_id: cliente_id,
-        usuario_id: usuario_id,
-        tipo_venta: tipo_venta,
-        productos: productos,
-        montoPagoInicial: pagoInicial,
-        observacion: observacion
-    };
 
-    // Enviar la solicitud AJAX al servidor
-    $.ajax({
-        url: '/saveSale', // URL donde está tu ruta para guardar la venta
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(datosVenta),
-        success: function (response) {
-            if (response.status === 'success') {
-                //hideLoadingModal();
-                // Mostrar SweetAlert de éxito y recargar la página
-                Swal.fire({
-                    title: "Venta registrada exitosamente",
-                    icon: "success",
-                    showConfirmButton: false,
-                    timer: 1000,
-                }).then(() => {
-                    // Recargar la página después de eliminar
-                    abrirFacturaParaImprimir(response.NumFact);
-                });
-            } else {
-                //hideLoadingModal();
-                // Si hubo un error, mostrar el mensaje de error
-                Swal.fire({
-                    title: "Error en venta",
-                    text: data.message,
-                    icon: "error",
+            if (cantidad > 0 && preciounitario > 0) {
+                productos.push({
+                    productoid: productoid,
+                    cantidad: cantidad,
+                    preciounitario: preciounitario
                 });
             }
-        },
-        error: function (xhr, status, error) {
+        });
+
+        // Validar que al menos haya un producto
+        if (productos.length === 0) {
             //hideLoadingModal();
             Swal.fire({
                 title: "Error en venta",
-                text: 'Ocurrió un error al registrar la venta. Inténtalo de nuevo',
-                icon: "error",
+                text: 'Debe agregar al menos un producto a la venta',
+                icon: "info",
             });
+            return;
         }
-    });
 
+        // Crear el objeto de datos para enviar al servidor
+        const datosVenta = {
+            cliente_id: cliente_id,
+            usuario_id: usuario_id,
+            tipo_venta: tipo_venta,
+            productos: productos,
+            montoPagoInicial: pagoInicial,
+            observacion: observacion
+        };
 
-}
-
-async function abrirFacturaParaImprimir(ventaId) {
-    try {
-        const response = await fetch(`/ver_factura/${ventaId}`, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/pdf',
+        // Enviar la solicitud AJAX al servidor
+        $.ajax({
+            url: '/saveSale', // URL donde está tu ruta para guardar la venta
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(datosVenta),
+            success: function (response) {
+                if (response.status === 'success') {
+                    //hideLoadingModal();
+                    // Mostrar SweetAlert de éxito y recargar la página
+                    Swal.fire({
+                        title: "Venta registrada exitosamente",
+                        icon: "success",
+                        showConfirmButton: false,
+                        timer: 1000,
+                    }).then(() => {
+                        // Recargar la página después de eliminar
+                        abrirFacturaParaImprimir(response.NumFact);
+                    });
+                } else {
+                    //hideLoadingModal();
+                    // Si hubo un error, mostrar el mensaje de error
+                    Swal.fire({
+                        title: "Error en venta",
+                        text: data.message,
+                        icon: "error",
+                    });
+                }
             },
+            error: function (xhr, status, error) {
+                //hideLoadingModal();
+                Swal.fire({
+                    title: "Error en venta",
+                    text: 'Ocurrió un error al registrar la venta. Inténtalo de nuevo',
+                    icon: "error",
+                });
+            }
         });
 
-        if (!response.ok) {
-            throw new Error(`Error al descargar el PDF: ${response.statusText}`);
+
+    }
+
+    async function abrirFacturaParaImprimir(ventaId) {
+        try {
+            const response = await fetch(`/ver_factura/${ventaId}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/pdf',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error al descargar el PDF: ${response.statusText}`);
+            }
+
+            // Convertir la respuesta en un blob
+            const blob = await response.blob();
+
+            // Usar FileSaver para forzar la descarga
+            saveAs(blob, `factura_${ventaId}.pdf`);
+
+
+        } catch (error) {
+            console.error('Error al descargar el PDF:', error);
+        }
+    }
+
+    $('#guardarVenta').on('click', function () {
+
+        if ($("#pagoInicial").val().length > 0) {
+            hideModalPagoInicial();
+            // Recoger los datos del formulario
+            const cliente_id = ClienteID;
+            const usuario_id = 0;
+            const tipo_venta = $('#selectTipoVenta').val(); // Radio button
+            const pagoInicial = '0.00';
+            const observacion = $('#observacion').val();
+
+            succesSale(cliente_id,
+                usuario_id,
+                tipo_venta,
+                pagoInicial,
+                observacion);
+        } else {
+            document.getElementById("pagoInicial").style.borderColor = "red";
         }
 
-        // Convertir la respuesta en un blob
-        const blob = await response.blob();
 
-        // Usar FileSaver para forzar la descarga
-        saveAs(blob, `factura_${ventaId}.pdf`);
+    });
 
+    function filtrarClientes() {
+        const filtro = document.getElementById("buscarCliente").value.toLowerCase();
+        const items = document.querySelectorAll("#listaClientes li");
 
-    } catch (error) {
-        console.error('Error al descargar el PDF:', error);
+        items.forEach(item => {
+            const nombreCliente = item.textContent.toLowerCase();
+            if (nombreCliente.includes(filtro)) {
+                item.style.display = ""; // Mostrar si coincide
+            } else {
+                item.style.display = "none"; // Ocultar si no coincide
+            }
+        });
     }
-}
 
+    // Ejecutar filtrarClientes en tiempo real mientras el usuario escribe
+    document.getElementById("buscarCliente").addEventListener("input", filtrarClientes);
+});
 
