@@ -64,9 +64,8 @@ document.addEventListener("DOMContentLoaded", function () {
                         hideLoadingModal();
 
                     } else if (response) {
-
-                        if (response.length == 1) {
-                            // Si hay datos de cliente
+                        // Si hay datos de cliente
+                        if (Array.isArray(response)) {
                             response.forEach(cliente => {
                                 document.getElementById("btnInitSell").removeAttribute("aria-disabled");
                                 document.getElementById("NombreCliente").value = cliente.nombres + " " + cliente.apellidos;
@@ -76,14 +75,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
                             });
                         } else {
-                            hideLoadingModal();
-                            Swal.fire({
-                                title: "No se encontro resultados",
-                                text: 'No se encontro cliente.',
-                                icon: "info",
-                            });
+                            document.getElementById("btnInitSell").removeAttribute("aria-disabled");
+                            document.getElementById("NombreCliente").value = response.nombres + " " + response.apellidos;
+                            document.getElementById("direccionCliente").value = response.direccion;
+                            document.getElementById("telefonoCliente").value = response.telefono;
+                            ClienteID = response.clienteid;
                         }
-
                         // Habilita botón para ventas
                         document.getElementById("btnInitSell").classList.remove('disabled');
                     } else {
@@ -300,30 +297,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     }
 
-    // Función para eliminar una fila
-    function dltProduct(btn, price, quantity) {
-        // Obtener la fila en la que se encuentra el botón
-        const fila = btn.parentNode.parentNode;
-
-        // Obtener la tabla
-        const tabla = document.getElementById('tableProducts');
-
-
-        montoTotal = montoTotal - (price * quantity);
-
-        document.getElementById("montoTotal").textContent = montoTotal;
-
-        // Eliminar la fila de la tabla
-        tabla.deleteRow(fila.rowIndex);
-
-
-        var filas = tabla.getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
-
-        if (filas == 0) {
-            document.getElementById("btnGuardarVenta").setAttribute("disabled", true);
-        }
-    }
-
     // Función para mostrar el modal de carga
     function showLoadingModal() {
         let loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
@@ -402,19 +375,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 $('#guardarVenta').on('click', function () {
 
-                    hideModalPagoInicial();
-                    // Recoger los datos del formulario
-                    const cliente_id = ClienteID;
-                    const usuario_id = 0;
-                    const tipo_venta = $('#selectTipoVenta').val(); // Radio button
-                    const pagoInicial = $('#pagoInicial').val();
-                    const observacion = $('#observacion').val();
+                    if ($("#pagoInicial").val().length >= 1 && parseFloat($("#pagoInicial").val()) > 0) {
+                        hideModalPagoInicial();
+                        // Recoger los datos del formulario
+                        const cliente_id = ClienteID;
+                        const usuario_id = 0;
+                        const tipo_venta = $('#selectTipoVenta').val(); // Radio button
+                        const pagoInicial = $("#pagoInicial").val();
+                        const observacion = $('#observacion').val();
 
-                    succesSale(cliente_id,
-                        usuario_id,
-                        tipo_venta,
-                        pagoInicial,
-                        observacion);
+                        succesSale(cliente_id,
+                            usuario_id,
+                            tipo_venta,
+                            pagoInicial,
+                            observacion);
+                    } else {
+                        document.getElementById("pagoInicial").style.borderColor = "red";
+                        document.getElementById("msgPagoInicial").style.color = "red";
+                        document.getElementById("msgPagoInicial").textContent = 'El pago inicial debe ser mayor a cero';
+                    }
                 });
             } else if (result.isDenied) {
                 // Recoger los datos del formulario
@@ -447,7 +426,7 @@ document.addEventListener("DOMContentLoaded", function () {
         tipo_venta,
         pagoInicial,
         observacion) {
-        //showLoadingModal();
+        showLoadingModal();
         // Recoger los productos de la tabla de productos
         let productos = [];
         $('#tableProducts tbody tr').each(function () {
@@ -467,7 +446,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Validar que al menos haya un producto
         if (productos.length === 0) {
-            //hideLoadingModal();
+            hideLoadingModal();
             Swal.fire({
                 title: "Error en venta",
                 text: 'Debe agregar al menos un producto a la venta',
@@ -502,11 +481,13 @@ document.addEventListener("DOMContentLoaded", function () {
                         showConfirmButton: false,
                         timer: 1000,
                     }).then(() => {
+                        hideLoadingModal();
                         // Recargar la página después de eliminar
                         abrirFacturaParaImprimir(response.NumFact);
+
                     });
                 } else {
-                    //hideLoadingModal();
+                    hideLoadingModal();
                     // Si hubo un error, mostrar el mensaje de error
                     Swal.fire({
                         title: "Error en venta",
@@ -516,7 +497,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             },
             error: function (xhr, status, error) {
-                //hideLoadingModal();
+                hideLoadingModal();
                 Swal.fire({
                     title: "Error en venta",
                     text: 'Ocurrió un error al registrar la venta. Inténtalo de nuevo',
@@ -530,6 +511,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function abrirFacturaParaImprimir(ventaId) {
         try {
+            showLoadingModal();
+
             const response = await fetch(`/ver_factura/${ventaId}`, {
                 method: 'GET',
                 headers: {
@@ -546,35 +529,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // Usar FileSaver para forzar la descarga
             saveAs(blob, `factura_${ventaId}.pdf`);
+            hideLoadingModal();
 
-
+            location.reload();
         } catch (error) {
+            hideLoadingModal();
             console.error('Error al descargar el PDF:', error);
         }
     }
-
-    $('#guardarVenta').on('click', function () {
-
-        if ($("#pagoInicial").val().length > 0) {
-            hideModalPagoInicial();
-            // Recoger los datos del formulario
-            const cliente_id = ClienteID;
-            const usuario_id = 0;
-            const tipo_venta = $('#selectTipoVenta').val(); // Radio button
-            const pagoInicial = '0.00';
-            const observacion = $('#observacion').val();
-
-            succesSale(cliente_id,
-                usuario_id,
-                tipo_venta,
-                pagoInicial,
-                observacion);
-        } else {
-            document.getElementById("pagoInicial").style.borderColor = "red";
-        }
-
-
-    });
 
     function filtrarClientes() {
         const filtro = document.getElementById("buscarCliente").value.toLowerCase();
@@ -590,6 +552,28 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    function dltProduct(btn, price, quantity) {
+        // Obtener la fila en la que se encuentra el botón
+        const fila = btn.parentNode.parentNode;
+
+        // Obtener la tabla
+        const tabla = document.getElementById('tableProducts');
+
+
+        montoTotal = montoTotal - (price * quantity);
+
+        document.getElementById("montoTotal").textContent = montoTotal;
+
+        // Eliminar la fila de la tabla
+        tabla.deleteRow(fila.rowIndex);
+
+
+        var filas = tabla.getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+
+        if (filas == 0) {
+            document.getElementById("btnGuardarVenta").setAttribute("disabled", true);
+        }
+    }
     // Ejecutar filtrarClientes en tiempo real mientras el usuario escribe
     document.getElementById("buscarCliente").addEventListener("input", filtrarClientes);
 });

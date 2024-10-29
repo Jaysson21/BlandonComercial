@@ -172,7 +172,7 @@ def ver_factura(venta_id):
     html_string = render_template('Factura.html', venta=venta, detalles=detalles, total_venta=total_venta)
 
     # Convertir el HTML a PDF
-    css = CSS(string="@page { size: 80mm auto; margin: 0; }")  # Ancho de 80mm
+    css = CSS(string="@page { size: 78mm auto; margin: 0; height: auto;}")  # Ancho de 80mm
     pdf = HTML(string=html_string).write_pdf(stylesheets=[css])
 
     # Crear la respuesta con el PDF en línea
@@ -271,12 +271,10 @@ def GestionClientes():
 @app.route('/buscar_cliente', methods=["GET"])
 def buscar_cliente():
 
-    print(request.args.get('filtroBusClient'))
-
     if request.args.get('filtroBusClient') == '1':
         query = request.args.get('query', '').upper()
         resultados = ClienteModel.get_clientById(query)
-        
+
         if resultados:
             return jsonify(resultados)
         else:
