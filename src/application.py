@@ -185,6 +185,15 @@ def ver_factura(venta_id):
 
     return response
 
+@app.route('/deleteSale/<int:venta_id>', methods=["POST"])
+def deleteSale(venta_id):
+    """Eliminar una venta y sus dependencias"""
+    try:
+        response = VentaModel.delete_sale(venta_id)  # Llama al método delete_sale del modelo
+        return response  # Retorna el resultado del método delete_sale
+    except Exception as e:
+        return jsonify({"status": "error", "mensaje": f"Error al eliminar la venta: {str(e)}"}), 500
+
 
 #***************************************************************************************************** PARA LOS PRODUCTOS
 @app.route("/GestionProductos")

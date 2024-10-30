@@ -156,13 +156,12 @@ document.addEventListener("click", function (event) {
     }
 });
 
-// Función para obtener y mostrar los productos en el modal de detalles
 function mostrarDetallesVenta(ventaId) {
     fetch(`/detallesVentas/${ventaId}`)
         .then((response) => response.json())
         .then((data) => {
             const productosTableBody = document.getElementById("productosTableBody");
-            productosTableBody.innerHTML = ""; // Limpiar la tabla actual
+            productosTableBody.innerHTML = ""; 
 
             if (data.success && data.productos.length > 0) {
                 let totalVenta = 0;
@@ -175,37 +174,37 @@ function mostrarDetallesVenta(ventaId) {
                     row.innerHTML = `
                         <td>${producto.nombre}</td>
                         <td>${producto.cantidad}</td>
-                        <td>C$${producto.preciounitario.toLocaleString(
-                        "en-US",
-                        { minimumFractionDigits: 2, maximumFractionDigits: 2 }
-                    )}</td>
-                        <td>C$${subtotal.toLocaleString("en-US", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                    })}</td>
+                        <td>C$${producto.preciounitario.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                        <td>C$${subtotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     `;
                     productosTableBody.appendChild(row);
                 });
 
-                document.getElementById("ventaTotal").textContent =
-                    totalVenta.toLocaleString("en-US", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                    });
+                document.getElementById("ventaTotal").textContent = totalVenta.toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                });
             } else {
-                productosTableBody.innerHTML =
-                    '<tr><td colspan="4" class="text-center">No se encontraron productos para esta venta.</td></tr>';
+                productosTableBody.innerHTML = '<tr><td colspan="4" class="text-center">No se encontraron productos para esta venta.</td></tr>';
             }
 
-            let detallesModal = new bootstrap.Modal(
-                document.getElementById("detallesVentaModal")
-            );
+            // Mostrar el modal de detalles de la venta
+            let detallesModal = new bootstrap.Modal(document.getElementById("detallesVentaModal"));
             detallesModal.show();
+
+            // Asignar el evento click al botón de eliminación y verificar con console.log
+            const eliminarVentaBtn = document.getElementById("eliminarVentaBtn");
+            eliminarVentaBtn.removeEventListener("click", () => eliminarVenta(ventaId)); // Eliminar cualquier evento previo
+            eliminarVentaBtn.addEventListener("click", function () {
+                console.log("Botón de eliminar clicado"); // Verificar que se activa el evento
+                eliminarVenta(ventaId); // Llama a la función eliminarVenta pasando el ID de la venta
+            });
         })
         .catch((error) => {
             console.error("Error al obtener los productos:", error);
         });
 }
+
 
 // Obtener todos los ventaid de las ventas mostradas en la tabla
 function obtenerVentaIds() {
@@ -277,12 +276,8 @@ function mostrarPagoModal(clienteNombre, ventaIds, totalDeuda) {
     });
 
     // Habilitar/deshabilitar el campo de pago parcial
-    document
-        .getElementById("pagoModal")
-        .addEventListener("shown.bs.modal", function () {
-            document
-                .getElementById("pagoParcial")
-                .addEventListener("change", function () {
+    document.getElementById("pagoModal").addEventListener("shown.bs.modal", function () {
+            document.getElementById("pagoParcial").addEventListener("change", function () {
                     montoInput.disabled = false;
 
                     // Limpiar el campo
@@ -301,9 +296,7 @@ function mostrarPagoModal(clienteNombre, ventaIds, totalDeuda) {
 }
 
 // Manejar el clic en el botón "Realizar Pago" para abrir el modal de pago
-document
-    .getElementById("realizarPagoBtn")
-    .addEventListener("click", function () {
+document.getElementById("realizarPagoBtn").addEventListener("click", function () {
         const ventaIds = obtenerVentaIds();
         let totalDeuda = 0;
 
@@ -384,13 +377,17 @@ function mostrarHistorialPagoModal(clienteNombre, clienteCedula, historialPago) 
     const historialPagoModalElement = document.getElementById("historialPagoModal");
     historialPagoModalElement.removeAttribute("aria-hidden");
 
-    
     const historialPagoModal = new bootstrap.Modal(historialPagoModalElement);
     historialPagoModal.show();
 
     // Volver a agregar `aria-hidden` cuando el modal se cierra
     historialPagoModalElement.addEventListener("hidden.bs.modal", function () {
         historialPagoModalElement.setAttribute("aria-hidden", "true");
+    });
+
+    // Eliminar eventos previos para evitar duplicados
+    document.querySelectorAll(".delete-button").forEach((deleteButton) => {
+        deleteButton.replaceWith(deleteButton.cloneNode(true));
     });
 
     // Agregar el evento click al botón de eliminación después de que el modal esté visible
@@ -402,6 +399,7 @@ function mostrarHistorialPagoModal(clienteNombre, clienteCedula, historialPago) 
         });
     });
 }
+
 
 
 // Evento click en el botón "Historial de Pagos"
@@ -498,7 +496,6 @@ function showLoadingModal() {
 
     loadingModalElement.removeAttribute("aria-hidden");
     const loadingModal = new bootstrap.Modal(loadingModalElement, {
-        backdrop: 'static', 
         keyboard: false
     });
     loadingModal.show();
@@ -511,4 +508,58 @@ function hideLoadingModal() {
     const loadingModal = bootstrap.Modal.getInstance(loadingModalElement);
     loadingModal.hide();
     loadingModalElement.setAttribute("aria-hidden", "true");
+}
+
+// Función para eliminar una venta
+function eliminarVenta(ventaId) {
+    console.log("Eliminar venta clicada, ID:", ventaId);
+    Swal.fire({
+        title: "¿Deseas eliminar esta venta?",
+        text: "Esta acción no se puede deshacer.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Mostrar el modal de carga
+            showLoadingModal();
+
+            // Enviar la solicitud DELETE para eliminar la venta
+            fetch(`/deleteSale/${ventaId}`, {
+                method: "POST",
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    hideLoadingModal();  // Ocultar el modal de carga
+                    if (data.status === "success") {
+                        Swal.fire({
+                            title: "Venta eliminada exitosamente",
+                            icon: "success",
+                            showConfirmButton: false,
+                            timer: 1000,
+                        }).then(() => {
+                            // Recargar la página para actualizar la vista
+                            window.location.reload();
+                        });
+                    } else {
+                        // Mostrar mensaje de error si la eliminación falló
+                        Swal.fire({
+                            title: "Error",
+                            text: data.message,
+                            icon: "error",
+                        });
+                    }
+                })
+                .catch((error) => {
+                    hideLoadingModal();
+                    Swal.fire({
+                        title: "Error",
+                        text: "Ocurrió un error al eliminar la venta.",
+                        icon: "error",
+                    });
+                    console.error("Error:", error);
+                });
+        }
+    });
 }

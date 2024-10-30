@@ -174,23 +174,42 @@ class VentaModel:
             print("Error inesperado:", str(ex))  # Imprimir el error en la consola
             return jsonify({"status": "error", "mensaje": "Error al procesar la venta: " + str(ex)}), 500
 
-# Función para validar los datos de la venta
-def validar_datos_venta(cliente_id, usuario_id, tipo_venta, productos):
-    if not cliente_id or not usuario_id:
-        return False, "El ID del cliente y del usuario son obligatorios."
-    
-    if not productos or len(productos) == 0:
-        return False, "Debe haber al menos un producto en la venta."
+    # Función para validar los datos de la venta
+    def validar_datos_venta(cliente_id, usuario_id, tipo_venta, productos):
+        if not cliente_id or not usuario_id:
+            return False, "El ID del cliente y del usuario son obligatorios."
 
-    if tipo_venta not in ['Contado', 'Credito']:
-        return False, "El tipo de venta debe ser 'Contado' o 'Credito'."
+        if not productos or len(productos) == 0:
+            return False, "Debe haber al menos un producto en la venta."
 
-    for producto in productos:
-        if 'productoid' not in producto or 'cantidad' not in producto or 'preciounitario' not in producto:
-            return False, "Cada producto debe tener un ID, cantidad y precio unitario."
+        if tipo_venta not in ['Contado', 'Credito']:
+            return False, "El tipo de venta debe ser 'Contado' o 'Credito'."
 
-        if producto['cantidad'] <= 0 or producto['precio'] <= 0:
-            return False, "La cantidad y el precio unitario deben ser mayores que cero."
-    
-    return True, ""
+        for producto in productos:
+            if 'productoid' not in producto or 'cantidad' not in producto or 'preciounitario' not in producto:
+                return False, "Cada producto debe tener un ID, cantidad y precio unitario."
+
+            if producto['cantidad'] <= 0 or producto['precio'] <= 0:
+                return False, "La cantidad y el precio unitario deben ser mayores que cero."
+
+        return True, ""
+
+    @classmethod
+    def delete_sale(cls, venta_id):
+        """Eliminar una venta y sus dependencias (detalle de ventas, deudas, pagos)"""
+        try:
+
+            db.execute(text("CALL dbo.eliminar_venta(:venta_id)"), {"venta_id": venta_id})
+            db.commit()
+
+            return jsonify({"status": "success", "message": f"Venta {venta_id} y sus dependencias eliminadas correctamente."}), 200
+        except IntegrityError as e:
+            db.rollback()  # Revertir en caso de error de integridad referencial
+            return jsonify({"status": "error", "message": "Error de integridad referencial al eliminar la venta.", "details": str(e)}), 500
+        except SQLAlchemyError as e:
+            db.rollback()  # Revertir en caso de error de SQLAlchemy
+            return jsonify({"status": "error", "message": "Error de base de datos al eliminar la venta.", "details": str(e)}), 500
+        except Exception as ex:
+            db.rollback()  # Revertir en caso de error inesperado
+            return jsonify({"status": "error", "message": "Error inesperado al eliminar la venta.", "details": str(ex)}), 500
 

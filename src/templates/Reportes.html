@@ -1,35 +1,68 @@
 {% extends 'layout.html'%}
 {% block body %}
-    <div class="container">
-        <h1 class="text-center mb-4">Reportes</h1>
-
-        <div class="row mb-4">
-            <div class="col-6 col-md-4 mb-4">
-                
-                    <a href="/GestionReportes/Productos" class="btn btn-primary btn-block report-button w-100">
+<div class="container">
+    <h1 class="text-center mb-4">Reportes</h1>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div class="col-6 col-md-4 mb-4">
+            <div class="card h-100 d-flex flex-column">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Reporte de Productos</h5>
+                    <p class="card-text">Explora las tendencias de ventas y descubre los productos más vendidos por mes y año.</p>
+                    <a href="/GestionReportes/Productos" class="btn btn-primary btn-block report-button w-100 mt-auto">
                         <i class='bx bx-bar-chart-alt-2'></i> Productos Vendidos</a>
+                </div>
             </div>
-            <div class="col-6 col-md-4 mb-4">
-                <a href="/GestionReportes/Carga" class="btn btn-secondary btn-block report-button w-100">
-                <i class='bx bx-bar-chart-alt-2'></i> Reporte Carga</a>
+        </div>
+        <div class="col-6 col-md-4 mb-4">
+            <div class="card h-100 d-flex flex-column">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Análisis de Clientes</h5>
+                    <p class="card-text">Examina el comportamiento y la demografía de tus clientes.</p>
+                    <a href="/GestionReportes/Carga" class="btn btn-secondary btn-block report-button w-100 mt-auto">
+                        <i class='bx bx-bar bx-line-chart'></i> Reporte Carga</a>
+                </div>
             </div>
-            <div class="col-6 col-md-4 mb-4">
-                <a href="/GestionReportes/Carga" class="btn btn-success btn-block report-button w-100">
-                <i class='bx bx-bar-chart-alt-2'></i> Ir a Reporte 2</a>
+        </div>
+        <div class="col-6 col-md-4 mb-4">
+            <div class="card h-100 d-flex flex-column">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Inventario</h5>
+                    <p class="card-text">Revisa los niveles de stock y la rotación de inventario.</p>
+                    <a href="/GestionReportes/Carga" class="btn btn-success btn-block report-button w-100 mt-auto">
+                        <i class='bx bx-bar-chart-alt-2'></i> Ir a Reporte 2</a>
+                </div>
             </div>
-            <div class="col-6 col-md-4 mb-4">
-                <a href="/GestionReportes/Carga" class="btn btn-warning btn-block report-button w-100">
-                <i class='bx bx-bar-chart-alt-2'></i> Ir a Reporte 3</a>
+        </div>
+        <div class="col-6 col-md-4 mb-4">
+            <div class="card h-100 d-flex flex-column">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Rendimiento Financiero</h5>
+                    <p class="card-text">Analiza ingresos, gastos y proyecciones financieras.</p>
+                    <a href="/GestionReportes/Carga" class="btn btn-warning btn-block report-button w-100 mt-auto">
+                        <i class='bx bx-bar-chart-alt-2'></i> Ir a Reporte 3</a>
+                </div>
             </div>
-            <div class="col-6 col-md-4 mb-4">
-                <a href="/GestionReportes/Carga" class="btn btn-danger btn-block report-button w-100">
-                <i class='bx bx-bar-chart-alt-2'></i> Ir a Reporte 4</a>
+        </div>
+        <div class="col-6 col-md-4 mb-4">
+            <div class="card h-100 d-flex flex-column">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Métricas de Marketing</h5>
+                    <p class="card-text">Evalúa el rendimiento de tus campañas de marketing.</p>
+                    <a href="/GestionReportes/Carga" class="btn btn-danger btn-block report-button w-100 mt-auto">
+                        <i class='bx bx-bar bx-stats'></i> Ir a Reporte 4</a>
+                </div>
             </div>
-            <div class="col-6 col-md-4 mb-4">
-                <a href="/GestionReportes/Carga" class="btn btn-info btn-block report-button w-100">
-                <i class='bx bx-bar-chart-alt-2'></i> Ir a Reporte 5</a>
-            </div>
+        </div>
+        <div class="col-6 col-md-4 mb-4">
+            <div class="card h-100 d-flex flex-column">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Recursos Humanos</h5>
+                    <p class="card-text">Revisa estadísticas de empleados y productividad.</p>
+                    <a href="/GestionReportes/Carga" class="btn btn-info btn-block report-button w-100 mt-auto">
+                        <i class='bx bx-bar-chart-alt-2'></i> Ir a Reporte 5</a>
+                </div>
             </div>
         </div>
     </div>
-{% endblock %}
+</div>
+{% endblock %} 
