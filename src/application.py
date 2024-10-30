@@ -423,15 +423,22 @@ def GestionReportes():
     ventas = VentaModel.get_sales()
     return render_template("Reportes.html", username=session["username"], clientes=clientes, ventas=ventas, nameuser=session["nameUser"])
 
-@app.route("/GestionReportes/Ventas")
-def GestionReporteVenta():
-    clientes = ClienteModel.get_clients()
-    deudas = DeudaModel.get_sales()
-    ventas = VentaModel.get_sales()
-    return render_template("ReporteProductos.html", username=session["username"], nameuser=session["nameUser"], clientes=clientes, ventas=ventas)
+@app.route("/GestionReportes/Productos", methods=["GET"])
+def GestionReporteProductos():
 
-from datetime import datetime
-from flask import request, jsonify, render_template, session
+    mes = request.args.get('mes')
+    anio = request.args.get('anio')
+
+    if mes and anio:
+        try:
+            
+            topproductos = ProductoModel.get_productsby_monthyear(int(mes), int(anio))
+            return jsonify(topproductos)
+        except Exception as ex:
+            return jsonify({"error": str(ex)}), 500
+    else:
+        return render_template("ReporteProductos.html", username=session["username"], nameuser=session["nameUser"])
+
 
 @app.route("/GestionReportes/Carga", methods=["GET"])
 def GestionReporteCarga():

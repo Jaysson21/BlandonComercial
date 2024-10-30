@@ -136,3 +136,27 @@ class ProductoModel():
         except Exception as ex:
             db.rollback()  # Revertir si hay algún error
             raise Exception(f"Error al ejecutar el reporte de carga: {ex}")
+        
+    @classmethod
+    def get_productsby_monthyear(cls, mes, anio):
+        try:
+            # Ejecutar la función almacenada en PostgreSQL
+            result = db.execute(
+                text("SELECT * FROM dbo.obtenerproductosmesanio(:mes, :anio)"),
+                {'mes': mes, 'anio': anio}
+            ).fetchall()
+
+            # Convertir el resultado a una lista de diccionarios
+            top_productos = [
+                {
+                    "productoid": row[0],
+                    "nombreproducto": row[1],
+                    "cantidadvendida": row[2]
+                }
+                for row in result
+            ]
+
+            return top_productos
+        except Exception as ex:
+            db.rollback()  # Revertir si hay algún error
+            raise Exception(f"Error al obtener el Top 8 de productos por mes y año: {ex}")
