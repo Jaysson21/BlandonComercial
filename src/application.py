@@ -172,7 +172,7 @@ def ver_factura(venta_id):
     html_string = render_template('Factura.html', venta=venta, detalles=detalles, total_venta=total_venta)
 
     # Convertir el HTML a PDF
-    css = CSS(string="@page { size: 78mm auto; margin: 0; height: auto;}")  # Ancho de 80mm
+    css = CSS(string="@page { size: 78mm auto; margin: 0; max-height: 150mm; min-height: 100mm;}")  # Ancho de 80mm
     pdf = HTML(string=html_string).write_pdf(stylesheets=[css])
 
     # Crear la respuesta con el PDF en línea
