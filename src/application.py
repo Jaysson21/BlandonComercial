@@ -74,12 +74,7 @@ def login():
             session["username"] = username
             session["user_id"] = usuario[0][0]
 
-            print(session["user_id"])
-
-            #session["role_user"] = user[0]['role']
-
             return redirect('/')
-        
         except Exception as e:
             return jsonify({"error": str(e)}), 500
     else:

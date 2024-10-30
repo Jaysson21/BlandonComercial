@@ -18,10 +18,22 @@ function menuBtnChange() {
     }
 }
 
-//logout  ;
-logout.addEventListener("click", () => {
-    window.location.href = '/logout';
+//Para cerrar la sesion
+logout.addEventListener("click", (event) => {
+    event.preventDefault();
+    Swal.fire({
+        title: "¿Estás seguro de que deseas cerrar la sesión?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, salir",
+        cancelButtonText: "Cancelar",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = '/logout'; // Redirigir solo si se confirma
+        }
+    });
 });
+
 
 // Función para obtener la fecha y hora actuales
 function actualizarFechaHora() {
