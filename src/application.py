@@ -155,8 +155,6 @@ def saveSale():
 
 @app.route('/ver_factura/<int:venta_id>')
 def ver_factura(venta_id):
-
-
     # Obtener la información de la venta y detalles
     venta = VentaModel.get_salesById(venta_id)
     detalles = VentaModel.get_productos_by_sales(venta_id)
@@ -167,7 +165,7 @@ def ver_factura(venta_id):
     html_string = render_template('Factura.html', venta=venta, detalles=detalles, total_venta=total_venta)
 
     # Convertir el HTML a PDF
-    css = CSS(string="@page { size: 78mm auto; margin: 0; max-height: 150mm; min-height: 100mm;}")  # Ancho de 80mm
+    css = CSS(string="@page { size: 78mm auto; margin: 0;}")  # Ancho de 80mm
     pdf = HTML(string=html_string).write_pdf(stylesheets=[css])
 
     # Crear la respuesta con el PDF en línea
@@ -180,14 +178,29 @@ def ver_factura(venta_id):
 
     return response
 
-@app.route('/deleteSale/<int:venta_id>', methods=["POST"])
-def deleteSale(venta_id):
-    """Eliminar una venta y sus dependencias"""
-    try:
-        response = VentaModel.delete_sale(venta_id)  # Llama al método delete_sale del modelo
-        return response  # Retorna el resultado del método delete_sale
-    except Exception as e:
-        return jsonify({"status": "error", "mensaje": f"Error al eliminar la venta: {str(e)}"}), 500
+@app.route('/ver_recibo/<int:cliente_id>/<montoPago>/<tipoPago>')
+def ver_recibo(cliente_id, montoPago, tipoPago):
+    Fecha = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
+    cliente = ClienteModel.get_clientByID(cliente_id)
+    cedula = cliente['cedula']
+    nombre = cliente['nombres']
+
+    # Renderizamos el template HTML
+    html_string = render_template('Recibo.html', cedula=cedula, nombre=nombre, fecha=Fecha, montoPago=montoPago, tipoPago=tipoPago)
+
+    # Convertir el HTML a PDF
+    css = CSS(string="@page { size: 78mm auto; margin: 0;}")  # Ancho de 80mm
+    pdf = HTML(string=html_string).write_pdf(stylesheets=[css])
+
+    # Crear la respuesta con el PDF en línea
+    response = make_response(pdf)
+    
+    #response.headers['Content-Disposition'] = 'inline; filename=Factura_'+str(venta_id)+'.pdf'
+    response.headers['Content-Disposition'] = f'attachment; filename=Recibo_{cedula}.pdf'
+
+    response.headers['Content-Type'] = 'application/pdf'
+
+    return response
 
 
 #***************************************************************************************************** PARA LOS PRODUCTOS

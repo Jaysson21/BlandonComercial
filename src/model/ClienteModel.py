@@ -39,6 +39,28 @@ class ClienteModel:
             return ListaClientes
         except Exception as ex:
             raise Exception(ex)
+        
+    @classmethod
+    def get_clientByID(self, client_id):
+        """Obtener un cliente por su ID."""
+        try:
+            cliente = db.execute(text("SELECT * FROM dbo.clientes WHERE clienteid = :client_id"),
+                                 {'client_id': client_id}).fetchone()
+            db.commit()
+                  
+            if cliente:
+                return {
+                    'clienteid': cliente[0],
+                    'nombres': cliente[1],
+                    'apellidos': cliente[2],
+                    'telefono': cliente[3],
+                    'cedula': cliente[4],
+                    'direccion': cliente[5],
+                    'fecharegistro': cliente[6]
+                }
+            return cliente
+        except Exception as ex:
+            raise Exception(ex)
 
     @classmethod
     def get_clientById(self, cedula):
