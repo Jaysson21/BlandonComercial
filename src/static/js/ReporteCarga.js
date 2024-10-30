@@ -12,7 +12,6 @@ function initLoadingModal() {
 window.onload = function() {
     const today = new Date().toISOString().split('T')[0];
     document.getElementById("startDate").value = today;
-    document.getElementById("endDate").value = today;
 };
 
 // Función para generar el reporte y enviar las fechas al backend

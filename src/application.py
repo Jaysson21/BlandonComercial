@@ -405,6 +405,15 @@ def get_historial_pagos(clienteid):
     except Exception as e:
         return jsonify({"success": False, "message": str(e)})
 
+@app.route("/deletePago/<int:id>", methods=["POST"])
+def deletePago(id):
+    try:
+        # Eliminar el producto de la base de datos
+        DeudaModel.delete_Pago(id)
+        return jsonify({'success': True, 'message': 'Cleinte eliminado exitosamente.'})
+
+    except Exception as e:
+        return jsonify({'success': False, 'message': 'Error: Ha ocurrido un problema al eliminar el Cliente. ' + str(e)})
 
     
 #*******************************************************************************************************PARA LOS REPORTES

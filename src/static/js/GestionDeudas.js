@@ -355,7 +355,7 @@ function cargarHistorialPago(historial) {
                 <td>${pago.fechapago || "N/A"}</td>
                 <td>${pago.tipopago || "N/A"}</td>
                 <td>
-                 <button class="btn btn-sm btn-danger delete-button" data-id="${pago.pagoid}">Eliminar</button>
+                 <button id="eliminarPagoBtn" class="btn btn-sm btn-danger delete-button" data-id="${pago.pagoid}" data-monto="${pago.montoabono}">Eliminar</button>
                 </td>
                 
             `;
@@ -388,6 +388,16 @@ function mostrarHistorialPagoModal(clienteNombre, clienteCedula,  historialPago)
         document.getElementById("historialPagoModal")
     );
     historialPagoModal.show();
+
+    // Agregar el evento click al botón de eliminación después de que el modal esté visible
+    const deleteButton = document.getElementById("eliminarPagoBtn");
+    if (deleteButton) {
+        deleteButton.addEventListener("click", function () {
+            const pagoId = deleteButton.getAttribute("data-id");
+            const pagomonto = deleteButton.getAttribute("data-monto"); // Asegúrate de que el atributo está configurado
+            eliminarPago(pagoId, pagomonto);
+        });
+    }
 }
 
 // Evento click en el botón "Historial de Pagos"
@@ -428,3 +438,57 @@ document.getElementById("historialPagosBtn").addEventListener("click", function 
             );
         }
     });
+
+// Función para eliminar un Pago
+function eliminarPago(id, monto) {
+    Swal.fire({
+        title: "¿Deseas eliminar el pago: " + id + " de por el monto: " + monto + "?",
+        showCancelButton: true,
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar",
+        icon: "warning",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Mostrar modal de espera (con tu lógica actual de modal de espera)
+            showLoadingModal();
+
+            // Enviar la solicitud de eliminación de forma asíncrona
+            fetch("/eliminarPago/" + id, {
+                method: "POST",
+            })
+            .then(response => response.json())
+            .then((data) => {
+                // Ocultar el modal de espera cuando se reciba la respuesta
+                hideLoadingModal();
+
+                if (data.success) {
+                    // Mostrar SweetAlert de éxito y recargar la página
+                    Swal.fire({
+                        title: "Pago eliminado exitosamente",
+                        icon: "success",
+                        showConfirmButton: false,
+                        timer: 1000,
+                    }).then(() => {
+                        // Recargar la página después de eliminar
+                        window.location.reload();
+                    });
+                } else {
+                    // Si hubo un error, mostrar el mensaje de error
+                    Swal.fire({
+                        title: "Error",
+                        text: data.message,
+                        icon: "error",
+                    });
+                }
+            })
+            .catch((error) => {
+                hideLoadingModal();  // Ocultar modal de espera en caso de error
+                Swal.fire({
+                    title: "Error",
+                    text: "Ocurrió un error al eliminar el pago.",
+                    icon: "error",
+                });
+            });
+        }
+    });
+}

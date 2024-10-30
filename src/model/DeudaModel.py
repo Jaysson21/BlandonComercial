@@ -143,3 +143,15 @@ class DeudaModel:
         except Exception as ex:
             db.rollback()
             raise Exception(f"Error al obtener los pagos: {ex}")
+        
+    @classmethod
+    def delete_Pago(self, id):
+        try:
+            db.execute(
+                text("CALL dbo.eliminar_pago(:pagoid)"),
+                {'pagoid': id}
+            )
+            db.commit()
+            return 1
+        except Exception as ex:
+            raise Exception(ex)
