@@ -80,7 +80,7 @@ function actualizarTablaVentas(ventasFiltradas) {
         });
     } else {
         tbody.innerHTML =
-            '<tr><td colspan="5" class="text-center">No se encontraron deudas para este cliente.</td></tr>';
+            '<tr><td colspan="6" class="text-center">No se encontraron deudas para este cliente.</td></tr>';
     }
 }
 
@@ -333,16 +333,13 @@ document
     });
 
 // Función para mostrar el historial de pagos en el modal
-function cargarHistorialPago(historial) {
-    const historialTableBody = document
-        .getElementById("historialPagoTable")
-        .querySelector("tbody");
+function cargarHistorialPago(historial) {const historialTableBody = document.getElementById("historialPagoTable").querySelector("tbody");
     historialTableBody.innerHTML = ""; // Limpiar la tabla antes de agregar los datos
 
     if (!Array.isArray(historial) || historial.length === 0) {
         // Si no hay historial de pagos, mostrar un mensaje en la tabla
         const row = document.createElement("tr");
-        row.innerHTML = `<td colspan="4" class="text-center">No se han registrado pagos para este cliente.</td>`;
+        row.innerHTML = `<td colspan="6" class="text-center">No se han registrado pagos para este cliente.</td>`;
         historialTableBody.appendChild(row);
     } else {
         // Si hay historial de pagos, agregar filas a la tabla
@@ -364,9 +361,7 @@ function cargarHistorialPago(historial) {
     }
 
     // Filtrar las filas de la tabla según el texto de búsqueda
-    document
-        .getElementById("historialPagoSearch")
-        .addEventListener("input", function () {
+    document.getElementById("historialPagoSearch").addEventListener("input", function () {
             const searchValue = this.value.toLowerCase();
             const rows = document.querySelectorAll("#historialPagoTable tbody tr");
 
@@ -378,27 +373,36 @@ function cargarHistorialPago(historial) {
 }
 
 // Función para abrir el modal de historial de pagos
-function mostrarHistorialPagoModal(clienteNombre, clienteCedula,  historialPago) {
+function mostrarHistorialPagoModal(clienteNombre, clienteCedula, historialPago) {
     document.getElementById("nombreClienteHistorial").textContent = clienteNombre;
     document.getElementById("cedulaClienteHistorial").textContent = clienteCedula;
 
+    // Cargar el historial de pagos en la tabla
     cargarHistorialPago(historialPago);
 
-    const historialPagoModal = new bootstrap.Modal(
-        document.getElementById("historialPagoModal")
-    );
+    // Obtener el modal y ajustar `aria-hidden`
+    const historialPagoModalElement = document.getElementById("historialPagoModal");
+    historialPagoModalElement.removeAttribute("aria-hidden");
+
+    
+    const historialPagoModal = new bootstrap.Modal(historialPagoModalElement);
     historialPagoModal.show();
 
+    // Volver a agregar `aria-hidden` cuando el modal se cierra
+    historialPagoModalElement.addEventListener("hidden.bs.modal", function () {
+        historialPagoModalElement.setAttribute("aria-hidden", "true");
+    });
+
     // Agregar el evento click al botón de eliminación después de que el modal esté visible
-    const deleteButton = document.getElementById("eliminarPagoBtn");
-    if (deleteButton) {
+    document.querySelectorAll(".delete-button").forEach((deleteButton) => {
         deleteButton.addEventListener("click", function () {
-            const pagoId = deleteButton.getAttribute("data-id");
-            const pagomonto = deleteButton.getAttribute("data-monto"); // Asegúrate de que el atributo está configurado
+            const pagoId = this.getAttribute("data-id");
+            const pagomonto = this.getAttribute("data-monto"); // Asegúrate de que el atributo está configurado
             eliminarPago(pagoId, pagomonto);
         });
-    }
+    });
 }
+
 
 // Evento click en el botón "Historial de Pagos"
 document.getElementById("historialPagosBtn").addEventListener("click", function () {
@@ -407,14 +411,9 @@ document.getElementById("historialPagosBtn").addEventListener("click", function 
         const clienteCedula = document.getElementById("clientCedula").value;
 
         if (clienteId) {
-            console.log(
-                `Solicitando historial de pagos para el cliente ID: ${clienteId}`
-            );
-
             fetch(`/getHistorialPagos/${clienteId}`)
                 .then((response) => response.json())
                 .then((data) => {
-                    console.log("Datos recibidos del backend:", data); // Verifica los datos recibidos en la consola
                     if (data.success) {
                         mostrarHistorialPagoModal(clienteNombre, clienteCedula, data.historial);
                     } else {
@@ -453,7 +452,7 @@ function eliminarPago(id, monto) {
             showLoadingModal();
 
             // Enviar la solicitud de eliminación de forma asíncrona
-            fetch("/eliminarPago/" + id, {
+            fetch("/deletePago/" + id, {
                 method: "POST",
             })
             .then(response => response.json())
@@ -491,4 +490,25 @@ function eliminarPago(id, monto) {
             });
         }
     });
+}
+
+// Función para mostrar el modal de carga
+function showLoadingModal() {
+    const loadingModalElement = document.getElementById("loadingModal");
+
+    loadingModalElement.removeAttribute("aria-hidden");
+    const loadingModal = new bootstrap.Modal(loadingModalElement, {
+        backdrop: 'static', 
+        keyboard: false
+    });
+    loadingModal.show();
+}
+
+// Función para ocultar el modal de carga y agregar `aria-hidden`
+function hideLoadingModal() {
+
+    const loadingModalElement = document.getElementById("loadingModal");
+    const loadingModal = bootstrap.Modal.getInstance(loadingModalElement);
+    loadingModal.hide();
+    loadingModalElement.setAttribute("aria-hidden", "true");
 }
