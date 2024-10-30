@@ -11,7 +11,7 @@ body {
 }
 
 .table-responsive {
-    max-height: 65vh;
+    max-height: 60vh;
     overflow-x: auto;
     overflow-y: auto; 
 }

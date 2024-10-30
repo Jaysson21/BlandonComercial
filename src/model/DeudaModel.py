@@ -89,8 +89,6 @@ class DeudaModel:
         except Exception as ex:
             db.rollback()
             raise Exception(f"Error al registrar el pago: {ex}")
-        
-    from sqlalchemy import text
 
     @classmethod
     def get_pagosby_client(cls, client_id):
@@ -116,33 +114,7 @@ class DeudaModel:
             return ListaPagos
         except Exception as ex:
             db.rollback()
-            raise Exception(f"Error al obtener los pagos: {ex}")
-        
-    @classmethod
-    def get_pagosby_client(cls, client_id):
-        """Obtener todos los pagos de un cliente específico"""
-        try:
-            query = text("SELECT * FROM dbo.obtenerpagos(:client_id)")
-            pagos = db.execute(query, {'client_id': client_id}).fetchall()
-
-            db.commit()
-
-            # Formatear los resultados en una lista de diccionarios
-            ListaPagos = [
-                {
-                    'pagoid': pago[0],
-                    'deudaid': pago[1],
-                    'montoabono': float(pago[2]),
-                    'fechapago': pago[3].strftime('%d-%m-%Y %H:%M'),
-                    'tipopago': pago[4]
-                }
-                for pago in pagos
-            ]
-            
-            return ListaPagos
-        except Exception as ex:
-            db.rollback()
-            raise Exception(f"Error al obtener los pagos: {ex}")
+            raise Exception(f"Error al obtener los pagos: {ex}")       
         
     @classmethod
     def delete_Pago(self, id):

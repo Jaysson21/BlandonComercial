@@ -121,6 +121,30 @@ $(document).ready(function () {
     });
 });
 
+async function imprimirRecibo(clienteId, montoAbono, tipoPago) {
+    try {
+        const response = await fetch(`/ver_recibo/${clienteId}/${montoAbono}/${tipoPago}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/pdf',
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error al descargar el PDF: ${response.statusText}`);
+        }
+
+        // Convertir la respuesta en un blob
+        const blob = await response.blob();
+
+        // Usar FileSaver para forzar la descarga
+        saveAs(blob, `Recibo_${clienteId}.pdf`);
+
+    } catch (error) {
+        console.error('Error al descargar el PDF:', error);
+    }
+}
+
 // Mostrar detalles de las ventas en el modal
 document.addEventListener("click", function (event) {
     if (event.target && event.target.matches("button.btn-primary")) {
@@ -156,13 +180,12 @@ document.addEventListener("click", function (event) {
     }
 });
 
-// Función para obtener y mostrar los productos en el modal de detalles
 function mostrarDetallesVenta(ventaId) {
     fetch(`/detallesVentas/${ventaId}`)
         .then((response) => response.json())
         .then((data) => {
             const productosTableBody = document.getElementById("productosTableBody");
-            productosTableBody.innerHTML = ""; // Limpiar la tabla actual
+            productosTableBody.innerHTML = "";
 
             if (data.success && data.productos.length > 0) {
                 let totalVenta = 0;
@@ -175,37 +198,37 @@ function mostrarDetallesVenta(ventaId) {
                     row.innerHTML = `
                         <td>${producto.nombre}</td>
                         <td>${producto.cantidad}</td>
-                        <td>C$${producto.preciounitario.toLocaleString(
-                        "en-US",
-                        { minimumFractionDigits: 2, maximumFractionDigits: 2 }
-                    )}</td>
-                        <td>C$${subtotal.toLocaleString("en-US", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                    })}</td>
+                        <td>C$${producto.preciounitario.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                        <td>C$${subtotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     `;
                     productosTableBody.appendChild(row);
                 });
 
-                document.getElementById("ventaTotal").textContent =
-                    totalVenta.toLocaleString("en-US", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                    });
+                document.getElementById("ventaTotal").textContent = totalVenta.toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                });
             } else {
-                productosTableBody.innerHTML =
-                    '<tr><td colspan="4" class="text-center">No se encontraron productos para esta venta.</td></tr>';
+                productosTableBody.innerHTML = '<tr><td colspan="4" class="text-center">No se encontraron productos para esta venta.</td></tr>';
             }
 
-            let detallesModal = new bootstrap.Modal(
-                document.getElementById("detallesVentaModal")
-            );
+            // Mostrar el modal de detalles de la venta
+            let detallesModal = new bootstrap.Modal(document.getElementById("detallesVentaModal"));
             detallesModal.show();
+
+            // Asignar el evento click al botón de eliminación y verificar con console.log
+            const eliminarVentaBtn = document.getElementById("eliminarVentaBtn");
+            eliminarVentaBtn.removeEventListener("click", () => eliminarVenta(ventaId)); // Eliminar cualquier evento previo
+            eliminarVentaBtn.addEventListener("click", function () {
+                console.log("Botón de eliminar clicado"); // Verificar que se activa el evento
+                eliminarVenta(ventaId); // Llama a la función eliminarVenta pasando el ID de la venta
+            });
         })
         .catch((error) => {
             console.error("Error al obtener los productos:", error);
         });
 }
+
 
 // Obtener todos los ventaid de las ventas mostradas en la tabla
 function obtenerVentaIds() {
@@ -256,8 +279,16 @@ function mostrarPagoModal(clienteNombre, ventaIds, totalDeuda) {
                 .then((data) => {
                     if (data.success) {
                         mostrarAlertaBootstrap("Pago registrado exitosamente", "success");
+
+                        // Seleccionar todos los checkbox con la clase 'form-check-input' que están seleccionados (checked)
+                        const seleccionados = document.querySelectorAll('.form-check-input:checked');
+
+                        // Ejemplo de uso si quieres almacenarlos en un array
+                        const tipoPago = Array.from(seleccionados).map(checkbox => checkbox.value)
+
+                        imprimirRecibo(clienteId, montoAbono, tipoPago);
                         pagoModal.hide();
-                        window.location.reload();
+                        //window.location.reload();
                     } else {
                         mostrarAlertaBootstrap(
                             "Error al registrar el pago: " + data.message,
@@ -277,63 +308,58 @@ function mostrarPagoModal(clienteNombre, ventaIds, totalDeuda) {
     });
 
     // Habilitar/deshabilitar el campo de pago parcial
-    document
-        .getElementById("pagoModal")
-        .addEventListener("shown.bs.modal", function () {
-            document
-                .getElementById("pagoParcial")
-                .addEventListener("change", function () {
-                    montoInput.disabled = false;
+    document.getElementById("pagoModal").addEventListener("shown.bs.modal", function () {
+        document.getElementById("pagoParcial").addEventListener("change", function () {
+            montoInput.disabled = false;
 
-                    // Limpiar el campo
-                    montoInput.addEventListener("focus", function () {
-                        montoInput.value = "";
-                    });
-                });
-
-            document
-                .getElementById("pagoTotal")
-                .addEventListener("change", function () {
-                    montoInput.value = totalDeuda.toFixed(2);
-                    montoInput.disabled = true;
-                });
+            // Limpiar el campo
+            montoInput.addEventListener("focus", function () {
+                montoInput.value = "";
+            });
         });
+
+        document
+            .getElementById("pagoTotal")
+            .addEventListener("change", function () {
+                montoInput.value = totalDeuda.toFixed(2);
+                montoInput.disabled = true;
+            });
+    });
 }
 
 // Manejar el clic en el botón "Realizar Pago" para abrir el modal de pago
-document
-    .getElementById("realizarPagoBtn")
-    .addEventListener("click", function () {
-        const ventaIds = obtenerVentaIds();
-        let totalDeuda = 0;
+document.getElementById("realizarPagoBtn").addEventListener("click", function () {
+    const ventaIds = obtenerVentaIds();
+    let totalDeuda = 0;
 
-        if (ventaIds.length > 0) {
-            const clienteNombre =
-                document.getElementById("customerSelect").selectedOptions[0]
-                    .textContent;
+    if (ventaIds.length > 0) {
+        const clienteNombre =
+            document.getElementById("customerSelect").selectedOptions[0]
+                .textContent;
 
-            const rows = document.querySelectorAll("#paymentHistory tbody tr");
-            rows.forEach((row) => {
-                const montoCell = row.querySelector("td:nth-child(4)");
-                const monto = parseFloat(
-                    montoCell.textContent.replace("C$", "").replace(/,/g, "").trim()
-                );
-                if (!isNaN(monto)) {
-                    totalDeuda += monto;
-                }
-            });
-
-            mostrarPagoModal(clienteNombre, ventaIds, totalDeuda);
-        } else {
-            mostrarAlertaBootstrap(
-                "No hay ventas disponibles para realizar el pago.",
-                "warning"
+        const rows = document.querySelectorAll("#paymentHistory tbody tr");
+        rows.forEach((row) => {
+            const montoCell = row.querySelector("td:nth-child(4)");
+            const monto = parseFloat(
+                montoCell.textContent.replace("C$", "").replace(/,/g, "").trim()
             );
-        }
-    });
+            if (!isNaN(monto)) {
+                totalDeuda += monto;
+            }
+        });
+
+        mostrarPagoModal(clienteNombre, ventaIds, totalDeuda);
+    } else {
+        mostrarAlertaBootstrap(
+            "No hay ventas disponibles para realizar el pago.",
+            "warning"
+        );
+    }
+});
 
 // Función para mostrar el historial de pagos en el modal
-function cargarHistorialPago(historial) {const historialTableBody = document.getElementById("historialPagoTable").querySelector("tbody");
+function cargarHistorialPago(historial) {
+    const historialTableBody = document.getElementById("historialPagoTable").querySelector("tbody");
     historialTableBody.innerHTML = ""; // Limpiar la tabla antes de agregar los datos
 
     if (!Array.isArray(historial) || historial.length === 0) {
@@ -348,7 +374,7 @@ function cargarHistorialPago(historial) {const historialTableBody = document.get
             row.innerHTML = `
                 <td>${pago.pagoid || "N/A"}</td>
                 <td>${pago.deudaid || "N/A"}</td>
-                <td>C$ ${pago.montoabono.toLocaleString("en-US", {minimumFractionDigits: 2,maximumFractionDigits: 2,})}</td>
+                <td>C$ ${pago.montoabono.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2, })}</td>
                 <td>${pago.fechapago || "N/A"}</td>
                 <td>${pago.tipopago || "N/A"}</td>
                 <td>
@@ -362,14 +388,14 @@ function cargarHistorialPago(historial) {const historialTableBody = document.get
 
     // Filtrar las filas de la tabla según el texto de búsqueda
     document.getElementById("historialPagoSearch").addEventListener("input", function () {
-            const searchValue = this.value.toLowerCase();
-            const rows = document.querySelectorAll("#historialPagoTable tbody tr");
+        const searchValue = this.value.toLowerCase();
+        const rows = document.querySelectorAll("#historialPagoTable tbody tr");
 
-            rows.forEach((row) => {
-                const rowText = row.innerText.toLowerCase();
-                row.style.display = rowText.includes(searchValue) ? "" : "none";
-            });
+        rows.forEach((row) => {
+            const rowText = row.innerText.toLowerCase();
+            row.style.display = rowText.includes(searchValue) ? "" : "none";
         });
+    });
 }
 
 // Función para abrir el modal de historial de pagos
@@ -384,13 +410,17 @@ function mostrarHistorialPagoModal(clienteNombre, clienteCedula, historialPago) 
     const historialPagoModalElement = document.getElementById("historialPagoModal");
     historialPagoModalElement.removeAttribute("aria-hidden");
 
-    
     const historialPagoModal = new bootstrap.Modal(historialPagoModalElement);
     historialPagoModal.show();
 
     // Volver a agregar `aria-hidden` cuando el modal se cierra
     historialPagoModalElement.addEventListener("hidden.bs.modal", function () {
         historialPagoModalElement.setAttribute("aria-hidden", "true");
+    });
+
+    // Eliminar eventos previos para evitar duplicados
+    document.querySelectorAll(".delete-button").forEach((deleteButton) => {
+        deleteButton.replaceWith(deleteButton.cloneNode(true));
     });
 
     // Agregar el evento click al botón de eliminación después de que el modal esté visible
@@ -404,39 +434,40 @@ function mostrarHistorialPagoModal(clienteNombre, clienteCedula, historialPago) 
 }
 
 
+
 // Evento click en el botón "Historial de Pagos"
 document.getElementById("historialPagosBtn").addEventListener("click", function () {
-        const clienteId = document.getElementById("customerSelect").value;
-        const clienteNombre = document.getElementById("customerSelect").selectedOptions[0].textContent;
-        const clienteCedula = document.getElementById("clientCedula").value;
+    const clienteId = document.getElementById("customerSelect").value;
+    const clienteNombre = document.getElementById("customerSelect").selectedOptions[0].textContent;
+    const clienteCedula = document.getElementById("clientCedula").value;
 
-        if (clienteId) {
-            fetch(`/getHistorialPagos/${clienteId}`)
-                .then((response) => response.json())
-                .then((data) => {
-                    if (data.success) {
-                        mostrarHistorialPagoModal(clienteNombre, clienteCedula, data.historial);
-                    } else {
-                        mostrarAlertaBootstrap(
-                            "Error al cargar el historial de pagos: " + data.message,
-                            "danger"
-                        );
-                    }
-                })
-                .catch((error) => {
-                    console.error("Error al realizar la solicitud:", error);
+    if (clienteId) {
+        fetch(`/getHistorialPagos/${clienteId}`)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    mostrarHistorialPagoModal(clienteNombre, clienteCedula, data.historial);
+                } else {
                     mostrarAlertaBootstrap(
-                        "Error al cargar el historial de pagos.",
+                        "Error al cargar el historial de pagos: " + data.message,
                         "danger"
                     );
-                });
-        } else {
-            mostrarAlertaBootstrap(
-                "Seleccione un cliente para ver su historial de pagos.",
-                "warning"
-            );
-        }
-    });
+                }
+            })
+            .catch((error) => {
+                console.error("Error al realizar la solicitud:", error);
+                mostrarAlertaBootstrap(
+                    "Error al cargar el historial de pagos.",
+                    "danger"
+                );
+            });
+    } else {
+        mostrarAlertaBootstrap(
+            "Seleccione un cliente para ver su historial de pagos.",
+            "warning"
+        );
+    }
+});
 
 // Función para eliminar un Pago
 function eliminarPago(id, monto) {
@@ -455,39 +486,39 @@ function eliminarPago(id, monto) {
             fetch("/deletePago/" + id, {
                 method: "POST",
             })
-            .then(response => response.json())
-            .then((data) => {
-                // Ocultar el modal de espera cuando se reciba la respuesta
-                hideLoadingModal();
+                .then(response => response.json())
+                .then((data) => {
+                    // Ocultar el modal de espera cuando se reciba la respuesta
+                    hideLoadingModal();
 
-                if (data.success) {
-                    // Mostrar SweetAlert de éxito y recargar la página
-                    Swal.fire({
-                        title: "Pago eliminado exitosamente",
-                        icon: "success",
-                        showConfirmButton: false,
-                        timer: 1000,
-                    }).then(() => {
-                        // Recargar la página después de eliminar
-                        window.location.reload();
-                    });
-                } else {
-                    // Si hubo un error, mostrar el mensaje de error
+                    if (data.success) {
+                        // Mostrar SweetAlert de éxito y recargar la página
+                        Swal.fire({
+                            title: "Pago eliminado exitosamente",
+                            icon: "success",
+                            showConfirmButton: false,
+                            timer: 1000,
+                        }).then(() => {
+                            // Recargar la página después de eliminar
+                            window.location.reload();
+                        });
+                    } else {
+                        // Si hubo un error, mostrar el mensaje de error
+                        Swal.fire({
+                            title: "Error",
+                            text: data.message,
+                            icon: "error",
+                        });
+                    }
+                })
+                .catch((error) => {
+                    hideLoadingModal();  // Ocultar modal de espera en caso de error
                     Swal.fire({
                         title: "Error",
-                        text: data.message,
+                        text: "Ocurrió un error al eliminar el pago.",
                         icon: "error",
                     });
-                }
-            })
-            .catch((error) => {
-                hideLoadingModal();  // Ocultar modal de espera en caso de error
-                Swal.fire({
-                    title: "Error",
-                    text: "Ocurrió un error al eliminar el pago.",
-                    icon: "error",
                 });
-            });
         }
     });
 }
@@ -498,7 +529,6 @@ function showLoadingModal() {
 
     loadingModalElement.removeAttribute("aria-hidden");
     const loadingModal = new bootstrap.Modal(loadingModalElement, {
-        backdrop: 'static', 
         keyboard: false
     });
     loadingModal.show();
@@ -511,4 +541,58 @@ function hideLoadingModal() {
     const loadingModal = bootstrap.Modal.getInstance(loadingModalElement);
     loadingModal.hide();
     loadingModalElement.setAttribute("aria-hidden", "true");
+}
+
+// Función para eliminar una venta
+function eliminarVenta(ventaId) {
+    console.log("Eliminar venta clicada, ID:", ventaId);
+    Swal.fire({
+        title: "¿Deseas eliminar esta venta?",
+        text: "Esta acción no se puede deshacer.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Mostrar el modal de carga
+            showLoadingModal();
+
+            // Enviar la solicitud DELETE para eliminar la venta
+            fetch(`/deleteSale/${ventaId}`, {
+                method: "POST",
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    hideLoadingModal();  // Ocultar el modal de carga
+                    if (data.status === "success") {
+                        Swal.fire({
+                            title: "Venta eliminada exitosamente",
+                            icon: "success",
+                            showConfirmButton: false,
+                            timer: 1000,
+                        }).then(() => {
+                            // Recargar la página para actualizar la vista
+                            window.location.reload();
+                        });
+                    } else {
+                        // Mostrar mensaje de error si la eliminación falló
+                        Swal.fire({
+                            title: "Error",
+                            text: data.message,
+                            icon: "error",
+                        });
+                    }
+                })
+                .catch((error) => {
+                    hideLoadingModal();
+                    Swal.fire({
+                        title: "Error",
+                        text: "Ocurrió un error al eliminar la venta.",
+                        icon: "error",
+                    });
+                    console.error("Error:", error);
+                });
+        }
+    });
 }
