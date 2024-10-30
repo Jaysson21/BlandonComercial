@@ -185,6 +185,59 @@ def ver_factura(venta_id):
 
     return response
 
+@app.route('/ver_factura/<int:venta_id>')
+def ver_factura(venta_id):
+
+
+    # Obtener la información de la venta y detalles
+    venta = VentaModel.get_salesById(venta_id)
+    detalles = VentaModel.get_productos_by_sales(venta_id)
+
+    total_venta = sum(d['cantidad'] * d['preciounitario'] for d in detalles)
+   
+    # Renderizamos el template HTML
+    html_string = render_template('Factura.html', venta=venta, detalles=detalles, total_venta=total_venta)
+
+    # Convertir el HTML a PDF
+    css = CSS(string="@page { size: 78mm auto; margin: 0; max-height: 150mm; min-height: 100mm;}")  # Ancho de 80mm
+    pdf = HTML(string=html_string).write_pdf(stylesheets=[css])
+
+    # Crear la respuesta con el PDF en línea
+    response = make_response(pdf)
+    
+    #response.headers['Content-Disposition'] = 'inline; filename=Factura_'+str(venta_id)+'.pdf'
+    response.headers['Content-Disposition'] = f'attachment; filename=Factura_{venta_id}.pdf'
+
+    response.headers['Content-Type'] = 'application/pdf'
+
+    return response
+
+@app.route('/ver_recibo/<int:cliente_id>')
+def ver_recibo(cliente_id):
+
+    # Obtener la información de la venta y detalles
+    venta = VentaModel.get_salesById(venta_id)
+    detalles = VentaModel.get_productos_by_sales(venta_id)
+
+    total_venta = sum(d['cantidad'] * d['preciounitario'] for d in detalles)
+   
+    # Renderizamos el template HTML
+    html_string = render_template('Factura.html', venta=venta, detalles=detalles, total_venta=total_venta)
+
+    # Convertir el HTML a PDF
+    css = CSS(string="@page { size: 78mm auto; margin: 0; max-height: 150mm; min-height: 100mm;}")  # Ancho de 80mm
+    pdf = HTML(string=html_string).write_pdf(stylesheets=[css])
+
+    # Crear la respuesta con el PDF en línea
+    response = make_response(pdf)
+    
+    #response.headers['Content-Disposition'] = 'inline; filename=Factura_'+str(venta_id)+'.pdf'
+    response.headers['Content-Disposition'] = f'attachment; filename=Factura_{venta_id}.pdf'
+
+    response.headers['Content-Type'] = 'application/pdf'
+
+    return response
+
 
 #***************************************************************************************************** PARA LOS PRODUCTOS
 @app.route("/GestionProductos")
