@@ -322,3 +322,14 @@ i.logo {
     background-repeat: no-repeat;
     vertical-align: middle; /* Alineación con el texto */
 }
+
+.table-responsive {
+    max-height: 60vh;
+    overflow-x: auto;
+    overflow-y: auto; 
+}
+
+#historialPagoTable th, #historialPagoTable td {
+    vertical-align: middle;
+    white-space: nowrap; /* Evita que el texto se divida en varias líneas */
+}
