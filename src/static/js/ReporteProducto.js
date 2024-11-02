@@ -22,8 +22,8 @@ let salesChart = new Chart(ctx, {
             datalabels: {
                 anchor: 'end',
                 align: 'top',
-                formatter: Math.round,      
-                color: '#333',        
+                formatter: Math.round,
+                color: '#333',
                 font: {
                     weight: 'bold'
                 }
@@ -42,12 +42,17 @@ function updateChart(data) {
     salesChart.data.datasets[0].data = quantities;
     salesChart.update();
 }
+
 // Función para manejar el envío del formulario
 document.getElementById("filterForm").addEventListener("submit", function(event) {
     event.preventDefault();
 
     const mes = document.getElementById("month").value;
     const anio = document.getElementById("year").value;
+
+    // Mostrar el modal de carga
+    initLoadingModal();
+    loadingModal.show();
 
     fetch(`/GestionReportes/Productos?mes=${mes}&anio=${anio}`)
         .then(response => response.json())
@@ -58,10 +63,13 @@ document.getElementById("filterForm").addEventListener("submit", function(event)
                 updateChart(data); 
             } else {
                 alert("No hay datos para el mes y año seleccionados.");
-                updateChart([]);
+                updateChart([]);  // Actualiza con datos vacíos si no hay información
             }
         })
-        .catch(error => console.error("Error al generar el reporte:", error));
+        .catch(error => console.error("Error al generar el reporte:", error))
+        .finally(() => {
+            loadingModal.hide();  // Ocultar el modal de carga
+        });
 });
 
 // Generar opciones de año de forma incremental y seleccionar el año actual
@@ -88,3 +96,22 @@ function selectCurrentMonth() {
 
 populateYearOptions();
 selectCurrentMonth();
+
+// Configuración del modal de carga
+let loadingModal;
+function initLoadingModal() {
+    if (!loadingModal) {
+        loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+    }
+}
+
+// Función para imprimir el reporte
+function printReport() {
+    const printContents = document.querySelector(".container").innerHTML;
+    const originalContents = document.body.innerHTML;
+
+    document.body.innerHTML = printContents;
+    window.print();
+    document.body.innerHTML = originalContents;
+    window.location.reload();
+}
