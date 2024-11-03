@@ -34,6 +34,7 @@ ProductsList = []
 @app.route("/")
 def index():
     if 'username' in session:
+        #print(uuid.uuid4())
         return render_template("index.html", username=session["username"], nameuser=session["nameUser"])
     else:
         return render_template("login.html", username='null')
@@ -126,7 +127,7 @@ def register():
 @login_required
 def logout():
     session.clear()
-    return redirect('/loginL.html')
+    return redirect('/')
 
 #***************************************************************************************************** PARA LAS VENTAS
 @app.route("/GestionVentas")
@@ -165,7 +166,7 @@ def ver_factura(venta_id):
     html_string = render_template('Factura.html', venta=venta, detalles=detalles, total_venta=total_venta)
 
     # Convertir el HTML a PDF
-    css = CSS(string="@page { size: 78mm auto; margin: 0;}")  # Ancho de 80mm
+    css = CSS(string="@page { size: 80mm auto; margin: 0;}")  # Ancho de 80mm
     pdf = HTML(string=html_string).write_pdf(stylesheets=[css])
 
     # Crear la respuesta con el PDF en línea
@@ -189,7 +190,7 @@ def ver_recibo(cliente_id, montoPago, tipoPago):
     html_string = render_template('Recibo.html', cedula=cedula, nombre=nombre, fecha=Fecha, montoPago=montoPago, tipoPago=tipoPago)
 
     # Convertir el HTML a PDF
-    css = CSS(string="@page { size: 78mm auto; margin: 0;}")  # Ancho de 80mm
+    css = CSS(string="@page { size: 80mm auto; margin: 0;}")  # Ancho de 80mm
     pdf = HTML(string=html_string).write_pdf(stylesheets=[css])
 
     # Crear la respuesta con el PDF en línea
@@ -202,6 +203,39 @@ def ver_recibo(cliente_id, montoPago, tipoPago):
 
     return response
 
+@app.route('/ver_ticketCarga')
+def ver_ticket_carga():
+    Fecha = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
+    cantidadProductos = 0
+    productos_json = json.loads(request.args.get('productos'))
+    id = uuid.uuid4()
+
+    for p in productos_json:
+        cantidadProductos += int(p['cantidad'])
+
+    # Renderizamos el template HTML
+    html_string = render_template(
+        'TicketCarga.html', 
+        productos=productos_json, 
+        cantidadProductos=cantidadProductos, 
+        fechaCarga=Fecha
+    )
+
+    # Configura el CSS para el tamaño de 80 mm de ancho
+    css = CSS(string="""
+        @page { width: 80mm; margin: 0; height: auto;} /* 80 mm de ancho y altura auto */
+        body, html { width: 80mm; margin: 2px; padding: 0; height: auto;}
+    """)
+
+    # Genera el PDF
+    pdf = HTML(string=html_string).write_pdf(stylesheets=[css])
+
+    # Crear la respuesta con el PDF en línea
+    response = make_response(pdf)
+    response.headers['Content-Disposition'] = f'attachment; filename=TicketCarga_{id}.pdf'
+    response.headers['Content-Type'] = 'application/pdf'
+
+    return response
 
 #***************************************************************************************************** PARA LOS PRODUCTOS
 @app.route("/GestionProductos")
