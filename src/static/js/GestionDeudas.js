@@ -131,6 +131,7 @@ $(document).ready(function () {
 });
 
 async function imprimirRecibo(clienteId, montoAbono, tipoPago) {
+    showLoadingModal();
     try {
         const response = await fetch(`/ver_recibo/${clienteId}/${montoAbono}/${tipoPago}`, {
             method: 'GET',
@@ -149,7 +150,10 @@ async function imprimirRecibo(clienteId, montoAbono, tipoPago) {
         // Usar FileSaver para forzar la descarga
         saveAs(blob, `Recibo_${clienteId}.pdf`);
 
+        hideLoadingModal();
+
     } catch (error) {
+        hideLoadingModal();
         console.error('Error al descargar el PDF:', error);
     }
 }

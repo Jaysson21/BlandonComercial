@@ -5,6 +5,9 @@ from sqlalchemy.exc import IntegrityError
 from funciones import *
 from datetime import datetime
 from weasyprint import HTML, CSS
+from datetime import datetime
+import pytz
+
 import json
 import uuid
 
@@ -140,12 +143,17 @@ def GestionVentas():
 def saveSale():
     # Obtener los datos de la solicitud
     datos = request.json
+    # Define la zona horaria de Nicaragua
+    nicaragua_timezone = pytz.timezone('America/Managua')
+
+    # Obtiene la hora actual en la zona horaria de Nicaragua
+    nicaragua_time = datetime.now(nicaragua_timezone).strftime('%Y-%m-%d %H:%M:%S.%f')
     
     cliente_id = datos.get('cliente_id')
     usuario_id = session["user_id"]
     tipo_venta = datos.get('tipo_venta')
     productos = datos.get('productos')
-    fechaVenta = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
+    fechaVenta = nicaragua_time
     montoPagoInicial = datos.get('montoPagoInicial')
     observacion = datos.get('observacion')
 
@@ -181,13 +189,20 @@ def ver_factura(venta_id):
 
 @app.route('/ver_recibo/<int:cliente_id>/<montoPago>/<tipoPago>')
 def ver_recibo(cliente_id, montoPago, tipoPago):
-    Fecha = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
+    # Define la zona horaria de Nicaragua
+    nicaragua_timezone = pytz.timezone('America/Managua')
+
+    # Obtiene la hora actual en la zona horaria de Nicaragua
+    nicaragua_time = datetime.now(nicaragua_timezone).strftime('%d-%m-%Y %H:%M:%S')
+
+    Fecha = nicaragua_time
     cliente = ClienteModel.get_clientByID(cliente_id)
     cedula = cliente['cedula']
-    nombre = cliente['nombres']
+    nombre = cliente['nombres']+' '+cliente['apellidos']
+    referencia=str(uuid.uuid4())[:8]
 
     # Renderizamos el template HTML
-    html_string = render_template('Recibo.html', cedula=cedula, nombre=nombre, fecha=Fecha, montoPago=montoPago, tipoPago=tipoPago)
+    html_string = render_template('Recibo.html', cedula=cedula, nombre=nombre, fecha=Fecha, montoPago=montoPago, tipoPago=tipoPago, referencia=referencia)
 
     # Convertir el HTML a PDF
     css = CSS(string="@page { size: 80mm auto; margin: 0;}")  # Ancho de 80mm
@@ -205,7 +220,13 @@ def ver_recibo(cliente_id, montoPago, tipoPago):
 
 @app.route('/ver_ticketCarga')
 def ver_ticket_carga():
-    Fecha = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
+    # Define la zona horaria de Nicaragua
+    nicaragua_timezone = pytz.timezone('America/Managua')
+
+    # Obtiene la hora actual en la zona horaria de Nicaragua
+    nicaragua_time = datetime.now(nicaragua_timezone).strftime('%d-%m-%Y %H:%M:%S')
+
+    Fecha = nicaragua_time
     cantidadProductos = 0
     productos_json = json.loads(request.args.get('productos'))
     id = uuid.uuid4()
