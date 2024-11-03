@@ -29,3 +29,5 @@ virtualenv
 Werkzeug
 psycopg2
 weasyprint
+pytz
+datetime
