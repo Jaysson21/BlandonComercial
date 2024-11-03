@@ -181,9 +181,12 @@ body{
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
         padding: 20px;
         justify-content: center;
-        align-items: center;
-        
-        
+        align-items: center;   
+    }
+
+    .logo-container, 
+    .toggle-panel p {
+        display: none;
     }
 
     .toggle-container {
@@ -206,12 +209,14 @@ body{
     }
 
     .toggle-panel {
-        display: block;
+        display: flex;
         width: 100%;
         padding: 20px;
         box-sizing: border-box;
         text-align: center;
         font-size: 14px;
+        align-items: center;
+        justify-content: center;
     }
 
     .form-container {
@@ -231,5 +236,11 @@ body{
     .container button {
         font-size: 12px;
         padding: 10px 45px;
+    }
+
+    .toggle-panel h1 {
+        text-align: center;
+        width: 100%;
+        margin: 0 auto;
     }
 }
