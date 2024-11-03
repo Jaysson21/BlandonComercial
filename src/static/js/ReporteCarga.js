@@ -9,13 +9,13 @@ function initLoadingModal() {
 }
 
 // Función para establecer la fecha actual por defecto en los inputs de fecha
-window.onload = function() {
+window.onload = function () {
     const today = new Date().toISOString().split('T')[0];
     document.getElementById("startDate").value = today;
 };
 
 // Función para generar el reporte y enviar las fechas al backend
-document.getElementById("filterForm").addEventListener("submit", function(event) {
+document.getElementById("filterForm").addEventListener("submit", function (event) {
     event.preventDefault();
 
     // Inicializar el modal y mostrarlo
@@ -42,7 +42,7 @@ document.getElementById("filterForm").addEventListener("submit", function(event)
                 // Si hay datos, llenar la tabla con los productos
                 data.forEach(item => {
                     const row = document.createElement("tr");
-                    row.innerHTML = `<td>${item.producto}</td><td>${item.total_vendido}</td><td>${item.totalingresos}</td>`;
+                    row.innerHTML = `<td class="Producto">${item.producto}</td><td class="Cantidad">${item.total_vendido}</td><td>${item.totalingresos}</td>`;
                     tableBody.appendChild(row);
                 });
             }
@@ -54,13 +54,77 @@ document.getElementById("filterForm").addEventListener("submit", function(event)
         });
 });
 
-// Función para imprimir el reporte
-function printReport() {
-    const printContents = document.querySelector(".container").innerHTML;
-    const originalContents = document.body.innerHTML;
 
-    document.body.innerHTML = printContents;
-    window.print();
-    document.body.innerHTML = originalContents;
-    window.location.reload();
-}
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Función para imprimir el reporte
+    async function printReport(productos) {
+        showLoadingModal();
+        try {
+            // Realiza la solicitud AJAX
+            $.ajax({
+                url: '/ver_ticketCarga',
+                method: 'GET',
+                data: { productos: JSON.stringify(productos) },
+                xhrFields: {
+                    responseType: 'blob'  // Para recibir la respuesta como blob (PDF)
+                },
+                success: function (blob) {
+                    // Usar FileSaver para descargar el archivo PDF
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'TicketCarga.pdf';
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    hideLoadingModal();
+                },
+                error: function (xhr, status, error) {
+                    hideLoadingModal();
+                    console.error(`Error en la solicitud AJAX: ${error}`);
+                }
+            });
+
+        } catch (error) {
+            hideLoadingModal();
+            console.error('Error al descargar el PDF:', error);
+        }
+    }
+
+    // Asigna el evento sin ejecutar la función inmediatamente
+    $("#btnImpReporteCarga").on('click', function () {
+        let productos = [];
+
+        // Recorre la tabla para obtener los productos y cantidades
+        $('#tableProducts tbody tr').each(function () {
+            const producto = $(this).find('.Producto').text();
+            const cantidad = parseFloat($(this).find('.Cantidad').text());
+
+            if (cantidad > 0) {
+                productos.push({
+                    producto: producto,
+                    cantidad: cantidad
+                });
+            }
+        });
+
+        printReport(productos);
+    });
+
+    function showLoadingModal() {
+        let loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+        loadingModal.show();
+    }
+
+    // Función para ocultar el modal de carga
+    function hideLoadingModal() {
+        let loadingModal = bootstrap.Modal.getInstance(document.getElementById('loadingModal'));
+        if (loadingModal) {
+            loadingModal.hide();
+        }
+    }
+});
+
+
+
