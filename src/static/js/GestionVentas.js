@@ -122,12 +122,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         //agregar busqueda de productos
         $('#contetn-gestProduct').append(`
-        <div class="card-header">Buscar Producto</div>
+        <div class="card-header">Productos</div>
         <div class="card-body">
             <form id="productoForm">
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label for="codigoProducto" class="form-label">Código del Producto</label>
+                        <label for="codigoProducto" class="form-label">Datos del Producto</label>
                         <div class="mb-4">
                             <div id="btn_code">
                                 <input style="width: auto; display: inline;" type="text" id="buscador"

@@ -154,6 +154,16 @@ def saveSale():
 
     return jsonify({"status": "success", "mensaje": "Venta registrada correctamente.", "NumFact":res}), 201
 
+@app.route("/deleteSale/<int:id>", methods=["POST"])
+def deleteSale(id):
+    try:
+        # Eliminar la venta de la base de datos
+        VentaModel.delete_sale(id)
+        return jsonify({'success': True, 'message': 'Venta eliminado exitosamente.'})
+
+    except Exception as e:
+        return jsonify({'success': False, 'message': 'Error: Ha ocurrido un problema al eliminar la venta. ' + str(e)})
+
 @app.route('/ver_factura/<int:venta_id>')
 def ver_factura(venta_id):
     # Obtener la información de la venta y detalles
