@@ -508,6 +508,21 @@ def GestionReporteCarga():
     else:
         return render_template("ReporteCarga.html", username=session["username"], nameuser=session["nameUser"])
 
+@app.route("/GestionReportes/Ventas", methods=["GET"])
+def GestionReporteVenta():
+    fecha_inicio = request.args.get('fecha_inicio')
+    fecha_fin = request.args.get('fecha_fin')
+
+    if fecha_inicio and fecha_fin:
+        ventas_historicas = VentaModel.get_sales_historica(fecha_inicio, fecha_fin)
+        return jsonify(ventas_historicas)
+    
+    elif fecha_inicio and not fecha_fin:
+        ventas_historicas = VentaModel.get_sales_historica(fecha_inicio)
+        return jsonify(ventas_historicas)
+    
+    else:
+        return render_template("ReporteVentas.html", username=session.get("username"), nameuser=session.get("nameUser"))
 #*******************************************************************************************************
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)

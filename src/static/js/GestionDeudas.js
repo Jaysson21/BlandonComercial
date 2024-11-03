@@ -1,3 +1,12 @@
+window.onload = function () {
+    let loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+    loadingModal.show();
+
+    setTimeout(() => {
+        loadingModal.hide();
+    }, 500);  // Tiempo de espera para que la transición se complete
+};
+
 // DOM Elements
 const clientSelect = document.getElementById("customerSelect");
 const paymentHistory = document.getElementById("paymentHistory");

@@ -212,4 +212,40 @@ class VentaModel:
         except Exception as ex:
             db.rollback()  # Revertir en caso de error inesperado
             return jsonify({"status": "error", "message": "Error inesperado al eliminar la venta.", "details": str(ex)}), 500
+        
+    @classmethod
+    def get_sales_historica(cls, fecha_inicio, fecha_fin=None):
+        """Obtener las ventas históricas en una fecha específica o en un rango de fechas"""
+        try:
+            # Verificar si se usa solo fecha de inicio o también fecha fin
+            if fecha_fin:
+                # Llamada a la función almacenada con rango de fechas
+              result = db.execute(
+                    text("SELECT * FROM dbo.listarventashistorica(:fecha_inicio, :fecha_fin)"),
+                    {'fecha_inicio': fecha_inicio, 'fecha_fin': fecha_fin}
+                )
+            else:
+                # Llamada a la función almacenada solo con fecha de inicio
+                result = db.execute(
+                    text("SELECT * FROM dbo.listarventashistorica(:fecha_inicio)"),
+                    {'fecha_inicio': fecha_inicio}
+                )
+
+            # Convertir el resultado a una lista de diccionarios
+            lista_ventas = [
+                {
+                    'ventaid': row[0],
+                    'nombre_cliente': row[1],
+                    'monto_total': float(row[2]),
+                    'fechaventa': row[3].strftime('%d-%m-%Y %H:%M')
+                }
+                for row in result
+            ]
+
+            return lista_ventas
+
+        except Exception as ex:
+            db.rollback()  # Revertir la transacción en caso de error
+            raise Exception(f"Error al obtener ventas históricas: {ex}")
+
 
