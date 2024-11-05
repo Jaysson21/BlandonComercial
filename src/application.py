@@ -521,23 +521,24 @@ def GestionReporteProductos():
     else:
         return render_template("ReporteProductos.html", username=session["username"], nameuser=session["nameUser"])
 
-
 @app.route("/GestionReportes/Carga", methods=["GET"])
 def GestionReporteCarga():
-    fecha_inicio = request.args.get('fecha_inicio')
-    fecha_fin = request.args.get('fecha_fin')
+    fecha_hora_inicio = request.args.get('fecha_hora_inicio')  # Captura la fecha y hora de inicio
+    fecha_fin = request.args.get('fecha_fin')  # Captura la fecha de fin (opcional)
 
-    if fecha_inicio and fecha_fin:
-        # Caso 1: Ambos parámetros están presentes
-        productocarga = ProductoModel.report_carga(fecha_inicio, fecha_fin)
-        return jsonify(productocarga)
-    
-    elif fecha_inicio and not fecha_fin:
-        productocarga = ProductoModel.report_carga2(fecha_inicio)
+    # Si fecha_fin es una cadena vacía, asigna None
+    if not fecha_fin:
+        fecha_fin = None
+
+    if fecha_hora_inicio:
+        # Llamada al modelo con fecha_hora_inicio y fecha_fin (None si no se proporciona fecha de fin)
+        productocarga = ProductoModel.report_carga(fecha_hora_inicio, fecha_fin)
         return jsonify(productocarga)
     
     else:
+        # Caso 2: Parámetros insuficientes
         return render_template("ReporteCarga.html", username=session["username"], nameuser=session["nameUser"])
+
 
 @app.route("/GestionReportes/Ventas", methods=["GET"])
 def GestionReporteVenta():
