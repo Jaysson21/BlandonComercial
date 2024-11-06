@@ -57,11 +57,14 @@ class UsuarioModel():
     @classmethod
     def add_user(self, user):
         try:
+            print(user["clave"])
             # Ejecutar el procedimiento almacenado para crear un usuario
             db.execute(
                 text("CALL dbo.CrearUsuario(:nombre_usuario,:codigo_usuario, :clave, :estado_usuario, :correo)"),
                 {'nombre_usuario': user["nombre_usuario"],'codigo_usuario': user["codigo_usuario"], 'clave': user["clave"], 'estado_usuario':True,'correo': user["correo"]}
             )
+
+            
             # Confirmar la transacción (ya que estamos insertando datos)
             db.commit()
 

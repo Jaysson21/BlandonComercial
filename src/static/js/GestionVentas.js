@@ -2,8 +2,10 @@
 document.addEventListener("DOMContentLoaded", function () {
 
     //Monto total de la venta
-    var montoTotal = 0.00;
+
+    var montoTotal = 0;
     var ClienteID = 0;
+    console.log(montoTotal);
 
     $('#btn-searchClient').on('click', function () {
         const query = $("#cedulaCliente").val();
@@ -218,11 +220,15 @@ document.addEventListener("DOMContentLoaded", function () {
                                         window.location.href = "#containerProducts";
                                         if (document.getElementById("PrecioProducto").value != '' && document.getElementById("CantidadProducto").value != '') {
 
-                                            productPrice = document.getElementById("PrecioProducto").value;
-                                            productQuantity = document.getElementById("CantidadProducto").value;
+                                            productPrice = parseFloat(document.getElementById("PrecioProducto").value);
+                                            productQuantity = parseFloat(document.getElementById("CantidadProducto").value);
+
+
 
                                             //Suma al monto total
-                                            montoTotal = montoTotal + (productPrice * productQuantity);
+                                            montoTotal += (productPrice * productQuantity);
+
+                                            console.log(montoTotal);
 
                                             //Agrega productos a la tabla
                                             $('#tablaProductos').append(
@@ -241,6 +247,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                                             //habilita boton de guardar venta 
                                             //muestra monto total
+                                            console.log(montoTotal);
                                             document.getElementById("montoTotal").textContent = montoTotal;
 
 
@@ -274,28 +281,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 
-    function removeFormProduct() {
-        let ul = document.getElementById("formProduct");
-        // Limpia el <ul> eliminando todos sus elementos hijos
-        while (ul.firstChild) {
-            ul.removeChild(ul.firstChild);
-        }
 
-        const tabla = document.getElementById('tableProducts');
-
-        var filas = tabla.getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
-
-        if (filas > 0) {
-
-            document.getElementById("btnGuardarVenta").removeAttribute("disabled");
-        }
-
-        document.getElementById("buscador").removeAttribute("disabled");
-        document.getElementById("buscador").value = "";
-        document.getElementById('btn-close').remove();
-
-
-    }
 
     // Función para mostrar el modal de carga
     function showLoadingModal() {
@@ -552,29 +538,59 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    function dltProduct(btn, price, quantity) {
-        // Obtener la fila en la que se encuentra el botón
-        const fila = btn.parentNode.parentNode;
-
-        // Obtener la tabla
-        const tabla = document.getElementById('tableProducts');
-
-
-        montoTotal = montoTotal - (price * quantity);
-
-        document.getElementById("montoTotal").textContent = montoTotal;
-
-        // Eliminar la fila de la tabla
-        tabla.deleteRow(fila.rowIndex);
-
-
-        var filas = tabla.getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
-
-        if (filas == 0) {
-            document.getElementById("btnGuardarVenta").setAttribute("disabled", true);
-        }
-    }
     // Ejecutar filtrarClientes en tiempo real mientras el usuario escribe
     document.getElementById("buscarCliente").addEventListener("input", filtrarClientes);
 });
 
+function removeFormProduct() {
+    let ul = document.getElementById("formProduct");
+    // Limpia el <ul> eliminando todos sus elementos hijos
+    while (ul.firstChild) {
+        ul.removeChild(ul.firstChild);
+    }
+
+    const tabla = document.getElementById('tableProducts');
+
+    var filas = tabla.getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+
+    if (filas > 0) {
+
+        document.getElementById("btnGuardarVenta").removeAttribute("disabled");
+    }
+
+    document.getElementById("buscador").removeAttribute("disabled");
+    document.getElementById("buscador").value = "";
+    document.getElementById('btn-close').remove();
+
+
+}
+
+function dltProduct(btn, price, quantity) {
+    // Obtener la fila en la que se encuentra el botón
+    const fila = btn.parentNode.parentNode;
+
+    // Obtener la tabla
+    const tabla = document.getElementById('tableProducts');
+
+    console.log(montoTotal);
+    console.log(price);
+    console.log(quantity);
+
+    montoTotal -= (price * quantity);
+    console.log(montoTotal);
+
+    if (montoTotal == NaN) {
+        montoTotal = 0.00
+    }
+    document.getElementById("montoTotal").textContent = montoTotal;
+
+    // Eliminar la fila de la tabla
+    tabla.deleteRow(fila.rowIndex);
+
+
+    var filas = tabla.getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+
+    if (filas == 0) {
+        document.getElementById("btnGuardarVenta").setAttribute("disabled", true);
+    }
+}

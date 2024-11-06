@@ -529,6 +529,10 @@ def GestionReporteCarga():
     else:
         return render_template("ReporteCarga.html", username=session["username"], nameuser=session["nameUser"])
 
+@app.route("/userRegistro", methods=["GET"])
+def registro():
+    return render_template("registro.html")
+
 @app.route("/GestionReportes/Ventas", methods=["GET"])
 def GestionReporteVenta():
     fecha_inicio = request.args.get('fecha_inicio')
