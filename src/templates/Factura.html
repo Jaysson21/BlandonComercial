@@ -60,7 +60,7 @@
             border-bottom: 1px dashed #000;
         }
 
-        .total h3 {
+        .total h2 {
             font-size: 12px;
             margin: 5px 0;
             border-top: 1px dashed #000;
@@ -80,6 +80,15 @@
         h5 {
             margin-top: 2px;
             margin-bottom: 7px;
+        }
+
+        .total h3 {
+            font-size: 12px;
+            margin: 5px 0;
+            border-top: 1px dashed #000;
+            border-bottom: 1px dashed #000;
+            padding-top: 5px;
+            padding-bottom: 5px;
         }
     </style>
 </head>
@@ -140,8 +149,14 @@
 
     <!-- Total de la Factura -->
     <div class="total">
-        <h3>Total C$: {{total_venta}}</h3>
+        <h2>Total C$: {{total_venta}}</h2>
     </div>
+
+    {% if pagoInicial > 0 %}
+    <div class="total">
+        <h3>Monto Pago Incial C$: {{pagoInicial}}</h3>
+    </div>
+    {% endif %}
 
     <!-- Mensaje de Agradecimiento -->
     <div class="thanks">

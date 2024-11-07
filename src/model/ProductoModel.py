@@ -102,24 +102,28 @@ class ProductoModel():
             return 1
         except Exception as ex:
             raise Exception(ex)
-        
+
+    from sqlalchemy import text
+
     @classmethod
-    def report_carga(cls, fecha_inicio, fecha_fin):
+    def report_carga(cls, fecha_hora_inicio, fecha_fin):
         try:
-            # Ejecutar la función almacenada en PostgreSQL
+            # Ejecutar la función almacenada en PostgreSQL con fecha y hora de inicio y fecha de fin opcional
             result = db.execute(
-                text("SELECT * FROM dbo.reportecarga(:fecha_inicio, :fecha_fin)"),
-                {'fecha_inicio': fecha_inicio, 'fecha_fin': fecha_fin}
+                text("SELECT * FROM dbo.reportecarga(:fecha_hora_inicio, :fecha_fin)"),
+                {'fecha_hora_inicio': fecha_hora_inicio, 'fecha_fin': fecha_fin}
             )
             print("Contenido de result:", result)
+            
             # Convertir el resultado a una lista de diccionarios
             reporte = [{"producto": row[0], "total_vendido": row[1], "totalingresos": row[2]} for row in result]
-
+    
             return reporte
         except Exception as ex:
             db.rollback()  # Revertir si hay algún error
             raise Exception(f"Error al ejecutar el reporte de carga: {ex}")
-        
+
+
     @classmethod
     def report_carga2(cls, fecha_inicio):
         try:

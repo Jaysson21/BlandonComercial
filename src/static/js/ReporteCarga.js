@@ -8,13 +8,12 @@ function initLoadingModal() {
     }
 }
 
-// Función para establecer la fecha actual por defecto en los inputs de fecha
-window.onload = function () {
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById("startDate").value = today;
+window.onload = () => {
+    const nicaraguaDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Managua' }).format(new Date());
+    document.getElementById("startDate").value = nicaraguaDate;
 };
 
-// Función para generar el reporte y enviar las fechas al backend
+// Función para generar el reporte y enviar las fechas y horas al backend
 document.getElementById("filterForm").addEventListener("submit", function (event) {
     event.preventDefault();
 
@@ -22,12 +21,16 @@ document.getElementById("filterForm").addEventListener("submit", function (event
     initLoadingModal();
     loadingModal.show();
 
-    // Obtener las fechas seleccionadas
+    // Obtener la fecha y hora de inicio seleccionadas
     const startDate = document.getElementById("startDate").value;
+    const startTime = document.getElementById("startTime").value;
     const endDate = document.getElementById("endDate").value;
 
-    // Enviar las fechas al backend usando fetch
-    fetch(`/GestionReportes/Carga?fecha_inicio=${startDate}&fecha_fin=${endDate}`)
+    // Combinar fecha y hora de inicio en un solo campo de timestamp
+    const fechaHoraInicio = `${startDate} ${startTime}`;
+
+    // Enviar los datos al backend usando fetch
+    fetch(`/GestionReportes/Carga?fecha_hora_inicio=${fechaHoraInicio}&fecha_fin=${endDate}`)
         .then(response => response.json())
         .then(data => {
             const tableBody = document.getElementById("productReportTable");
@@ -36,7 +39,7 @@ document.getElementById("filterForm").addEventListener("submit", function (event
             if (data.length === 0) {
                 // Si no hay datos, mostrar un mensaje en la tabla
                 const row = document.createElement("tr");
-                row.innerHTML = `<td colspan="3" class="text-center">No se encontraron productos en el rango de fechas seleccionado</td>`;
+                row.innerHTML = `<td colspan="3" class="text-center">No se encontraron productos en el rango seleccionado</td>`;
                 tableBody.appendChild(row);
             } else {
                 // Si hay datos, llenar la tabla con los productos
@@ -53,8 +56,6 @@ document.getElementById("filterForm").addEventListener("submit", function (event
             loadingModal.hide();
         });
 });
-
-
 
 document.addEventListener("DOMContentLoaded", function () {
     // Función para imprimir el reporte

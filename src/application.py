@@ -38,7 +38,8 @@ ProductsList = []
 def index():
     if 'username' in session:
         #print(uuid.uuid4())
-        return render_template("index.html", username=session["username"], nameuser=session["nameUser"])
+        return redirect('/GestionVentas')
+        #return render_template("index.html", username=session["username"], nameuser=session["nameUser"])
     else:
         return render_template("login.html", username='null')
 
@@ -157,21 +158,29 @@ def saveSale():
     montoPagoInicial = datos.get('montoPagoInicial')
     observacion = datos.get('observacion')
 
-
     res = VentaModel.saveSale(cliente_id, usuario_id, tipo_venta, productos,montoPagoInicial, observacion,fechaVenta)
 
     return jsonify({"status": "success", "mensaje": "Venta registrada correctamente.", "NumFact":res}), 201
 
-@app.route('/ver_factura/<int:venta_id>')
-def ver_factura(venta_id):
-    # Obtener la información de la venta y detalles
-    venta = VentaModel.get_salesById(venta_id)
-    detalles = VentaModel.get_productos_by_sales(venta_id)
+@app.route("/deleteSale/<int:id>", methods=["POST"])
+def deleteSale(id):
+    try:
+        # Eliminar la venta de la base de datos
+        VentaModel.delete_sale(id)
+        return jsonify({'success': True, 'message': 'Venta eliminado exitosamente.'})
 
+    except Exception as e:
+        return jsonify({'success': False, 'message': 'Error: Ha ocurrido un problema al eliminar la venta. ' + str(e)})
+
+@app.route('/ver_factura/<int:venta_id>/<int:tienePagoIncial>')
+def ver_factura(venta_id, tienePagoIncial):
+    # Obtener la información de la venta y detalles
+    venta = VentaModel.get_salesById(venta_id, tienePagoIncial)
+    detalles = VentaModel.get_productos_by_sales(venta_id)
+     
     total_venta = sum(d['cantidad'] * d['preciounitario'] for d in detalles)
-   
     # Renderizamos el template HTML
-    html_string = render_template('Factura.html', venta=venta, detalles=detalles, total_venta=total_venta)
+    html_string = render_template('Factura.html', venta=venta, detalles=detalles, total_venta=total_venta, pagoInicial=venta['montoPago'])
 
     # Convertir el HTML a PDF
     css = CSS(string="@page { size: 80mm auto; margin: 0;}")  # Ancho de 80mm
@@ -511,22 +520,22 @@ def GestionReporteProductos():
     else:
         return render_template("ReporteProductos.html", username=session["username"], nameuser=session["nameUser"])
 
-
 @app.route("/GestionReportes/Carga", methods=["GET"])
 def GestionReporteCarga():
-    fecha_inicio = request.args.get('fecha_inicio')
-    fecha_fin = request.args.get('fecha_fin')
+    fecha_hora_inicio = request.args.get('fecha_hora_inicio')  # Captura la fecha y hora de inicio
+    fecha_fin = request.args.get('fecha_fin')  # Captura la fecha de fin (opcional)
 
-    if fecha_inicio and fecha_fin:
-        # Caso 1: Ambos parámetros están presentes
-        productocarga = ProductoModel.report_carga(fecha_inicio, fecha_fin)
-        return jsonify(productocarga)
-    
-    elif fecha_inicio and not fecha_fin:
-        productocarga = ProductoModel.report_carga2(fecha_inicio)
+    # Si fecha_fin es una cadena vacía, asigna None
+    if not fecha_fin:
+        fecha_fin = None
+
+    if fecha_hora_inicio:
+        # Llamada al modelo con fecha_hora_inicio y fecha_fin (None si no se proporciona fecha de fin)
+        productocarga = ProductoModel.report_carga(fecha_hora_inicio, fecha_fin)
         return jsonify(productocarga)
     
     else:
+        # Caso 2: Parámetros insuficientes
         return render_template("ReporteCarga.html", username=session["username"], nameuser=session["nameUser"])
 
 @app.route("/userRegistro", methods=["GET"])

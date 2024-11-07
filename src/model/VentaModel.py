@@ -50,7 +50,7 @@ class VentaModel:
             raise Exception(ex)
         
     @classmethod
-    def get_salesById(self, sale_id):
+    def get_salesById(self, sale_id, tienePagoInicial):
         "Obtener ventas por id"
         try:
             VentaQuery = db.execute(text("SELECT * FROM dbo.ventas WHERE ventaid=:ventaid"), {"ventaid": sale_id}).fetchall()
@@ -58,6 +58,13 @@ class VentaModel:
             db.commit()
 
             cliente = db.execute(text("SELECT * FROM dbo.clientes WHERE clienteid=:clienteid"), {"clienteid": VentaQuery[0][1]}).fetchall()
+            pagoInicial = 0
+
+            if tienePagoInicial == 1:
+                query = text("SELECT * FROM dbo.obtenerpagos(:client_id)")
+                pagos = db.execute(query, {'client_id': cliente[0][0]}).fetchall()
+                pagoInicial = pagos[0][2]
+
 
             tipo_venta=""
 
@@ -74,7 +81,8 @@ class VentaModel:
                     'apellidos' : cliente[0][2],
                     'fechaventa': VentaQuery[0][3].strftime('%d-%m-%Y %H:%M'),
                     'tipoventa': tipo_venta,
-                    'observacion': VentaQuery[0][5]
+                    'observacion': VentaQuery[0][5],
+                    'montoPago': pagoInicial
                 }
             return venta
         except Exception as ex:
@@ -146,14 +154,14 @@ class VentaModel:
         try:
             # Convertir los productos a formato JSON para pasarlos al procedimiento almacenado
             productos_json = json.dumps(productos)  # Serializar la lista de productos como JSON
-            
+        
             # Ejecutar el procedimiento almacenado
             result = db.execute(text("SELECT dbo.registrar_venta(:p_cliente_id, :p_usuario_id, :p_tipo_venta, :p_productos,:p_montoabonado,:p_fechaVenta, :p_observacion)"), {
                 'p_cliente_id': cliente_id,
                 'p_usuario_id': usuario_id,
                 'p_tipo_venta': tipo_venta,
                 'p_productos': productos_json,
-                'p_montoabonado':montoPagoInicial,
+                'p_montoabonado':str(montoPagoInicial),
                 'p_observacion': observacion,
                 'p_fechaVenta':fechaVenta
             })

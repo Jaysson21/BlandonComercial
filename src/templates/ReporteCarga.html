@@ -7,16 +7,20 @@
     <!-- Card principal -->
     <div class="card">
         <div class="card-header">
-            <h5 class="card-title">Filtros de Fecha</h5>
+            <h5 class="card-title">Filtros de Fecha y Hora</h5>
         </div>
         <div class="card-body">
-            <!-- Filtro de rango de fechas -->
+            <!-- Filtro de rango de fechas y hora de inicio -->
             <form id="filterForm">
                 <div class="row mb-4">
+                    <!-- Fecha y hora de inicio -->
                     <div class="col-md-6">
                         <label for="startDate" class="form-label">Fecha de inicio:</label>
                         <input type="date" class="form-control" id="startDate" required>
+                        <label for="startTime" class="form-label mt-2">Hora de inicio:</label>
+                        <input type="time" class="form-control" id="startTime" required>
                     </div>
+                    <!-- Fecha de fin -->
                     <div class="col-md-6">
                         <label for="endDate" class="form-label">Fecha de fin:</label>
                         <input type="date" class="form-control" id="endDate" disabled>
@@ -61,21 +65,21 @@
         <button id="btnImpReporteCarga" type="button" class="btn btn-primary">Imprimir Reporte</button>
     </div>
 </div>
+
 <script>
     document.getElementById('enableEndDate').addEventListener('change', function () {
         const endDate = document.getElementById('endDate');
         const startDate = document.getElementById('startDate');
 
         if (this.checked) {
-            endDate.disabled = false; // Activa el campo "Fecha de fin"
+            endDate.disabled = false;
             endDate.min = startDate.value; // Establece la fecha mínima en "Fecha de fin" en base a "Fecha de inicio"
         } else {
-            endDate.disabled = true; // Desactiva el campo "Fecha de fin"
-            endDate.value = ''; // Limpia el campo "Fecha de fin" si está desactivado
+            endDate.disabled = true;
+            endDate.value = '';
         }
     });
 
-    // Si quieres habilitar el campo automáticamente cuando seleccionas una fecha de inicio
     document.getElementById('startDate').addEventListener('input', function () {
         if (this.value && document.getElementById('enableEndDate').checked) {
             document.getElementById('endDate').min = this.value;

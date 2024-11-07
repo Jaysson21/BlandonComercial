@@ -578,18 +578,17 @@ function eliminarVenta(ventaId) {
                 .then((response) => response.json())
                 .then((data) => {
                     hideLoadingModal();  // Ocultar el modal de carga
-                    if (data.status === "success") {
+                    debugger
+                    if (data.success) {
                         Swal.fire({
                             title: "Venta eliminada exitosamente",
                             icon: "success",
                             showConfirmButton: false,
                             timer: 1000,
                         }).then(() => {
-                            // Recargar la página para actualizar la vista
                             window.location.reload();
                         });
                     } else {
-                        // Mostrar mensaje de error si la eliminación falló
                         Swal.fire({
                             title: "Error",
                             text: data.message,

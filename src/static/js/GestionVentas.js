@@ -1,11 +1,14 @@
+//variables globales
+var montoTotal = 0.00;
+var productQuantity = 0.00;
+var productPrice = 0.00;
+var ClienteID = 0;
+
+// Variable global para almacenar la instancia del modal
+let modalPagoInicialInstance = null;
+
 // Función para realizar la búsqueda con AJAX
 document.addEventListener("DOMContentLoaded", function () {
-
-    //Monto total de la venta
-
-    var montoTotal = 0;
-    var ClienteID = 0;
-    console.log(montoTotal);
 
     $('#btn-searchClient').on('click', function () {
         const query = $("#cedulaCliente").val();
@@ -124,12 +127,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         //agregar busqueda de productos
         $('#contetn-gestProduct').append(`
-        <div class="card-header">Buscar Producto</div>
+        <div class="card-header">Productos</div>
         <div class="card-body">
             <form id="productoForm">
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label for="codigoProducto" class="form-label">Código del Producto</label>
+                        <label for="codigoProducto" class="form-label">Datos del Producto</label>
                         <div class="mb-4">
                             <div id="btn_code">
                                 <input style="width: auto; display: inline;" type="text" id="buscador"
@@ -185,8 +188,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                     let productoID = this.getAttribute("data-id");
                                     let productName = this.getAttribute("data-name");
                                     let productDescripcion = this.getAttribute("data-description");
-                                    let productQuantity = "";
-                                    let productPrice = "";
+
 
 
                                     $('#listaResultados').empty();
@@ -228,8 +230,6 @@ document.addEventListener("DOMContentLoaded", function () {
                                             //Suma al monto total
                                             montoTotal += (productPrice * productQuantity);
 
-                                            console.log(montoTotal);
-
                                             //Agrega productos a la tabla
                                             $('#tablaProductos').append(
                                                 `
@@ -247,8 +247,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                                             //habilita boton de guardar venta 
                                             //muestra monto total
-                                            console.log(montoTotal);
-                                            document.getElementById("montoTotal").textContent = montoTotal;
+                                            $("#montoTotal").text(montoTotal);
 
 
                                             removeFormProduct();
@@ -289,11 +288,6 @@ document.addEventListener("DOMContentLoaded", function () {
         loadingModal.show();
     }
 
-    function showErrorgModal() {
-        let loadingModal = new bootstrap.Modal(document.getElementById('errorModal'));
-        loadingModal.show();
-    }
-
     // Función para ocultar el modal de carga
     function hideLoadingModal() {
         let loadingModal = bootstrap.Modal.getInstance(document.getElementById('loadingModal'));
@@ -302,19 +296,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    function showModalPagoInicial() {
-        let modalPagoInicial = new bootstrap.Modal(document.getElementById("modalPagoInicial"));
-        modalPagoInicial.show();
-    }
-
-    function hideModalPagoInicial() {
-        let modalPagoInicial = bootstrap.Modal.getInstance(document.getElementById("modalPagoInicial"));
-
-        if (modalPagoInicial) {
-            modalPagoInicial.hide();
-        }
-
-    }
 
     function showModaTipoVenta() {
         let modalTipoVenta = new bootstrap.Modal(document.getElementById("modalTipoVenta"));
@@ -334,77 +315,65 @@ document.addEventListener("DOMContentLoaded", function () {
     $('#btnGuardarVenta').on('click', function () {
         Swal.fire({
             title: '¿Desea realizar un pago inicial?',
-            showDenyButton: false,
-            showCancelButton: true,
-            confirmButtonText: 'Si'
+            showDenyButton: true,             // Habilita el botón "No"
+            showCancelButton: true,           // Habilita el botón "Cancelar"
+            confirmButtonText: 'Sí',          // Texto del botón "Sí"
+            denyButtonText: 'No',             // Texto del botón "No"
+            cancelButtonText: 'Cancelar',     // Texto del botón "Cancelar"
+            confirmButtonColor: '#3085d6',
+            denyButtonColor: '#d33',
+            cancelButtonColor: '#aaa'
         }).then((result) => {
-            /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
-                // Recoger los datos del formulario
+                // Si elige "Sí", recoge los datos del formulario y realiza la acción
                 const cliente_id = ClienteID;
                 const usuario_id = 0;
-                const tipo_venta = $('#selectTipoVenta').val(); // Radio button
+                const tipo_venta = $('#selectTipoVenta').val();
                 const pagoInicial = 0;
                 const observacion = $('#observacion').val();
-
-                console.log(tipo_venta);
 
                 if (tipo_venta == "Credito") {
                     showModalPagoInicial();
                 } else {
-                    succesSale(cliente_id,
-                        usuario_id,
-                        tipo_venta,
-                        pagoInicial,
-                        observacion);
+                    succesSale(cliente_id, usuario_id, tipo_venta, pagoInicial, observacion);
                 }
 
-                $('#guardarVenta').on('click', function () {
-
-                    if ($("#pagoInicial").val().length >= 1 && parseFloat($("#pagoInicial").val()) > 0) {
-                        hideModalPagoInicial();
-                        // Recoger los datos del formulario
-                        const cliente_id = ClienteID;
-                        const usuario_id = 0;
-                        const tipo_venta = $('#selectTipoVenta').val(); // Radio button
-                        const pagoInicial = $("#pagoInicial").val();
-                        const observacion = $('#observacion').val();
-
-                        succesSale(cliente_id,
-                            usuario_id,
-                            tipo_venta,
-                            pagoInicial,
-                            observacion);
-                    } else {
-                        document.getElementById("pagoInicial").style.borderColor = "red";
-                        document.getElementById("msgPagoInicial").style.color = "red";
-                        document.getElementById("msgPagoInicial").textContent = 'El pago inicial debe ser mayor a cero';
-                    }
-                });
             } else if (result.isDenied) {
-                // Recoger los datos del formulario
+                // Si elige "No", realiza la venta sin pago inicial
                 const cliente_id = ClienteID;
                 const usuario_id = 0;
-                const tipo_venta = $('#selectTipoVenta').val(); // Radio button
+                const tipo_venta = $('#selectTipoVenta').val();
                 const pagoInicial = 0;
                 const observacion = $('#observacion').val();
 
-                if (tipo_venta == "Credito") {
-                    showModalPagoInicial();
-                } else {
-                    succesSale(cliente_id,
-                        usuario_id,
-                        tipo_venta,
-                        pagoInicial,
-                        observacion);
-                }
 
+                succesSale(cliente_id, usuario_id, tipo_venta, pagoInicial, observacion);
+
+
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                // Acción opcional cuando el usuario cancela
+                console.log("El usuario canceló la acción.");
             }
-        })
+        });
 
 
+    });
 
+    $('#guardarVenta').on('click', function () {
+        if ($("#pagoInicial").val().length >= 1 && parseFloat($("#pagoInicial").val()) > 0) {
+            hideModalPagoInicial();
+            const cliente_id = ClienteID;
+            const usuario_id = 0;
+            const tipo_venta = $('#selectTipoVenta').val();
+            const pagoInicial = $("#pagoInicial").val();
+            const observacion = $('#observacion').val();
 
+            succesSale(cliente_id, usuario_id, tipo_venta, pagoInicial, observacion);
+        } else {
+            document.getElementById("pagoInicial").style.borderColor = "red";
+            document.getElementById("msgPagoInicial").style.color = "red";
+            document.getElementById("msgPagoInicial").textContent = 'El pago inicial debe ser mayor a cero';
+        }
     });
 
     function succesSale(cliente_id,
@@ -469,7 +438,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     }).then(() => {
                         hideLoadingModal();
                         // Recargar la página después de eliminar
-                        abrirFacturaParaImprimir(response.NumFact);
+                        if (pagoInicial > 0) {
+                            abrirFacturaParaImprimir(response.NumFact, 1);
+                        } else {
+                            abrirFacturaParaImprimir(response.NumFact, 2);
+                        }
+
 
                     });
                 } else {
@@ -495,11 +469,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     }
 
-    async function abrirFacturaParaImprimir(ventaId) {
+    async function abrirFacturaParaImprimir(ventaId, tienePagoInicial) {
         try {
             showLoadingModal();
 
-            const response = await fetch(`/ver_factura/${ventaId}`, {
+            const response = await fetch(`/ver_factura/${ventaId}/${tienePagoInicial}`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/pdf',
@@ -542,6 +516,23 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("buscarCliente").addEventListener("input", filtrarClientes);
 });
 
+function showModalPagoInicial() {
+    // Verifica si ya existe una instancia
+    if (!modalPagoInicialInstance) {
+        // Crea la instancia solo si no existe
+        modalPagoInicialInstance = new bootstrap.Modal(document.getElementById("modalPagoInicial"));
+    }
+    // Muestra el modal usando la instancia existente
+    modalPagoInicialInstance.show();
+}
+
+function hideModalPagoInicial() {
+    // Usa la instancia global si existe
+    if (modalPagoInicialInstance) {
+        modalPagoInicialInstance.hide();
+    }
+}
+
 function removeFormProduct() {
     let ul = document.getElementById("formProduct");
     // Limpia el <ul> eliminando todos sus elementos hijos
@@ -572,17 +563,10 @@ function dltProduct(btn, price, quantity) {
     // Obtener la tabla
     const tabla = document.getElementById('tableProducts');
 
-    console.log(montoTotal);
-    console.log(price);
-    console.log(quantity);
+    console.log((price * quantity));
+    montoTotal -= parseFloat(price * quantity);
 
-    montoTotal -= (price * quantity);
-    console.log(montoTotal);
-
-    if (montoTotal == NaN) {
-        montoTotal = 0.00
-    }
-    document.getElementById("montoTotal").textContent = montoTotal;
+    $("#montoTotal").text(montoTotal);
 
     // Eliminar la fila de la tabla
     tabla.deleteRow(fila.rowIndex);
