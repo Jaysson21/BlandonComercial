@@ -74,7 +74,8 @@ class DeudaModel:
         except Exception as ex:
             db.rollback()
             raise Exception(f"Error obteniendo los productos de la venta: {ex}")
-        
+
+    #Registrar un pago sobre una Deuda   
     @classmethod
     def registrar_pago(cls, clienteid, montoabono):
         try:
@@ -125,5 +126,28 @@ class DeudaModel:
             )
             db.commit()
             return 1
+        except Exception as ex:
+            raise Exception(ex)
+    
+    @classmethod
+    def get_debts_report(self):
+        "Obtener todas las deudas"
+        try:
+            ListaDeudas = []
+            deudas = db.execute(text("SELECT * FROM dbo.obtenerdeudasmonto()")).fetchall()
+            db.commit()
+
+            # Formatear los resultados en una lista
+            for deuda in deudas:
+                ListaDeudas.append({
+                    'deudaid': deuda[0],
+                    'ventaid': deuda[1],
+                    'nombrescompleto' : deuda[2],
+                    'montodeuda': float(deuda[3]),
+                    'fechadeuda': deuda[4].strftime('%d-%m-%Y %H:%M'),
+                    'estadodeuda': deuda[5],
+                    'diasdeuda' : deuda[6]
+                })
+            return ListaDeudas
         except Exception as ex:
             raise Exception(ex)

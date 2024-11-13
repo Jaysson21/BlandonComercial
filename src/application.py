@@ -539,8 +539,9 @@ def GestionReporteCarga():
     if fecha_hora_inicio:
         # Llamada al modelo con fecha_hora_inicio y fecha_fin (None si no se proporciona fecha de fin)
         productocarga = ProductoModel.report_carga(fecha_hora_inicio, fecha_fin)
+        print(productocarga)
         return jsonify(productocarga)
-    
+        
     else:
         # Caso 2: Parámetros insuficientes
         return render_template("ReporteCarga.html", username=session["username"], nameuser=session["nameUser"])
@@ -564,6 +565,31 @@ def GestionReporteVenta():
     
     else:
         return render_template("ReporteVentas.html", username=session.get("username"), nameuser=session.get("nameUser"))
+    
+@app.route("/GestionReportes/Deudas")
+def GestionReportesDeudas():
+    deudas = DeudaModel.get_debts_report()
+    total_deuda = sum(deuda["montodeuda"] for deuda in deudas)
+    return render_template("ReporteDeudas.html", username=session["username"], deudas=deudas, total_deuda=total_deuda, nameuser=session["nameUser"])
+
+@app.route("/GestionReportes/Utilidades")
+def GestionReportesUtilidades():
+    fecha_hora_inicio = request.args.get('fecha_inicio')  # Captura la fecha y hora de inicio
+    fecha_fin = request.args.get('fecha_fin')  # Captura la fecha de fin (opcional)
+
+    # Si fecha_fin es una cadena vacía, asigna None
+    if not fecha_fin:
+        fecha_fin = None
+
+    if fecha_hora_inicio:
+        # Llamada al modelo con fecha_hora_inicio y fecha_fin (None si no se proporciona fecha de fin)
+        productocarga = ProductoModel.report_carga(fecha_hora_inicio, fecha_fin)
+        print(productocarga)
+        return jsonify(productocarga)
+        
+    else:
+        # Caso 2: Parámetros insuficientes
+        return render_template("ReporteUtilidades.html", username=session["username"], nameuser=session["nameUser"])
 #*******************************************************************************************************
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)

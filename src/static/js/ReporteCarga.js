@@ -23,26 +23,26 @@ document.getElementById("filterForm").addEventListener("submit", function (event
 
     // Obtener la fecha y hora de inicio seleccionadas
     const startDate = document.getElementById("startDate").value;
-    const startTime = document.getElementById("startTime").value;
     const endDate = document.getElementById("endDate").value;
 
     // Combinar fecha y hora de inicio en un solo campo de timestamp
-    const fechaHoraInicio = `${startDate} ${startTime}`;
+    
 
     // Enviar los datos al backend usando fetch
-    fetch(`/GestionReportes/Carga?fecha_hora_inicio=${fechaHoraInicio}&fecha_fin=${endDate}`)
+    fetch(`/GestionReportes/Carga?fecha_hora_inicio=${startDate}&fecha_fin=${endDate}`)
         .then(response => response.json())
         .then(data => {
             const tableBody = document.getElementById("productReportTable");
             tableBody.innerHTML = ""; // Limpiar contenido de la tabla
-
+            debugger
+            console.log(data)
             if (data.length === 0) {
                 // Si no hay datos, mostrar un mensaje en la tabla
                 const row = document.createElement("tr");
                 row.innerHTML = `<td colspan="3" class="text-center">No se encontraron productos en el rango seleccionado</td>`;
                 tableBody.appendChild(row);
             } else {
-                // Si hay datos, llenar la tabla con los productos
+                
                 data.forEach(item => {
                     const row = document.createElement("tr");
                     row.innerHTML = `<td class="Producto">${item.producto}</td><td class="Cantidad">${item.total_vendido}</td><td>${item.totalingresos}</td>`;
