@@ -50,6 +50,31 @@ class VentaModel:
             raise Exception(ex)
         
     @classmethod
+    def get_salesPending(self):
+        "Obtener todas las ventas pendientes de entrega"
+        try:
+            ListaVentas = []
+            ventas = db.execute(text("SELECT * FROM dbo.obtenerventaspendientes()")).fetchall()
+            db.commit()
+
+            # Formatear los resultados en una lista
+            for venta in ventas:
+                ListaVentas.append({
+                    'ventaid': venta[0],
+                    'clienteid': venta[1],
+                    'nombres' : venta[2],
+                    'apellidos' : venta[3],
+                    'fechaventa': venta[4].strftime('%d-%m-%Y %H:%M'),
+                    'tipoventa': venta[5],
+                    'observacion': venta[6],
+                    'estadoventa': venta[7],
+                    'montoventa': venta[8]
+                })
+            return ListaVentas
+        except Exception as ex:
+            raise Exception(ex)
+        
+    @classmethod
     def get_salesById(self, sale_id, tienePagoInicial):
         "Obtener ventas por id"
         try:
@@ -150,19 +175,25 @@ class VentaModel:
 
 
     @staticmethod
-    def saveSale(cliente_id, usuario_id, tipo_venta, productos,montoPagoInicial, observacion, fechaVenta):
+    def saveSale(cliente_id, usuario_id, tipo_venta, tipo_entrega, productos,montoPagoInicial, observacion, fechaVenta):
+        estado_venta = 1
+
         try:
+            #Valida si es un encargo y lo pone en estado pendiente
+            if tipo_entrega == 'Encargo':
+                estado_venta=3
             # Convertir los productos a formato JSON para pasarlos al procedimiento almacenado
             productos_json = json.dumps(productos)  # Serializar la lista de productos como JSON
         
             # Ejecutar el procedimiento almacenado
-            result = db.execute(text("SELECT dbo.registrar_venta(:p_cliente_id, :p_usuario_id, :p_tipo_venta, :p_productos,:p_montoabonado,:p_fechaVenta, :p_observacion)"), {
+            result = db.execute(text("SELECT dbo.registrar_venta(:p_cliente_id, :p_usuario_id, :p_tipo_venta, :p_productos,:p_montoabonado,:p_fechaVenta, :p_estado_venta, :p_observacion)"), {
                 'p_cliente_id': cliente_id,
                 'p_usuario_id': usuario_id,
                 'p_tipo_venta': tipo_venta,
                 'p_productos': productos_json,
                 'p_montoabonado':str(montoPagoInicial),
                 'p_observacion': observacion,
+                'p_estado_venta': estado_venta,
                 'p_fechaVenta':fechaVenta
             })
 
@@ -255,5 +286,18 @@ class VentaModel:
         except Exception as ex:
             db.rollback()  # Revertir la transacción en caso de error
             raise Exception(f"Error al obtener ventas históricas: {ex}")
+
+    @classmethod
+    def deliverOrder(cls, ventaid):
+        "Actualizar el estado de una venta específica a estado 1 (entregada)"
+        try:
+            # Ejecutar la consulta de actualización
+            db.execute(text("UPDATE dbo.ventas SET estadoventa = 1 WHERE ventaid = :ventaid"), {'ventaid': ventaid})
+            db.commit()
+            return True
+        except Exception as ex:
+            db.rollback()  # Revertir cambios en caso de error
+            return jsonify({"status": "error", "mensaje": "Error al procesar la entrega: " + str(ex)}), 500
+    
 
 

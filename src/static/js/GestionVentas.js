@@ -313,48 +313,54 @@ document.addEventListener("DOMContentLoaded", function () {
 
     //Guardar ventas
     $('#btnGuardarVenta').on('click', function () {
-        Swal.fire({
-            title: '¿Desea realizar un pago inicial?',
-            showDenyButton: true,             // Habilita el botón "No"
-            showCancelButton: true,           // Habilita el botón "Cancelar"
-            confirmButtonText: 'Sí',          // Texto del botón "Sí"
-            denyButtonText: 'No',             // Texto del botón "No"
-            cancelButtonText: 'Cancelar',     // Texto del botón "Cancelar"
-            confirmButtonColor: '#3085d6',
-            denyButtonColor: '#d33',
-            cancelButtonColor: '#aaa'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Si elige "Sí", recoge los datos del formulario y realiza la acción
-                const cliente_id = ClienteID;
-                const usuario_id = 0;
-                const tipo_venta = $('#selectTipoVenta').val();
-                const pagoInicial = 0;
-                const observacion = $('#observacion').val();
 
-                if (tipo_venta == "Credito") {
+        if ($('#selectTipoVenta').val() == "Contado") {
+            const cliente_id = ClienteID;
+            const usuario_id = 0;
+            const tipo_venta = $('#selectTipoVenta').val();
+            const tipo_entrega = $('#selectTipoEntrega').val();
+            const pagoInicial = 0;
+            const observacion = $('#observacion').val();
+
+            succesSale(cliente_id, usuario_id, tipo_venta, tipo_entrega, pagoInicial, observacion);
+        } else {
+            Swal.fire({
+                title: '¿Desea realizar un pago inicial?',
+                showDenyButton: true,             // Habilita el botón "No"
+                showCancelButton: true,           // Habilita el botón "Cancelar"
+                confirmButtonText: 'Sí',          // Texto del botón "Sí"
+                denyButtonText: 'No',             // Texto del botón "No"
+                cancelButtonText: 'Cancelar',     // Texto del botón "Cancelar"
+                confirmButtonColor: '#3085d6',
+                denyButtonColor: '#d33',
+                cancelButtonColor: '#aaa'
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+
                     showModalPagoInicial();
-                } else {
-                    succesSale(cliente_id, usuario_id, tipo_venta, pagoInicial, observacion);
+
+
+                } else if (result.isDenied) {
+                    // Si elige "No", realiza la venta sin pago inicial
+                    const cliente_id = ClienteID;
+                    const usuario_id = 0;
+                    const tipo_venta = $('#selectTipoVenta').val();
+                    const tipo_entrega = $('#selectTipoEntrega').val();
+                    const pagoInicial = 0;
+                    const observacion = $('#observacion').val();
+
+
+                    succesSale(cliente_id, usuario_id, tipo_venta, tipo_entrega, pagoInicial, observacion);
+
+
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    // Acción opcional cuando el usuario cancela
+                    console.log("El usuario canceló la acción.");
                 }
+            });
+        }
 
-            } else if (result.isDenied) {
-                // Si elige "No", realiza la venta sin pago inicial
-                const cliente_id = ClienteID;
-                const usuario_id = 0;
-                const tipo_venta = $('#selectTipoVenta').val();
-                const pagoInicial = 0;
-                const observacion = $('#observacion').val();
-
-
-                succesSale(cliente_id, usuario_id, tipo_venta, pagoInicial, observacion);
-
-
-            } else if (result.dismiss === Swal.DismissReason.cancel) {
-                // Acción opcional cuando el usuario cancela
-                console.log("El usuario canceló la acción.");
-            }
-        });
 
 
     });
@@ -365,10 +371,11 @@ document.addEventListener("DOMContentLoaded", function () {
             const cliente_id = ClienteID;
             const usuario_id = 0;
             const tipo_venta = $('#selectTipoVenta').val();
+            const tipo_entrega = $('#selectTipoEntrega').val();
             const pagoInicial = $("#pagoInicial").val();
             const observacion = $('#observacion').val();
 
-            succesSale(cliente_id, usuario_id, tipo_venta, pagoInicial, observacion);
+            succesSale(cliente_id, usuario_id, tipo_venta, tipo_entrega, pagoInicial, observacion);
         } else {
             document.getElementById("pagoInicial").style.borderColor = "red";
             document.getElementById("msgPagoInicial").style.color = "red";
@@ -379,6 +386,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function succesSale(cliente_id,
         usuario_id,
         tipo_venta,
+        tipo_entrega,
         pagoInicial,
         observacion) {
         showLoadingModal();
@@ -415,6 +423,7 @@ document.addEventListener("DOMContentLoaded", function () {
             cliente_id: cliente_id,
             usuario_id: usuario_id,
             tipo_venta: tipo_venta,
+            tipo_entrega: tipo_entrega,
             productos: productos,
             montoPagoInicial: pagoInicial,
             observacion: observacion

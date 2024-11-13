@@ -137,8 +137,14 @@ def logout():
 @app.route("/GestionVentas")
 def GestionVentas():
     clientes = ClienteModel.get_clients()
+    ventas_pendientes = VentaModel.get_salesPending()
     actualizar_listaProd()
-    return render_template("GestionVentas.html", username=session["username"], clientes=clientes, nameuser=session["nameUser"])
+    return render_template("GestionVentas.html", username=session["username"], clientes=clientes, nameuser=session["nameUser"], pendienteEntregas=ventas_pendientes)
+
+@app.route("/deliverOrder/<int:ventaid>", methods=["POST", "GET"])
+def deliverOrder(ventaid):
+    VentaModel.deliverOrder(ventaid)
+    return jsonify({"status": "success", "mensaje": "pedido entregado correctamente."}), 201
 
 @app.route("/saveSale", methods=["POST", "GET"])
 def saveSale():
@@ -153,12 +159,13 @@ def saveSale():
     cliente_id = datos.get('cliente_id')
     usuario_id = session["user_id"]
     tipo_venta = datos.get('tipo_venta')
+    tipo_entrega = datos.get('tipo_entrega')
     productos = datos.get('productos')
     fechaVenta = nicaragua_time
     montoPagoInicial = datos.get('montoPagoInicial')
     observacion = datos.get('observacion')
 
-    res = VentaModel.saveSale(cliente_id, usuario_id, tipo_venta, productos,montoPagoInicial, observacion,fechaVenta)
+    res = VentaModel.saveSale(cliente_id, usuario_id, tipo_venta, tipo_entrega, productos,montoPagoInicial, observacion,fechaVenta)
 
     return jsonify({"status": "success", "mensaje": "Venta registrada correctamente.", "NumFact":res}), 201
 

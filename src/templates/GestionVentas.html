@@ -11,8 +11,8 @@
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="ventas-pendientes-tab" data-bs-toggle="tab" data-bs-target="#ventas-pendientes"
-                type="button" role="tab" aria-controls="ventas-pendientes" aria-selected="false">Ventas
-                Pendientes</button>
+                type="button" role="tab" aria-controls="ventas-pendientes" aria-selected="false">Pendiente de
+                Entrega</button>
         </li>
     </ul>
 
@@ -29,52 +29,42 @@
             <div class="card mt-4">
                 <div class="card-header">Ventas Pendientes de Entrega</div>
                 <div class="card-body">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Cliente</th>
-                                <th>Fecha de Venta</th>
-                                <th>Monto Total</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ventasPendientesTableBody">
-                            <!-- Las filas de ventas pendientes se generarán dinámicamente con JavaScript -->
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>#Factura</th>
+                                    <th>Cliente</th>
+                                    <th>Fecha de Venta</th>
+                                    <th>Monto Total</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ventasPendientesTableBody">
+                                {% for v in pendienteEntregas %}
+                                <tr>
+                                    <td>{{v.ventaid}}</td>
+                                    <td>{{v.nombres}} {{v.apellidos}}</td>
+                                    <td>{{v.fechaventa}}</td>
+                                    <td>C$ {{v.montoventa}}</td>
+                                    <td><button class="btn btn-success btn-sm"
+                                            onclick="entregarVenta('{{v.nombres}}',{{v.ventaid}})">Entregar</button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
+
     </div>
 </div>
 
 <script>
-    // Función para cargar ventas pendientes (puede ser una función AJAX para obtener datos del servidor)
-    function cargarVentasPendientes() {
-        // Ejemplo de datos de ventas pendientes (esto debería venir de una solicitud AJAX en la vida real)
-        const ventasPendientes = [
-            { cliente: "Juan Pérez", fecha: "2024-11-05", monto: 1500.00 },
-            { cliente: "Ana Gómez", fecha: "2024-11-04", monto: 2300.00 }
-        ];
-
-        // Seleccionar el cuerpo de la tabla
-        const tableBody = document.getElementById("ventasPendientesTableBody");
-        tableBody.innerHTML = ""; // Limpiar el contenido
-
-        ventasPendientes.forEach(venta => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td>${venta.cliente}</td>
-                <td>${venta.fecha}</td>
-                <td>C$ ${venta.monto.toFixed(2)}</td>
-                <td><button class="btn btn-success btn-sm" onclick="entregarVenta('${venta.cliente}')">Entregar</button></td>
-            `;
-            tableBody.appendChild(row);
-        });
-    }
-
     // Función para marcar una venta como entregada
-    function entregarVenta(cliente) {
+    function entregarVenta(cliente, ventaid) {
         Swal.fire({
             title: `¿Confirmas la entrega para ${cliente}?`,
             icon: 'question',
@@ -83,14 +73,49 @@
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Aquí puedes llamar a una función para actualizar el estado de la venta a "Entregada"
-                Swal.fire('Entregado!', `La venta de ${cliente} ha sido marcada como entregada.`, 'success');
+
+                // Enviar la solicitud AJAX al servidor
+                $.ajax({
+                    url: '/deliverOrder/' + ventaid, // URL donde está tu ruta para guardar la venta
+                    method: 'POST',
+                    contentType: 'application/json',
+                    success: function (response) {
+                        if (response.status === 'success') {
+                            //hideLoadingModal();
+                            // Mostrar SweetAlert de éxito y recargar la página
+                            Swal.fire({
+                                title: `La venta de ${cliente} ha sido marcada como entregada.`,
+                                icon: "success",
+                                showConfirmButton: false,
+                                timer: 1000,
+                            })
+
+                            location.reload(true);
+                        } else {
+                            // Si hubo un error, mostrar el mensaje de error
+                            Swal.fire({
+                                title: "Error en entrega",
+                                text: data.message,
+                                icon: "error",
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        //hideLoadingModal();
+                        Swal.fire({
+                            title: "Error en venta",
+                            text: 'Ocurrió un error al registrar la venta. Inténtalo de nuevo',
+                            icon: "error",
+                        });
+                    }
+                });
+
+
+
             }
         });
     }
 
-    // Cargar ventas pendientes cuando se carga la pestaña correspondiente
-    document.getElementById('ventas-pendientes-tab').addEventListener('shown.bs.tab', cargarVentasPendientes);
 </script>
 <script src="{{url_for('static', filename='js/GestionVentas.js')}}"></script>
 {% endblock %}

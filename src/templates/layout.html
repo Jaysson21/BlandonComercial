@@ -383,11 +383,18 @@
                 </div>
                 <div class="modal-body">
                     <form id="formVenta">
-                        <div class="mb-3" id="pagoInicialContainer">
-                            <label for="pagoInicial" class="form-label">Tipo de venta: </label>
+                        <div class="mb-3">
+                            <label for="selectTipoVenta" class="form-label">Tipo de venta: </label>
                             <Select class="form-select" name="selectTipoVenta" id="selectTipoVenta">
                                 <option value="Credito">Credito</option>
                                 <option value="Contado">Contado</option>
+                            </Select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="selectTipoEntrega" class="form-label">Tipo de entrega: </label>
+                            <Select class="form-select" name="selectTipoEntrega" id="selectTipoEntrega">
+                                <option value="Inmediata">Inmediata</option>
+                                <option value="Encargo">Encargo</option>
                             </Select>
                         </div>
                     </form>
