@@ -47,6 +47,7 @@ document.getElementById("filterForm").addEventListener("submit", function(event)
                         <td>${sale.ventaid}</td>
                         <td>${sale.nombre_cliente}</td>
                         <td>C$${sale.monto_total.toFixed(2)}</td>
+                        <td>${sale.estadoventa}</td>
                         <td>${sale.fechaventa}</td>
                     `;
                     tableBody.appendChild(row);
