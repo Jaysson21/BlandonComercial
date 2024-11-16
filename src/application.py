@@ -181,16 +181,28 @@ def deleteSale(id):
 
 @app.route('/ver_factura/<int:venta_id>/<int:tienePagoIncial>')
 def ver_factura(venta_id, tienePagoIncial):
+    alturaFactura = 100 #altura inicial factura 100mm
+
     # Obtener la información de la venta y detalles
     venta = VentaModel.get_salesById(venta_id, tienePagoIncial)
     detalles = VentaModel.get_productos_by_sales(venta_id)
      
     total_venta = sum(d['cantidad'] * d['preciounitario'] for d in detalles)
+
+
+    for d in detalles:
+        alturaFactura += 2
+
+    print('tamaño factura:'+str(alturaFactura))
     # Renderizamos el template HTML
     html_string = render_template('Factura.html', venta=venta, detalles=detalles, total_venta=total_venta, pagoInicial=venta['montoPago'])
 
     # Convertir el HTML a PDF
-    css = CSS(string="@page { size: 80mm auto; margin: 0;}")  # Ancho de 80mm
+    css = CSS(string="""
+              @page { width: 80mm; margin: 0; height:"""+str(alturaFactura)+"""mm; crop: none;}
+              body, html { width: 80mm; margin: 2px; padding: 0; height: auto;}
+              """)
+ 
     pdf = HTML(string=html_string).write_pdf(stylesheets=[css])
 
     # Crear la respuesta con el PDF en línea
@@ -221,7 +233,10 @@ def ver_recibo(cliente_id, montoPago, tipoPago):
     html_string = render_template('Recibo.html', cedula=cedula, nombre=nombre, fecha=Fecha, montoPago=montoPago, tipoPago=tipoPago, referencia=referencia)
 
     # Convertir el HTML a PDF
-    css = CSS(string="@page { size: 80mm auto; margin: 0;}")  # Ancho de 80mm
+    css = CSS(string="""
+              @page { size: 80mm auto; margin: 0;}
+              body, html { width: 80mm; margin: 2px; padding: 0; height: auto;}
+              """)  # Ancho de 80mm
     pdf = HTML(string=html_string).write_pdf(stylesheets=[css])
 
     # Crear la respuesta con el PDF en línea
@@ -236,6 +251,8 @@ def ver_recibo(cliente_id, montoPago, tipoPago):
 
 @app.route('/ver_ticketCarga')
 def ver_ticket_carga():
+    alturaTicket = 50 #cantidad inicial de 50mm
+
     # Define la zona horaria de Nicaragua
     nicaragua_timezone = pytz.timezone('America/Managua')
 
@@ -250,6 +267,8 @@ def ver_ticket_carga():
     for p in productos_json:
         cantidadProductos += int(p['cantidad'])
 
+    alturaTicket = alturaTicket + ( cantidadProductos * 2 )
+
     # Renderizamos el template HTML
     html_string = render_template(
         'TicketCarga.html', 
@@ -260,7 +279,7 @@ def ver_ticket_carga():
 
     # Configura el CSS para el tamaño de 80 mm de ancho
     css = CSS(string="""
-        @page { width: 80mm; margin: 0; height: auto;} /* 80 mm de ancho y altura auto */
+        @page { width: 80mm; margin: 0; height: """+str(alturaTicket)+"""mm;} /* 80 mm de ancho y altura auto */
         body, html { width: 80mm; margin: 2px; padding: 0; height: auto;}
     """)
 

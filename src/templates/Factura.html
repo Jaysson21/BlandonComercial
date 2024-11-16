@@ -6,12 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Factura</title>
     <style>
-        @page {
-            width: 80mm;
-            margin: 0;
-            height: fit-content;
-        }
-
         body {
             font-family: Arial, sans-serif;
             width: 80mm;
@@ -89,6 +83,13 @@
             border-bottom: 1px dashed #000;
             padding-top: 5px;
             padding-bottom: 5px;
+        }
+
+        header,
+        .thanks {
+            page-break-before: avoid;
+            /* Evita cortes antes o después */
+            page-break-after: avoid;
         }
     </style>
 </head>
