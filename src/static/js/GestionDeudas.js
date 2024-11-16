@@ -256,7 +256,7 @@ function obtenerVentaIds() {
     return ventaIds;
 }
 
-// Función para mostrar el modal de pago con la información de la deuda
+// Función para mostrar el modal de pago y realizar un pago
 function mostrarPagoModal(clienteNombre, ventaIds, totalDeuda) {
     document.getElementById("nombreClientePago").textContent = clienteNombre;
     document.getElementById("ventaIdsPago").textContent = ventaIds.join(", ");
@@ -301,7 +301,6 @@ function mostrarPagoModal(clienteNombre, ventaIds, totalDeuda) {
 
                         imprimirRecibo(clienteId, montoAbono, tipoPago);
                         pagoModal.hide();
-                        //window.location.reload();
                     } else {
                         mostrarAlertaBootstrap(
                             "Error al registrar el pago: " + data.message,
@@ -399,16 +398,18 @@ function cargarHistorialPago(historial) {
         });
     }
 
-    // Filtrar las filas de la tabla según el texto de búsqueda
+    // Filtrar las filas de la tabla según el texto de búsqueda, ignorando las comas
     document.getElementById("historialPagoSearch").addEventListener("input", function () {
-        const searchValue = this.value.toLowerCase();
-        const rows = document.querySelectorAll("#historialPagoTable tbody tr");
+    const searchValue = this.value.toLowerCase().replace(/,/g, ""); // Eliminar comas del valor de búsqueda
+    const rows = document.querySelectorAll("#historialPagoTable tbody tr");
 
-        rows.forEach((row) => {
-            const rowText = row.innerText.toLowerCase();
-            row.style.display = rowText.includes(searchValue) ? "" : "none";
-        });
+    rows.forEach((row) => {
+        // Eliminar comas del texto de las filas antes de comparar
+        const rowText = row.innerText.toLowerCase().replace(/,/g, "");
+        row.style.display = rowText.includes(searchValue) ? "" : "none";
     });
+});
+
 }
 
 // Función para abrir el modal de historial de pagos

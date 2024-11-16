@@ -152,22 +152,27 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-//Filtrar en la tabla Clientes con la barra de busqueda
+// Función para eliminar tildes y caracteres especiales de una cadena
+function normalizeString(str) {
+    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+// Filtrar en la tabla Clientes con la barra de búsqueda
 document.addEventListener('DOMContentLoaded', function() {
     // Captura el input de búsqueda
     var searchInput = document.getElementById('searchInput');
     
     // Añadir el evento keyup al campo de búsqueda
     searchInput.addEventListener('keyup', function() {
-        var searchValue = this.value.toLowerCase();
+        var searchValue = normalizeString(this.value); // Normalizar el valor de búsqueda
         var tableRows = document.querySelectorAll('#clientList tbody tr');
         
         tableRows.forEach(function(row) {
             // Combinar nombre y apellidos para búsqueda
-            var fullName = row.querySelector('td[data-nombres]').textContent.toLowerCase() + ' ' + row.querySelector('td[data-apellidos]').textContent.toLowerCase();
-            var phone = row.cells[1].textContent.toLowerCase();
-            var cedula = row.cells[0].textContent.toLowerCase();
-            var direccion = row.cells[3].textContent.toLowerCase();
+            var fullName = normalizeString(row.querySelector('td[data-nombres]').textContent) + ' ' + normalizeString(row.querySelector('td[data-apellidos]').textContent);
+            var phone = normalizeString(row.cells[1].textContent);
+            var cedula = normalizeString(row.cells[0].textContent);
+            var direccion = normalizeString(row.cells[3].textContent);
             
             // Filtrar resultados
             if (fullName.includes(searchValue) || phone.includes(searchValue) || cedula.includes(searchValue) || direccion.includes(searchValue)) {

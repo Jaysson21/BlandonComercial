@@ -95,7 +95,7 @@ class DeudaModel:
     def get_pagosby_client(cls, client_id):
         """Obtener todos los pagos de un cliente específico"""
         try:
-            query = text("SELECT * FROM dbo.obtenerpagos(:client_id)")
+            query = text("SELECT * FROM dbo.obtenerpagos(:client_id) LIMIT 50")
             pagos = db.execute(query, {'client_id': client_id}).fetchall()
 
             db.commit()
