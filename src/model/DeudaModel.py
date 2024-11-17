@@ -53,7 +53,7 @@ class DeudaModel:
         "Obtener deudas por cliente"
         try:
 
-            query = text("SELECT montodeuda FROM dbo.deudas where clienteid = :clienteid and estadodeudas = 'Pendiente'")
+            query = text("SELECT sum(montodeuda) FROM dbo.deudas where clienteid = :clienteid and (estadodeudas = 'Pendiente' or estadodeudas = 'Pagada Parcialmente')")
             deuda = db.execute(query, {"clienteid": clienteid}).fetchall()
 
             db.commit()
