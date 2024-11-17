@@ -181,7 +181,7 @@ def deleteSale(id):
 
 @app.route('/ver_factura/<int:venta_id>/<int:tienePagoIncial>')
 def ver_factura(venta_id, tienePagoIncial):
-    alturaFactura = 100 #altura inicial factura 100mm
+    alturaFactura = 120 #altura inicial factura 100mm
 
     # Obtener la información de la venta y detalles
     venta = VentaModel.get_salesById(venta_id, tienePagoIncial)
@@ -192,14 +192,12 @@ def ver_factura(venta_id, tienePagoIncial):
 
     for d in detalles:
         alturaFactura += 2
-
-    print('tamaño factura:'+str(alturaFactura))
     # Renderizamos el template HTML
     html_string = render_template('Factura.html', venta=venta, detalles=detalles, total_venta=total_venta, pagoInicial=venta['montoPago'])
 
     # Convertir el HTML a PDF
     css = CSS(string="""
-              @page { width: 80mm; margin: 0; height:"""+str(alturaFactura)+"""mm; crop: none;}
+              @page { width: 78mm; margin: 0; height:"""+str(alturaFactura)+"""mm; crop: none;}
               body, html { width: 80mm; margin: 2px; padding: 0; height: auto;}
               """)
  
@@ -228,13 +226,15 @@ def ver_recibo(cliente_id, montoPago, tipoPago):
     cedula = cliente['cedula']
     nombre = cliente['nombres']+' '+cliente['apellidos']
     referencia=str(uuid.uuid4())[:8]
+    deuda = DeudaModel.get_saleByClient(clienteid=cliente_id)
+    MontoDeuda = f"C${deuda:,.2f}"
 
     # Renderizamos el template HTML
-    html_string = render_template('Recibo.html', cedula=cedula, nombre=nombre, fecha=Fecha, montoPago=montoPago, tipoPago=tipoPago, referencia=referencia)
+    html_string = render_template('Recibo.html', cedula=cedula, nombre=nombre, fecha=Fecha, montoPago=montoPago, tipoPago=tipoPago, referencia=referencia, deuda=MontoDeuda)
 
     # Convertir el HTML a PDF
     css = CSS(string="""
-              @page { size: 80mm auto; margin: 0;}
+              @page { size: 80mm auto; margin: 0; height: 100mm;}
               body, html { width: 80mm; margin: 2px; padding: 0; height: auto;}
               """)  # Ancho de 80mm
     pdf = HTML(string=html_string).write_pdf(stylesheets=[css])

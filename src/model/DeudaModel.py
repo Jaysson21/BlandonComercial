@@ -47,6 +47,21 @@ class DeudaModel:
             return ListaVentas
         except Exception as ex:
             raise Exception(ex)
+    
+    @classmethod
+    def get_saleByClient(self, clienteid):
+        "Obtener deudas por cliente"
+        try:
+
+            query = text("SELECT montodeuda FROM dbo.deudas where clienteid = :clienteid and estadodeudas = 'Pendiente'")
+            deuda = db.execute(query, {"clienteid": clienteid}).fetchall()
+
+            db.commit()
+
+            
+            return deuda[0][0]
+        except Exception as ex:
+            raise Exception(ex)
         
     #Obtener los detalles de las ventas
     @classmethod
