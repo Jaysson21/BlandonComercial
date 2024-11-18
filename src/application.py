@@ -181,7 +181,7 @@ def deleteSale(id):
 
 @app.route('/ver_factura/<int:venta_id>/<int:tienePagoIncial>')
 def ver_factura(venta_id, tienePagoIncial):
-    alturaFactura = 120 #altura inicial factura 100mm
+    alturaFactura = 100 #altura inicial factura 100mm
 
     # Obtener la información de la venta y detalles
     venta = VentaModel.get_salesById(venta_id, tienePagoIncial)
@@ -191,7 +191,7 @@ def ver_factura(venta_id, tienePagoIncial):
 
 
     for d in detalles:
-        alturaFactura += 2
+        alturaFactura += 5
     # Renderizamos el template HTML
     html_string = render_template('Factura.html', venta=venta, detalles=detalles, total_venta=total_venta, pagoInicial=venta['montoPago'])
 
@@ -251,7 +251,7 @@ def ver_recibo(cliente_id, montoPago, tipoPago):
 
 @app.route('/ver_ticketCarga')
 def ver_ticket_carga():
-    alturaTicket = 50 #cantidad inicial de 50mm
+    alturaTicket = 40 #cantidad inicial de 50mm
 
     # Define la zona horaria de Nicaragua
     nicaragua_timezone = pytz.timezone('America/Managua')
@@ -261,13 +261,15 @@ def ver_ticket_carga():
 
     Fecha = nicaragua_time
     cantidadProductos = 0
+    flag = 0
     productos_json = json.loads(request.args.get('productos'))
     id = uuid.uuid4()
 
     for p in productos_json:
         cantidadProductos += int(p['cantidad'])
+        flag += 1
 
-    alturaTicket = alturaTicket + ( cantidadProductos * 2 )
+    alturaTicket += (flag * 6)
 
     # Renderizamos el template HTML
     html_string = render_template(
@@ -279,7 +281,7 @@ def ver_ticket_carga():
 
     # Configura el CSS para el tamaño de 80 mm de ancho
     css = CSS(string="""
-        @page { width: 80mm; margin: 0; height: """+str(alturaTicket)+"""mm;} /* 80 mm de ancho y altura auto */
+        @page { width: 79mm; margin: 0; height: """+str(alturaTicket)+"""mm;} /* 80 mm de ancho y altura auto */
         body, html { width: 80mm; margin: 2px; padding: 0; height: auto;}
     """)
 
