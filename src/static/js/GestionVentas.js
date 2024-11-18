@@ -521,6 +521,18 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    $('#btnCancelar').on('click', function () {
+        // Selecciona todos los inputs y los limpia
+        $('input').val('');
+        $('textarea').val('');
+        montoTotal = 0.00
+        productQuantity = 0.00;
+        productPrice = 0.00;
+        ClienteID = 0;
+        location.reload();
+
+    });
+
     // Ejecutar filtrarClientes en tiempo real mientras el usuario escribe
     document.getElementById("buscarCliente").addEventListener("input", filtrarClientes);
 });
