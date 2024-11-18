@@ -1,5 +1,6 @@
 // Declarar la variable del modal para controlarlo
 let loadingModal;
+const generatedIds = new Set();
 
 // Función para inicializar el modal solo una vez
 function initLoadingModal() {
@@ -26,7 +27,7 @@ document.getElementById("filterForm").addEventListener("submit", function (event
     const endDate = document.getElementById("endDate").value;
 
     // Combinar fecha y hora de inicio en un solo campo de timestamp
-    
+
 
     // Enviar los datos al backend usando fetch
     fetch(`/GestionReportes/Carga?fecha_hora_inicio=${startDate}&fecha_fin=${endDate}`)
@@ -42,7 +43,7 @@ document.getElementById("filterForm").addEventListener("submit", function (event
                 row.innerHTML = `<td colspan="3" class="text-center">No se encontraron productos en el rango seleccionado</td>`;
                 tableBody.appendChild(row);
             } else {
-                
+
                 data.forEach(item => {
                     const row = document.createElement("tr");
                     row.innerHTML = `<td class="Producto">${item.producto}</td><td class="Cantidad">${item.total_vendido}</td><td>${item.totalingresos}</td>`;
@@ -75,7 +76,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = 'TicketCarga.pdf';
+                    a.download = `TicketCarga-${generateUniqueId()}.pdf`;
                     document.body.appendChild(a);
                     a.click();
                     a.remove();
@@ -125,7 +126,17 @@ document.addEventListener("DOMContentLoaded", function () {
             loadingModal.hide();
         }
     }
+
+
 });
 
+function generateUniqueId() {
+    let id;
+    do {
+        id = Math.random().toString(36).substr(2, 9); // Genera un ID único
+    } while (generatedIds.has(id)); // Asegura que no se repita
+    generatedIds.add(id); // Almacena el ID
+    return id;
+}
 
 
