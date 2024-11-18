@@ -204,12 +204,12 @@ document.addEventListener("DOMContentLoaded", function () {
                                             <input type="text" class="form-control" id="NombreProducto" placeholder="nombre" value="${productName} - ${productDescripcion}" disabled>
                                         </div>
                                         <div class="mb-3">
-                                            <label for="PrecioProducto" class="form-label">Precio C$:</label>
-                                            <input type="number" class="form-control" id="PrecioProducto" placeholder="precio" required>
-                                        </div>
-                                        <div class="mb-3">
                                             <label for="CantidadProducto" class="form-label">Cantidad</label>
                                             <input type="number" class="form-control" id="CantidadProducto" placeholder="Ingrese la cantidad" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="PrecioProducto" class="form-label">Precio C$:</label>
+                                            <input type="number" class="form-control" id="PrecioProducto" placeholder="Precio" required>
                                         </div>
                                         <button id="addProductList" type="button" class="btn btn-success">Agregar</button>
                                         `

@@ -91,13 +91,6 @@ class VentaModel:
                 pagoInicial = pagos[0][2]
 
 
-            tipo_venta=""
-
-            if VentaQuery[0][4] == 1:
-                tipo_venta='Contado'
-            else:
-                tipo_venta='Crédito'
-
             # Formatear los resultados en una lista
             venta = {
                     'ventaid': VentaQuery[0][0],
@@ -105,7 +98,7 @@ class VentaModel:
                     'nombres' : cliente[0][1],
                     'apellidos' : cliente[0][2],
                     'fechaventa': VentaQuery[0][3].strftime('%d-%m-%Y %H:%M'),
-                    'tipoventa': tipo_venta,
+                    'tipoventa': VentaQuery[0][4],
                     'observacion': VentaQuery[0][5],
                     'montoPago': pagoInicial
                 }
