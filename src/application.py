@@ -604,8 +604,7 @@ def GestionReportesUtilidades():
 
     if fecha_hora_inicio:
         # Llamada al modelo con fecha_hora_inicio y fecha_fin (None si no se proporciona fecha de fin)
-        productocarga = ProductoModel.report_carga(fecha_hora_inicio, fecha_fin)
-        print(productocarga)
+        productocarga = ProductoModel.report_utilidades(fecha_hora_inicio, fecha_fin)
         return jsonify(productocarga)
         
     else:

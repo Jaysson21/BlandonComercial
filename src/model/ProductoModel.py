@@ -122,25 +122,25 @@ class ProductoModel():
         except Exception as ex:
             db.rollback()  # Revertir si hay algún error
             raise Exception(f"Error al ejecutar el reporte de carga: {ex}")
-
-
+        
     @classmethod
-    def report_carga2(cls, fecha_inicio):
+    def report_utilidades(cls, fecha_hora_inicio, fecha_fin):
         try:
-            # Ejecutar la función almacenada en PostgreSQL
+            # Ejecutar la función almacenada en PostgreSQL con fecha y hora de inicio y fecha de fin opcional
             result = db.execute(
-                text("SELECT * FROM dbo.obtenerreportecarga(:fecha_inicio)"),
-                {'fecha_inicio': fecha_inicio}
+                text("SELECT * FROM dbo.reporteutilidades(:fecha_hora_inicio, :fecha_fin)"),
+                {'fecha_hora_inicio': fecha_hora_inicio, 'fecha_fin': fecha_fin}
             )
             print("Contenido de result:", result)
+            
             # Convertir el resultado a una lista de diccionarios
             reporte = [{"producto": row[0], "total_vendido": row[1], "totalingresos": row[2]} for row in result]
-
+    
             return reporte
         except Exception as ex:
             db.rollback()  # Revertir si hay algún error
             raise Exception(f"Error al ejecutar el reporte de carga: {ex}")
-        
+    
     @classmethod
     def get_productsby_monthyear(cls, mes, anio):
         try:
@@ -164,3 +164,4 @@ class ProductoModel():
         except Exception as ex:
             db.rollback()  # Revertir si hay algún error
             raise Exception(f"Error al obtener el Top 8 de productos por mes y año: {ex}")
+        
