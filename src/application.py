@@ -27,7 +27,7 @@ from model.entities.Cliente import Cliente
 app = Flask(__name__)
 
 # Configure session to use filesystem
-app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_PERMANENT"] = True
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
@@ -192,6 +192,7 @@ def ver_factura(venta_id, tienePagoIncial):
 
     for d in detalles:
         alturaFactura += 5
+
     # Renderizamos el template HTML
     html_string = render_template('Factura.html', venta=venta, detalles=detalles, total_venta=total_venta, pagoInicial=venta['montoPago'])
 
@@ -251,7 +252,7 @@ def ver_recibo(cliente_id, montoPago, tipoPago):
 
 @app.route('/ver_ticketCarga')
 def ver_ticket_carga():
-    alturaTicket = 40 #cantidad inicial de 50mm
+    alturaTicket = 50 #cantidad inicial de 50mm
 
     # Define la zona horaria de Nicaragua
     nicaragua_timezone = pytz.timezone('America/Managua')
@@ -282,7 +283,7 @@ def ver_ticket_carga():
     # Configura el CSS para el tamaño de 80 mm de ancho
     css = CSS(string="""
         @page { width: 79mm; margin: 0; height: """+str(alturaTicket)+"""mm;} /* 80 mm de ancho y altura auto */
-        body, html { width: 80mm; margin: 2px; padding: 0; height: auto;}
+        body, html { margin: 2px; padding: 0;}
     """)
 
     # Genera el PDF
@@ -560,7 +561,6 @@ def GestionReporteCarga():
     if fecha_hora_inicio:
         # Llamada al modelo con fecha_hora_inicio y fecha_fin (None si no se proporciona fecha de fin)
         productocarga = ProductoModel.report_carga(fecha_hora_inicio, fecha_fin)
-        print(productocarga)
         return jsonify(productocarga)
         
     else:
@@ -604,7 +604,7 @@ def GestionReportesUtilidades():
 
     if fecha_hora_inicio:
         # Llamada al modelo con fecha_hora_inicio y fecha_fin (None si no se proporciona fecha de fin)
-        productocarga = ProductoModel.report_utilidades(fecha_hora_inicio, fecha_fin)
+        productocarga = ProductoModel.report_carga(fecha_hora_inicio, fecha_fin)
         return jsonify(productocarga)
         
     else:
