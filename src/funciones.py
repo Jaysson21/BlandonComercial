@@ -4,7 +4,7 @@ from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 import os
-import urllib.request
+from functools import wraps
 
 
 app = Flask(__name__)
@@ -18,13 +18,9 @@ db = scoped_session(sessionmaker(bind=engine))
 
 
 def login_required(f):
-    """
-    Decorate routes to require login.
-    http://flask.pocoo.org/docs/0.12/patterns/viewdecorators/
-    """
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if session.get("id_user") is None:
+        if not request.cookies.get("username"):
             return redirect("/login")
         return f(*args, **kwargs)
     return decorated_function

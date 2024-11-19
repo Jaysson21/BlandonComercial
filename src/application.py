@@ -5,14 +5,14 @@ from sqlalchemy.exc import IntegrityError
 from funciones import *
 from datetime import datetime
 from weasyprint import HTML, CSS
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 
 import json
 import uuid
 
 
-#models
+#modelsTrue
 from model.UsuarioModel import UsuarioModel 
 from model.ProductoModel import ProductoModel
 from model.ClienteModel import ClienteModel
@@ -27,23 +27,19 @@ from model.entities.Cliente import Cliente
 app = Flask(__name__)
 
 # Configure session to use filesystem
-app.config["SESSION_PERMANENT"] = True
-app.config["SESSION_TYPE"] = "filesystem"
-Session(app)
+
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=10) 
 
 #lista producto
 ProductsList = []
 
 @app.route("/")
+@login_required
 def index():
-    if 'username' in session:
-        #print(uuid.uuid4())
+    if request.cookies.get('username'):
         return redirect('/GestionVentas')
-        #return render_template("index.html", username=session["username"], nameuser=session["nameUser"])
     else:
-        return render_template("login.html", username='null')
-
-
+        return render_template("login.html")
 
 @app.route("/login", methods=["POST", "GET"])
 def login():
@@ -51,39 +47,32 @@ def login():
         username = request.form.get("nombre_usuario")
         password = request.form.get("pass")
 
-        if not request.form.get("nombre_usuario"):
+        if not username:
             flash('Ingrese un nombre de usuario')
             return redirect("/login")
 
-        # Ensure password was submitted
-        elif not request.form.get("pass"):
+        if not password:
             flash('Ingrese una contraseña')
             return redirect("/login")
-        
-        #consulta api
-        try:
-            # Ejecutar el procedimiento almacenado con SQLAlchemy
-            usuario = UsuarioModel.get_userbyId(username)
-            # Verificar si se encontró algún usuario
-            if usuario is None:
-                return redirect("/login")
 
-            #jsonserializable
-            # Ensure username exists and password is correct
+        try:
+            usuario = UsuarioModel.get_userbyId(username)
             if usuario is None or not check_password_hash(usuario[0][2], password):
                 flash('Contraseña Incorrecta')
                 return redirect("/login")
 
-            # Remember which user has logged in
-            session["nameUser"] = usuario[0][1]
-            session["username"] = username
-            session["user_id"] = usuario[0][0]
+            # Guardar información en cookies
+            response = make_response(redirect('/'))
+            response.set_cookie("nameUser", usuario[0][1], max_age=9 * 3600)  # 9 horas
+            response.set_cookie("username", username, max_age=9 * 3600)      # 9 horas
+            response.set_cookie("user_id", str(usuario[0][0]), max_age=9 * 3600)  # 9 horas
 
-            return redirect('/')
+            return response
         except Exception as e:
             return jsonify({"error": str(e)}), 500
     else:
         return render_template("login.html")
+
 
 
 @app.route("/register", methods=["POST", "GET"])
@@ -130,46 +119,56 @@ def register():
 @app.route("/logout")
 @login_required
 def logout():
-    session.clear()
-    return redirect('/')
+    response = make_response(redirect("/login"))
+    response.delete_cookie("nameUser")
+    response.delete_cookie("username")
+    response.delete_cookie("user_id")
+    return response
 
 #***************************************************************************************************** PARA LAS VENTAS
 @app.route("/GestionVentas")
+@login_required
 def GestionVentas():
+    username = request.cookies.get("username")
+    nameuser = request.cookies.get("nameUser")
+
     clientes = ClienteModel.get_clients()
     ventas_pendientes = VentaModel.get_salesPending()
     actualizar_listaProd()
-    return render_template("GestionVentas.html", username=session["username"], clientes=clientes, nameuser=session["nameUser"], pendienteEntregas=ventas_pendientes)
+
+    return render_template("GestionVentas.html", username=username, clientes=clientes, nameuser=nameuser, pendienteEntregas=ventas_pendientes)
+
 
 @app.route("/deliverOrder/<int:ventaid>", methods=["POST", "GET"])
+@login_required
 def deliverOrder(ventaid):
     VentaModel.deliverOrder(ventaid)
     return jsonify({"status": "success", "mensaje": "pedido entregado correctamente."}), 201
 
 @app.route("/saveSale", methods=["POST", "GET"])
+@login_required
 def saveSale():
-    # Obtener los datos de la solicitud
     datos = request.json
+    usuario_id = request.cookies.get("user_id")
+    if not usuario_id:
+        return redirect("/login")
+
     # Define la zona horaria de Nicaragua
     nicaragua_timezone = pytz.timezone('America/Managua')
-
-    # Obtiene la hora actual en la zona horaria de Nicaragua
     nicaragua_time = datetime.now(nicaragua_timezone).strftime('%Y-%m-%d %H:%M:%S.%f')
-    
+
     cliente_id = datos.get('cliente_id')
-    usuario_id = session["user_id"]
     tipo_venta = datos.get('tipo_venta')
     tipo_entrega = datos.get('tipo_entrega')
     productos = datos.get('productos')
-    fechaVenta = nicaragua_time
     montoPagoInicial = datos.get('montoPagoInicial')
     observacion = datos.get('observacion')
 
-    res = VentaModel.saveSale(cliente_id, usuario_id, tipo_venta, tipo_entrega, productos,montoPagoInicial, observacion,fechaVenta)
-
-    return jsonify({"status": "success", "mensaje": "Venta registrada correctamente.", "NumFact":res}), 201
+    res = VentaModel.saveSale(cliente_id, usuario_id, tipo_venta, tipo_entrega, productos, montoPagoInicial, observacion, nicaragua_time)
+    return jsonify({"status": "success", "mensaje": "Venta registrada correctamente.", "NumFact": res}), 201
 
 @app.route("/deleteSale/<int:id>", methods=["POST"])
+@login_required
 def deleteSale(id):
     try:
         # Eliminar la venta de la base de datos
@@ -180,6 +179,7 @@ def deleteSale(id):
         return jsonify({'success': False, 'message': 'Error: Ha ocurrido un problema al eliminar la venta. ' + str(e)})
 
 @app.route('/ver_factura/<int:venta_id>/<int:tienePagoIncial>')
+@login_required
 def ver_factura(venta_id, tienePagoIncial):
     alturaFactura = 100 #altura inicial factura 100mm
 
@@ -215,6 +215,7 @@ def ver_factura(venta_id, tienePagoIncial):
     return response
 
 @app.route('/ver_recibo/<int:cliente_id>/<montoPago>/<tipoPago>')
+@login_required
 def ver_recibo(cliente_id, montoPago, tipoPago):
     # Define la zona horaria de Nicaragua
     nicaragua_timezone = pytz.timezone('America/Managua')
@@ -251,6 +252,7 @@ def ver_recibo(cliente_id, montoPago, tipoPago):
     return response
 
 @app.route('/ver_ticketCarga')
+@login_required
 def ver_ticket_carga():
     alturaTicket = 50 #cantidad inicial de 50mm
 
@@ -298,9 +300,12 @@ def ver_ticket_carga():
 
 #***************************************************************************************************** PARA LOS PRODUCTOS
 @app.route("/GestionProductos")
+@login_required
 def GestionProductos():
     actualizar_listaProd()
-    return render_template("GestionProductos.html", username=session["username"], productos=ProductsList, nameuser=session["nameUser"])
+    username = request.cookies.get("username")
+    nameuser = request.cookies.get("nameUser")
+    return render_template("GestionProductos.html", username=username, productos=ProductsList, nameuser=nameuser)
 
 def actualizar_listaProd():
     global ProductsList
@@ -313,6 +318,7 @@ def buscar_producto():
     return jsonify(resultados[:3])
 
 @app.route("/addProduct", methods=["POST"])
+@login_required
 def addProduct():
     if request.method == "POST":
         nombre = request.form.get("nombreProducto")
@@ -338,6 +344,7 @@ def addProduct():
 
     
 @app.route("/updateProduct", methods=["POST"])
+@login_required
 def updateProduct():
     if request.method == "POST":
         
@@ -362,6 +369,7 @@ def updateProduct():
         return jsonify({'success': True})
       
 @app.route("/deleteProduct/<int:id>", methods=["POST"])
+@login_required
 def deleteProduct(id):
     try:
         # Eliminar el producto de la base de datos
@@ -374,11 +382,15 @@ def deleteProduct(id):
     
 #***************************************************************************************************** PARA LOS CLIENTES
 @app.route("/GestionCliente")
+@login_required
 def GestionClientes():
     clientes = ClienteModel.get_clients()
-    return render_template("GestionCliente.html", username=session["username"], clientes=clientes, nameuser=session["nameUser"])
+    username = request.cookies.get("username")
+    nameuser = request.cookies.get("nameUser")
+    return render_template("GestionCliente.html", username=username, clientes=clientes, nameuser=nameuser)
 
 @app.route('/buscar_cliente', methods=["GET"])
+@login_required
 def buscar_cliente():
 
     if request.args.get('filtroBusClient') == '1':
@@ -410,6 +422,7 @@ def buscar_cliente():
             return jsonify({'success': False, 'message': 'No se encontro registro del cliente'}), 400
 
 @app.route("/addClient", methods=["POST"])
+@login_required
 def addClient():
     if request.method == "POST":
         # Obtener los datos del formulario
@@ -443,6 +456,7 @@ def addClient():
 
 
 @app.route("/updateClient", methods=["POST"])
+@login_required
 def updateClient():
     if request.method == "POST":
         # Obtener los datos del formulario
@@ -468,6 +482,7 @@ def updateClient():
 
 
 @app.route("/deleteClient/<int:id>", methods=["POST"])
+@login_required
 def deleteClient(id):
     try:
         # Eliminar el producto de la base de datos
@@ -479,12 +494,18 @@ def deleteClient(id):
 
 #***************************************************************************************************** PARA LOS PAGOS
 @app.route("/GestionDeudas")
+@login_required
 def GestionDeudas():
+    username = request.cookies.get("username")
+    nameuser = request.cookies.get("nameUser")
+
     clientes = ClienteModel.get_clients()
     deudas = DeudaModel.get_sales()
-    return render_template("GestionDeudas.html", username=session["username"], clientes=clientes, deudas_json = json.dumps(deudas), nameuser=session["nameUser"])
+
+    return render_template("GestionDeudas.html", username=username, clientes=clientes, deudas_json=json.dumps(deudas), nameuser=nameuser)
 
 @app.route("/detallesVentas/<int:ventaid>", methods=["GET"])
+@login_required
 def get_products_by_sale(ventaid):
     try:
         productos = DeudaModel.get_productos_by_sales(ventaid)
@@ -493,6 +514,7 @@ def get_products_by_sale(ventaid):
         return jsonify({'success': False, 'message': str(e)})
     
 @app.route("/registrarPago", methods=["POST"])
+@login_required
 def registrar_pago():
     # Obtener los datos de la solicitud
     datos = request.json
@@ -507,6 +529,7 @@ def registrar_pago():
         return jsonify({"success": False, "message": str(e)})
     
 @app.route("/getHistorialPagos/<int:clienteid>", methods=["GET"])
+@login_required
 def get_historial_pagos(clienteid):
     try:
         historialpagos = DeudaModel.get_pagosby_client(clienteid)
@@ -516,6 +539,7 @@ def get_historial_pagos(clienteid):
         return jsonify({"success": False, "message": str(e)})
 
 @app.route("/deletePago/<int:id>", methods=["POST"])
+@login_required
 def deletePago(id):
     try:
         # Eliminar el producto de la base de datos
@@ -528,16 +552,23 @@ def deletePago(id):
     
 #*******************************************************************************************************PARA LOS REPORTES
 @app.route("/GestionReportes")
+@login_required
 def GestionReportes():
     clientes = ClienteModel.get_clients()
     ventas = VentaModel.get_sales()
-    return render_template("Reportes.html", username=session["username"], clientes=clientes, ventas=ventas, nameuser=session["nameUser"])
+    username = request.cookies.get("username")
+    nameuser = request.cookies.get("nameUser")
+
+    return render_template("Reportes.html", username=username, clientes=clientes, ventas=ventas, nameuser=nameuser)
 
 @app.route("/GestionReportes/Productos", methods=["GET"])
+@login_required
 def GestionReporteProductos():
 
     mes = request.args.get('mes')
     anio = request.args.get('anio')
+    username = request.cookies.get("username")
+    nameuser = request.cookies.get("nameUser")
 
     if mes and anio:
         try:
@@ -547,12 +578,15 @@ def GestionReporteProductos():
         except Exception as ex:
             return jsonify({"error": str(ex)}), 500
     else:
-        return render_template("ReporteProductos.html", username=session["username"], nameuser=session["nameUser"])
+        return render_template("ReporteProductos.html", username=username, nameuser=nameuser)
 
 @app.route("/GestionReportes/Carga", methods=["GET"])
+@login_required
 def GestionReporteCarga():
     fecha_hora_inicio = request.args.get('fecha_hora_inicio')  # Captura la fecha y hora de inicio
     fecha_fin = request.args.get('fecha_fin')  # Captura la fecha de fin (opcional)
+    username = request.cookies.get("username")
+    nameuser = request.cookies.get("nameUser")
 
     # Si fecha_fin es una cadena vacía, asigna None
     if not fecha_fin:
@@ -565,16 +599,20 @@ def GestionReporteCarga():
         
     else:
         # Caso 2: Parámetros insuficientes
-        return render_template("ReporteCarga.html", username=session["username"], nameuser=session["nameUser"])
+        return render_template("ReporteCarga.html", username=username, nameuser=nameuser)
 
 @app.route("/userRegistro", methods=["GET"])
+@login_required
 def registro():
     return render_template("registro.html")
 
 @app.route("/GestionReportes/Ventas", methods=["GET"])
+@login_required
 def GestionReporteVenta():
     fecha_inicio = request.args.get('fecha_inicio')
     fecha_fin = request.args.get('fecha_fin')
+    username = request.cookies.get("username")
+    nameuser = request.cookies.get("nameUser")
 
     if fecha_inicio and fecha_fin:
         ventas_historicas = VentaModel.get_sales_historica(fecha_inicio, fecha_fin)
@@ -585,18 +623,25 @@ def GestionReporteVenta():
         return jsonify(ventas_historicas)
     
     else:
-        return render_template("ReporteVentas.html", username=session.get("username"), nameuser=session.get("nameUser"))
+        return render_template("ReporteVentas.html", username=username, nameuser=nameuser)
     
 @app.route("/GestionReportes/Deudas")
+@login_required
 def GestionReportesDeudas():
     deudas = DeudaModel.get_debts_report()
     total_deuda = sum(deuda["montodeuda"] for deuda in deudas)
-    return render_template("ReporteDeudas.html", username=session["username"], deudas=deudas, total_deuda=total_deuda, nameuser=session["nameUser"])
+    username = request.cookies.get("username")
+    nameuser = request.cookies.get("nameUser")
+
+    return render_template("ReporteDeudas.html", username=username, deudas=deudas, total_deuda=total_deuda, nameuser=nameuser)
 
 @app.route("/GestionReportes/Utilidades")
+@login_required
 def GestionReportesUtilidades():
     fecha_hora_inicio = request.args.get('fecha_inicio')  # Captura la fecha y hora de inicio
     fecha_fin = request.args.get('fecha_fin')  # Captura la fecha de fin (opcional)
+    username = request.cookies.get("username")
+    nameuser = request.cookies.get("nameUser")
 
     # Si fecha_fin es una cadena vacía, asigna None
     if not fecha_fin:
@@ -609,7 +654,7 @@ def GestionReportesUtilidades():
         
     else:
         # Caso 2: Parámetros insuficientes
-        return render_template("ReporteUtilidades.html", username=session["username"], nameuser=session["nameUser"])
+        return render_template("ReporteUtilidades.html", username=username, nameuser=nameuser)
 #*******************************************************************************************************
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
