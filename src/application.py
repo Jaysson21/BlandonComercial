@@ -61,11 +61,11 @@ def login():
 
             # Verificar si la consulta devolvió un resultado
             if not usuario or len(usuario) == 0:
-                return render_template("login.html", error="El usuario no existe")
+                return render_template("login.html", error="Usuario no Existe / Contraseña Incorrecta...")
 
             # Validar contraseña
             if not check_password_hash(usuario[0][2], password):
-                return render_template("login.html", error="Contraseña incorrecta")
+                return render_template("login.html", error="Usuario no Existe / Contraseña Incorrecta...")
 
             # Guardar información en cookies
             response = make_response(redirect('/'))

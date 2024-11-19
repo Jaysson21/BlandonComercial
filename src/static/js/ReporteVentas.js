@@ -14,6 +14,15 @@ window.onload = function() {
     document.getElementById("startDate").value = today;
 };
 
+// Normalizar texto eliminando acentos, comas y transformando a minúsculas
+function normalizeText(text) {
+    return text
+        .toLowerCase()
+        .normalize("NFD") // Descomponer caracteres con acentos
+        .replace(/[\u0300-\u036f]/g, "") // Eliminar marcas de acentos
+        .replace(/,/g, ""); // Eliminar comas
+}
+
 // Manejador del evento submit para generar el reporte de ventas
 document.getElementById("filterForm").addEventListener("submit", function(event) {
     event.preventDefault();
@@ -37,7 +46,7 @@ document.getElementById("filterForm").addEventListener("submit", function(event)
             if (data.length === 0) {
                 // Si no hay datos, mostrar un mensaje en la tabla
                 const row = document.createElement("tr");
-                row.innerHTML = `<td colspan="4" class="text-center">No se encontraron ventas en el rango de fechas seleccionado</td>`;
+                row.innerHTML = `<td colspan="5" class="text-center">No se encontraron ventas en el rango de fechas seleccionado</td>`;
                 tableBody.appendChild(row);
             } else {
                 // Llenar la tabla con las ventas
@@ -47,6 +56,7 @@ document.getElementById("filterForm").addEventListener("submit", function(event)
                         <td>${sale.ventaid}</td>
                         <td>${sale.nombre_cliente}</td>
                         <td>C$${sale.monto_total.toFixed(2)}</td>
+                        <td>${sale.tipoventa}</td>
                         <td>${sale.estadoventa}</td>
                         <td>${sale.fechaventa}</td>
                     `;
@@ -70,3 +80,17 @@ function printReport() {
     document.body.innerHTML = originalContents;
     window.location.reload();
 }
+
+// Filtro de búsqueda dinámica no sensible a acentos, comas ni mayúsculas/minúsculas
+document.getElementById("searchInput").addEventListener("input", function() {
+    const searchValue = normalizeText(this.value);
+    const rows = document.querySelectorAll("#salesReportTable tr");
+
+    rows.forEach(row => {
+        const cells = row.querySelectorAll("td");
+        const rowText = Array.from(cells)
+            .map(cell => normalizeText(cell.textContent))
+            .join(" ");
+        row.style.display = rowText.includes(searchValue) ? "" : "none";
+    });
+});

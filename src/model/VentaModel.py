@@ -269,8 +269,9 @@ class VentaModel:
                     'ventaid': row[0],
                     'nombre_cliente': row[1],
                     'monto_total': float(row[2]),
-                    'estadoventa': row[3],
-                    'fechaventa': row[4].strftime('%d-%m-%Y %H:%M')
+                    'tipoventa' : row[3],
+                    'estadoventa': row[4],
+                    'fechaventa': row[5].strftime('%d-%m-%Y %H:%M')
                 }
                 for row in result
             ]

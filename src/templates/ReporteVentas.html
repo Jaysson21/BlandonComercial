@@ -37,22 +37,32 @@
         <div class="card-header">
             <h5 class="card-title">Resultados del Reporte</h5>
         </div>
-        <div class="card-body table-responsive">
+        <div class="card-body">
+            <!-- Campo de búsqueda -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Buscar en los resultados...">
+                </div>
+            </div>
+
             <!-- Tabla de ventas -->
-            <table class="table table-striped" id="ventasList">
-                <thead>
-                    <tr>
-                        <th>ID Venta</th>
-                        <th>Nombre del Cliente</th>
-                        <th>Monto Total</th>
-                        <th>Estado</th>
-                        <th>Fecha de Venta</th>
-                    </tr>
-                </thead>
-                <tbody id="salesReportTable">
-                    <!-- Filas de ventas generadas dinámicamente -->
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-striped" id="ventasList">
+                    <thead>
+                        <tr>
+                            <th>ID Venta</th>
+                            <th>Nombre del Cliente</th>
+                            <th>Monto Total</th>
+                            <th>Tipo de Venta</th>
+                            <th>Estado</th>
+                            <th>Fecha de Venta</th>
+                        </tr>
+                    </thead>
+                    <tbody id="salesReportTable">
+                        <!-- Filas de ventas generadas dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -62,27 +72,6 @@
         </a>
     </div>
 </div>
-
-<script>
-    document.getElementById('enableEndDate').addEventListener('change', function () {
-        const endDate = document.getElementById('endDate');
-        const startDate = document.getElementById('startDate');
-
-        if (this.checked) {
-            endDate.disabled = false;
-            endDate.min = startDate.value;
-        } else {
-            endDate.disabled = true;
-            endDate.value = '';
-        }
-    });
-
-    document.getElementById('startDate').addEventListener('input', function () {
-        if (this.value && document.getElementById('enableEndDate').checked) {
-            document.getElementById('endDate').min = this.value;
-        }
-    });
-</script>
 
 <script src="{{ url_for('static', filename='js/ReporteVentas.js') }}"></script>
 {% endblock %}
