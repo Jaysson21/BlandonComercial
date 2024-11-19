@@ -34,12 +34,12 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=10)
 ProductsList = []
 
 @app.route("/")
-@login_required
 def index():
-    if request.cookies.get('username'):
+    if 'username' in session:
         return redirect('/GestionVentas')
     else:
-        return render_template("login.html")
+        return render_template("login.html", username='null', error=None)
+
 
 @app.route("/login", methods=["POST", "GET"])
 def login():
@@ -47,31 +47,35 @@ def login():
         username = request.form.get("nombre_usuario")
         password = request.form.get("pass")
 
+        # Validar campos vacíos
         if not username:
-            flash('Ingrese un nombre de usuario')
-            return redirect("/login")
+            return render_template("login.html", error="Ingrese un nombre de usuario")
 
         if not password:
-            flash('Ingrese una contraseña')
-            return redirect("/login")
+            return render_template("login.html", error="Ingrese una contraseña")
 
         try:
+            # Obtener el usuario desde la base de datos
             usuario = UsuarioModel.get_userbyId(username)
-            if usuario is None or not check_password_hash(usuario[0][2], password):
-                flash('Contraseña Incorrecta')
-                return redirect("/login")
 
-            # Guardar información en cookies
-            response = make_response(redirect('/'))
-            response.set_cookie("nameUser", usuario[0][1], max_age=9 * 3600)  # 9 horas
-            response.set_cookie("username", username, max_age=9 * 3600)      # 9 horas
-            response.set_cookie("user_id", str(usuario[0][0]), max_age=9 * 3600)  # 9 horas
+            # Verificar si la consulta devolvió un resultado
+            if not usuario or len(usuario) == 0:
+                return render_template("login.html", error="El usuario no existe")
 
-            return response
+            # Validar contraseña
+            if not check_password_hash(usuario[0][2], password):
+                return render_template("login.html", error="Contraseña incorrecta")
+
+            # Iniciar sesión
+            session["nameUser"] = usuario[0][1]
+            session["username"] = username
+            session["user_id"] = usuario[0][0]
+
+            return redirect('/')
         except Exception as e:
-            return jsonify({"error": str(e)}), 500
+            return render_template("login.html", error=f"Ocurrió un error inesperado: {str(e)}")
     else:
-        return render_template("login.html")
+        return render_template("login.html", error=None)
 
 
 
