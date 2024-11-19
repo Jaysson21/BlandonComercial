@@ -456,6 +456,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
                     });
+
                 } else {
                     hideLoadingModal();
                     // Si hubo un error, mostrar el mensaje de error
@@ -501,6 +502,12 @@ document.addEventListener("DOMContentLoaded", function () {
             saveAs(blob, `factura_${ventaId}.pdf`);
             hideLoadingModal();
 
+            $('input').val('');
+            $('textarea').val('');
+            montoTotal = 0.00
+            productQuantity = 0.00;
+            productPrice = 0.00;
+            ClienteID = 0;
             location.reload();
         } catch (error) {
             hideLoadingModal();

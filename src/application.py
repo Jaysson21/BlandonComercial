@@ -197,10 +197,10 @@ def ver_factura(venta_id, tienePagoIncial):
 
 
     for d in detalles:
-        alturaFactura += 5
+        alturaFactura += 6
 
     if venta['montoPago'] > 0:
-        alturaFactura += 12
+        alturaFactura += 15
 
     # Renderizamos el template HTML
     html_string = render_template('Factura.html', venta=venta, detalles=detalles, total_venta=total_venta, pagoInicial=venta['montoPago'])
