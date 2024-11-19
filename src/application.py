@@ -34,11 +34,12 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=10)
 ProductsList = []
 
 @app.route("/")
+@login_required
 def index():
-    if 'username' in session:
+    if request.cookies.get('username'):
         return redirect('/GestionVentas')
     else:
-        return render_template("login.html", username='null', error=None)
+        return render_template("login.html", error=None)
 
 
 @app.route("/login", methods=["POST", "GET"])
@@ -66,12 +67,13 @@ def login():
             if not check_password_hash(usuario[0][2], password):
                 return render_template("login.html", error="Contraseña incorrecta")
 
-            # Iniciar sesión
-            session["nameUser"] = usuario[0][1]
-            session["username"] = username
-            session["user_id"] = usuario[0][0]
+            # Guardar información en cookies
+            response = make_response(redirect('/'))
+            response.set_cookie("nameUser", usuario[0][1], max_age=48 * 3600)  # 9 horas
+            response.set_cookie("username", username, max_age=48 * 3600)      # 9 horas
+            response.set_cookie("user_id", str(usuario[0][0]), max_age=48 * 3600)  # 9 horas
 
-            return redirect('/')
+            return response
         except Exception as e:
             return render_template("login.html", error=f"Ocurrió un error inesperado: {str(e)}")
     else:
