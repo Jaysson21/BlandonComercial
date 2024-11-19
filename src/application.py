@@ -234,8 +234,11 @@ def ver_recibo(cliente_id, montoPago, tipoPago):
     cedula = cliente['cedula']
     nombre = cliente['nombres']+' '+cliente['apellidos']
     referencia=str(uuid.uuid4())[:8]
-    deuda = DeudaModel.get_saleByClient(clienteid=cliente_id)
-    MontoDeuda = f"C${deuda:,.2f}"
+    if tipoPago == 'total':
+        MontoDeuda = 0.00
+    else:
+        deuda = DeudaModel.get_saleByClient(clienteid=cliente_id)
+        MontoDeuda = f"C${deuda:,.2f}"
 
     # Renderizamos el template HTML
     html_string = render_template('Recibo.html', cedula=cedula, nombre=nombre, fecha=Fecha, montoPago=montoPago, tipoPago=tipoPago, referencia=referencia, deuda=MontoDeuda)

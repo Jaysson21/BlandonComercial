@@ -1,3 +1,5 @@
+const generatedIds = new Set();
+
 window.onload = function () {
     let loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
     loadingModal.show();
@@ -148,7 +150,7 @@ async function imprimirRecibo(clienteId, montoAbono, tipoPago) {
         const blob = await response.blob();
 
         // Usar FileSaver para forzar la descarga
-        saveAs(blob, `Recibo_${clienteId}.pdf`);
+        saveAs(blob, `Recibo_${generateUniqueId()}.pdf`);
 
         hideLoadingModal();
 
@@ -400,15 +402,15 @@ function cargarHistorialPago(historial) {
 
     // Filtrar las filas de la tabla según el texto de búsqueda, ignorando las comas
     document.getElementById("historialPagoSearch").addEventListener("input", function () {
-    const searchValue = this.value.toLowerCase().replace(/,/g, ""); // Eliminar comas del valor de búsqueda
-    const rows = document.querySelectorAll("#historialPagoTable tbody tr");
+        const searchValue = this.value.toLowerCase().replace(/,/g, ""); // Eliminar comas del valor de búsqueda
+        const rows = document.querySelectorAll("#historialPagoTable tbody tr");
 
-    rows.forEach((row) => {
-        // Eliminar comas del texto de las filas antes de comparar
-        const rowText = row.innerText.toLowerCase().replace(/,/g, "");
-        row.style.display = rowText.includes(searchValue) ? "" : "none";
+        rows.forEach((row) => {
+            // Eliminar comas del texto de las filas antes de comparar
+            const rowText = row.innerText.toLowerCase().replace(/,/g, "");
+            row.style.display = rowText.includes(searchValue) ? "" : "none";
+        });
     });
-});
 
 }
 
@@ -608,4 +610,14 @@ function eliminarVenta(ventaId) {
                 });
         }
     });
+}
+
+
+function generateUniqueId() {
+    let id;
+    do {
+        id = Math.random().toString(36).substr(2, 9); // Genera un ID único
+    } while (generatedIds.has(id)); // Asegura que no se repita
+    generatedIds.add(id); // Almacena el ID
+    return id;
 }
