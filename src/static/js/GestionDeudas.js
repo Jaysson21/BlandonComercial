@@ -154,6 +154,8 @@ async function imprimirRecibo(clienteId, montoAbono, tipoPago) {
 
         hideLoadingModal();
 
+        location.reload();
+
     } catch (error) {
         hideLoadingModal();
         console.error('Error al descargar el PDF:', error);

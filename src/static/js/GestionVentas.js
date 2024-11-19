@@ -96,6 +96,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             icon: "info",
                         });
                     }
+                    hideLoadingModal();
                 },
                 error: function () {
                     hideLoadingModal();
