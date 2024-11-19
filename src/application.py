@@ -238,7 +238,10 @@ def ver_recibo(cliente_id, montoPago, tipoPago):
         MontoDeuda = 0.00
     else:
         deuda = DeudaModel.get_saleByClient(clienteid=cliente_id)
-        MontoDeuda = f"C${deuda:,.2f}"
+        if deuda is None:
+            MontoDeuda = 0.00
+        else:
+            MontoDeuda = f"C${deuda:,.2f}"
 
     # Renderizamos el template HTML
     html_string = render_template('Recibo.html', cedula=cedula, nombre=nombre, fecha=Fecha, montoPago=montoPago, tipoPago=tipoPago, referencia=referencia, deuda=MontoDeuda)
