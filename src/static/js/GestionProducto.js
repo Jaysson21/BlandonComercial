@@ -16,31 +16,27 @@ window.onload = function () {
 
 // Manejar el envío del formulario de agregar producto
 document.getElementById("addProductForm").addEventListener("submit", function (event) {
-    event.preventDefault();  // Evitar el envío inmediato del formulario para mostrar la pantalla de espera
+    event.preventDefault();  
 
-    showLoadingModal();  // Mostrar el modal de espera
-
-    // Crear un objeto FormData para capturar los datos del formulario
+    showLoadingModal();
     const formData = new FormData(this);
 
-    // Enviar el formulario de manera asíncrona con fetch()
     fetch(this.action, {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())  // Asumimos que el servidor responde con JSON
+    .then(response => response.json())
     .then(data => {
-        hideLoadingModal();  // Ocultar el modal de espera cuando se recibe la respuesta
+        hideLoadingModal();
         if (data.success) {
-            // Si el servidor responde con éxito, recarga la página o redirige
-            window.location.reload();  // O redirige a otra página si es necesario
+            
+            window.location.reload();
         } else {
-            // Si hay errores, puedes mostrar mensajes de error aquí
             alert('Ocurrió un error: ' + data.message);
         }
     })
     .catch(error => {
-        hideLoadingModal();  // Ocultar el modal de espera si hay un error
+        hideLoadingModal();
         alert('Ocurrió un error al enviar los datos.');
     });
 });

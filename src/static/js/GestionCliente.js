@@ -12,16 +12,56 @@ window.onload = function () {
 
     setTimeout(() => {
         loadingModal.hide();
-    }, 500);  // Tiempo de espera para que la transición se complete
+    }, 500);
 };
+
+// Manejar el envío del formulario de agregar producto
+document.getElementById("addClientForm").addEventListener("submit", function (event) {
+    event.preventDefault();  
+
+    showLoadingModal();
+    const formData = new FormData(this);
+
+    fetch(this.action, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideLoadingModal();
+        if (data.success) {
+            Swal.fire({
+                title: "Cliente Registrado Exitosamente",
+                icon: "success",
+                showConfirmButton: false,
+                timer: 1000,
+            })
+            window.location.reload();
+        } else {
+            hideLoadingModal()
+            Swal.fire({
+                title: "Ocurrió Revise los datos / Cédula Duplicada",
+                icon: "error",
+                showConfirmButton: true,
+            })
+            
+        }
+    })
+    .catch(error => {
+        hideLoadingModal();
+        Swal.fire({
+            title: "Ocurrió un error intente nuevamente",
+            icon: "error",
+            showConfirmButton: true,
+        })
+    });
+});
 
 // Funcion para Editar Clientes
 document.querySelectorAll(".edit-button").forEach(function (button) {
     button.addEventListener("click", function () {
-        // Obtener el ID del cliente del botón
         let clientId = this.getAttribute("data-id");
 
-        // Obtener la fila de la tabla correspondiente al cliente
         let row = this.closest("tr");
         let cedula = row.cells[0].innerText;
         let nombres = row.cells[1].getAttribute("data-nombres");
@@ -29,7 +69,6 @@ document.querySelectorAll(".edit-button").forEach(function (button) {
         let telefono = row.cells[2].innerText;
         let direccion = row.cells[3].innerText;
 
-        // Rellenar el formulario del modal con los datos del cliente
         document.getElementById("editClientId").value = clientId;
         document.getElementById("editClientName").value = nombres;
         document.getElementById("editClientSurName").value = apellidos;
@@ -43,7 +82,7 @@ document.querySelectorAll(".edit-button").forEach(function (button) {
 
         // Al enviar el formulario de actualizar cliente
         document.getElementById("editClientForm").addEventListener("submit", function (event) {
-            event.preventDefault(); // Evitar el envío inmediato para mostrar la pantalla de espera
+            event.preventDefault();
 
             // Ocultar el modal de editar cliente
             editModal.hide();
@@ -182,15 +221,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-});
-
-//Manejo de errores
-document.addEventListener("DOMContentLoaded", function () {
-    // Si hay un mensaje de error (div.alert-danger), mostrar el modal
-    if (document.querySelector(".alert-danger")) {
-        let errorModal = new bootstrap.Modal(document.getElementById("errorModal"));
-        errorModal.show();
-    }
 });
 
 //Funciones para mostrar y ocultar modal de espera

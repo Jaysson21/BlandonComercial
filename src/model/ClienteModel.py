@@ -150,7 +150,6 @@ class ClienteModel:
                 text("CALL dbo.guardar_cliente(:nombres, :apellidos, :telefono, :cedula, :direccion)"),
                 cliente.to_json()
             )
-            # Confirmar la transacción (ya que estamos insertando datos)
             db.commit()
 
             return 1

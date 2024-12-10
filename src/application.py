@@ -440,35 +440,27 @@ def buscar_cliente():
 @login_required
 def addClient():
     if request.method == "POST":
-        # Obtener los datos del formulario
         nombres = request.form.get("nombreCliente")
         apellidos = request.form.get("apellidoCliente")
         cedula = request.form.get("cedulaCliente")
         telefono = request.form.get("telefonoCliente")
         direccion = request.form.get("direccionCliente")
 
-        # Validar campos vacíos en una sola línea
+        # Verifica que todos los campos necesarios están presentes
         if not nombres or not apellidos or not telefono or not cedula or not direccion:
             return jsonify({'success': False, 'message': 'Todos los campos son obligatorios'}), 400
-        
-        # Crear el objeto cliente
-        c = Cliente(clienteid=0, nombres=nombres, apellidos=apellidos, cedula=cedula, telefono=telefono, direccion=direccion, fecharegistro=None)
-        
+
+        # Intenta crear un nuevo cliente en la base de datos
         try:
-            # Añadir cliente a la base de datos
+            c = Cliente(clienteid=0, nombres=nombres, apellidos=apellidos, cedula=cedula, telefono=telefono, direccion=direccion, fecharegistro=None)
             ClienteModel.add_client(c)
-            flash('Cliente agregado exitosamente.', 'success')
-        except IntegrityError:
-            # Manejar error de cédula duplicada
-            flash('Error: La cédula ya está registrada. Por favor revisa los datos.', 'error')
-            return redirect("/GestionCliente")
+            return jsonify({'success': True, 'message': 'Cliente agregado exitosamente'}), 200
         except Exception as e:
-            # Manejar cualquier otro error
-            flash('Error: Ha ocurrido un problema. Por favor, revisa los datos e intenta de nuevo.', 'error')
-            return redirect("/GestionCliente")
+            # En caso de error, retorna un mensaje indicando el problema
+            return jsonify({'success': False, 'message': 'Error: Ha ocurrido un problema / Cédula duplicada'}), 500
 
-        return redirect("/GestionCliente")
-
+    # Redirecciona si el método no es POST
+    return redirect("/GestionCliente")
 
 @app.route("/updateClient", methods=["POST"])
 @login_required
